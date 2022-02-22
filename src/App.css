@@ -11,3 +11,8 @@
     position: absolute;
     z-index: 2;
 }
+
+.markers-canvas {
+    position: absolute;
+    z-index: 3;
+}

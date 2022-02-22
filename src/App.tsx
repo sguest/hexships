@@ -27,10 +27,20 @@ function App() {
             size: 4,
             facing: Direction.positiveZ,
         }
+    ];
+
+    const misses = [
+        {x: 3, y: 2},
+        {x: -3, y: -1},
+    ]
+
+    const hits = [
+        {x: 2, y: -3},
+        {x: 2, y: 2},
     ]
     
     return (
-        <Board gridSize={settings.gridSize} ships={ships} uiSettings={uiSettings} />
+        <Board gridSize={settings.gridSize} ships={ships} uiSettings={uiSettings} hits={hits} misses={misses} />
     )
 }
 
