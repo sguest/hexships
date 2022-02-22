@@ -1,0 +1,13 @@
+.board {
+    position: relative;
+}
+
+.field-canvas {
+    position: absolute;
+    z-index: 1;
+}
+
+.ships-canvas {
+    position: absolute;
+    z-index: 2;
+}
