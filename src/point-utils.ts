@@ -3,11 +3,13 @@ export interface Point {
     y: number
 }
 
-export function add(a: Point, b: Point) {
-    return {
-        x: a.x + b.x,
-        y: a.y + b.y,
+export function add(...points: Point[]) {
+    const point = { x: 0, y: 0 };
+    for(let p of points) {
+        point.x += p.x;
+        point.y += p.y;
     }
+    return point;
 }
 
 export function multiplyScalar(point: Point, scalar: number) {

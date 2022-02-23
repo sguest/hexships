@@ -28,10 +28,10 @@ export default function Ships(props: ShipsProps) {
         context.lineCap = 'round';
         context.beginPath();
         for(let ship of props.ships) {
-            const start = hexUtils.getCenter(ship.x, ship.y, props.uiSettings.cellSize);
+            const start = hexUtils.getCenter(ship, props.uiSettings.cellSize);
             const delta = getDelta(ship.facing);
             const endCoords = pointUtils.add(ship, pointUtils.multiplyScalar(delta, ship.size - 1));
-            const end = hexUtils.getCenter(endCoords.x, endCoords.y, props.uiSettings.cellSize);
+            const end = hexUtils.getCenter(endCoords, props.uiSettings.cellSize);
             pointUtils.moveTo(context, pointUtils.add(start, props.uiSettings.gridOffset));
             pointUtils.lineTo(context, pointUtils.add(end, props.uiSettings.gridOffset));
         }
