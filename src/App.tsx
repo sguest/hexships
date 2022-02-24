@@ -1,7 +1,5 @@
 import './App.css'
 import GameSettings from './config/GameSettings';
-import Board from './components/board/Board';
-import Direction from './game-state/Direction';
 import UiSettings from './config/UiSettings';
 import { useState } from 'react';
 import MainMenu from './components/menu/MainMenu';
@@ -24,9 +22,9 @@ function App() {
         setGameManager(new GameManager(settings));
     }
 
-    return gameManager ?
-        <Game uiSettings={uiSettings} gameManager={gameManager} /> :
-        <MainMenu onNewGame={onNewGame} />;
+    return gameManager
+        ? <Game uiSettings={uiSettings} gameManager={gameManager} />
+        : <MainMenu onNewGame={onNewGame} />;
 }
 
 export default App

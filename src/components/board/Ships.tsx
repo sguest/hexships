@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
-import Ship from "../../game-state/Ship";
+import { useEffect, useRef } from 'react';
+import Ship from '../../game-state/Ship';
 import { getDelta } from '../../game-state/Direction';
 import * as hexUtils from '../../utils/hex-utils';
 import * as pointUtils from '../../utils/point-utils';
-import UiSettings from "../../config/UiSettings";
+import UiSettings from '../../config/UiSettings';
 
 export interface ShipsProps {
     ships: Ship[]
@@ -27,7 +27,7 @@ export default function Ships(props: ShipsProps) {
         context.lineWidth = props.uiSettings.cellSize;
         context.lineCap = 'round';
         context.beginPath();
-        for(let ship of props.ships) {
+        for(const ship of props.ships) {
             const start = hexUtils.getCenter(ship, props.uiSettings.cellSize);
             const delta = getDelta(ship.facing);
             const endCoords = pointUtils.add(ship, pointUtils.multiplyScalar(delta, ship.size - 1));
@@ -36,7 +36,6 @@ export default function Ships(props: ShipsProps) {
             pointUtils.lineTo(context, pointUtils.add(end, props.uiSettings.gridOffset));
         }
         context.stroke();
-
     }, [props.ships, props.uiSettings, canvasRef])
 
     return <canvas ref={canvasRef} width="500" height="500" className="ships-canvas"/>

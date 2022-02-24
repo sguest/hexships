@@ -5,7 +5,7 @@ export interface Point {
 
 export function add(...points: Point[]) {
     const point = { x: 0, y: 0 };
-    for(let p of points) {
+    for(const p of points) {
         point.x += p.x;
         point.y += p.y;
     }

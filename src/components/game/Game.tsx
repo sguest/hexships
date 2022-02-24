@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import UiSettings from "../../config/UiSettings";
-import Direction from "../../game-state/Direction";
-import GameManager from "../../game-state/GameManager";
-import LocalState from "../../game-state/LocalState";
-import Board from "../board/Board";
+import { useEffect, useState } from 'react';
+import UiSettings from '../../config/UiSettings';
+import GameManager from '../../game-state/GameManager';
+import LocalState from '../../game-state/LocalState';
+import Board from '../board/Board';
 
 export interface GameProps {
     uiSettings: UiSettings
@@ -11,7 +10,7 @@ export interface GameProps {
 }
 
 export default function Game(props: GameProps) {
-    const [ localState, setLocalState ] = useState<LocalState>(props.gameManager.getLocalState());
+    const [localState, setLocalState] = useState<LocalState>(props.gameManager.getLocalState());
 
     useEffect(() => {
         const subscriber = (state: LocalState) => {
@@ -23,7 +22,7 @@ export default function Game(props: GameProps) {
         return () => {
             props.gameManager.offStateChange(subscriber);
         }
-    }, [props.gameManager, setLocalState]);
+    }, [props.gameManager]);
 
     return <>
         <Board

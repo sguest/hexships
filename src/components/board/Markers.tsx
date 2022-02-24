@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import UiSettings from "../../config/UiSettings";
-import { Point } from "../../utils/point-utils";
+import React, { useEffect, useRef, useState } from 'react';
+import UiSettings from '../../config/UiSettings';
+import { Point } from '../../utils/point-utils';
 import * as hexUtils from '../../utils/hex-utils';
 import * as pointUtils from '../../utils/point-utils';
 
@@ -12,7 +12,7 @@ export interface MarkersProps {
 
 export default function Markers(props: MarkersProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [ selectedCell, setSelectedCell ] = useState<Point | null>(null);
+    const [selectedCell, setSelectedCell] = useState<Point | null>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -31,7 +31,7 @@ export default function Markers(props: MarkersProps) {
             context.fillStyle = 'green';
             context.beginPath();
             pointUtils.moveTo(context, pointUtils.add(corners[5], props.uiSettings.gridOffset));
-            for(let corner of corners) {
+            for(const corner of corners) {
                 pointUtils.lineTo(context, pointUtils.add(corner, props.uiSettings.gridOffset));
             }
             context.fill();
@@ -40,10 +40,10 @@ export default function Markers(props: MarkersProps) {
         const drawMarkers = (markers: Point[], colour: string) => {
             context.strokeStyle = 'black';
             context.fillStyle = colour;
-            for(let marker of markers) {
+            for(const marker of markers) {
                 context.beginPath();
                 const coords = pointUtils.add(hexUtils.getCenter(marker, props.uiSettings.cellSize), props.uiSettings.gridOffset);
-                context.arc(coords.x, coords.y, props.uiSettings.cellSize * 0.4 , 0, Math.PI * 2);
+                context.arc(coords.x, coords.y, props.uiSettings.cellSize * 0.4, 0, Math.PI * 2);
                 context.stroke();
                 context.fill();
             }
@@ -56,7 +56,7 @@ export default function Markers(props: MarkersProps) {
     const onMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
         const relativeClick = pointUtils.add(
-            { x: e.clientX, y: e.clientY},
+            { x: e.clientX, y: e.clientY },
             pointUtils.multiplyScalar(props.uiSettings.gridOffset, -1),
             pointUtils.multiplyScalar(rect, -1),
         );

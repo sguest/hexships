@@ -24,15 +24,14 @@ export default function Field(props: FieldProps) {
         context.strokeStyle = 'blue';
         context.beginPath();
         const cells = hexUtils.getGridCells(props.gridSize);
-        for(let cell of cells) {
+        for(const cell of cells) {
             const corners = hexUtils.getCorners(cell, props.uiSettings.cellSize);
             pointUtils.moveTo(context, pointUtils.add(corners[5], props.uiSettings.gridOffset));
-            for(let corner of corners) {
+            for(const corner of corners) {
                 pointUtils.lineTo(context, pointUtils.add(corner, props.uiSettings.gridOffset));
             }
         }
         context.stroke();
-
     }, [props.gridSize, props.uiSettings, canvasRef])
 
     return <canvas ref={canvasRef} width="500" height="500" className="field-canvas"/>
