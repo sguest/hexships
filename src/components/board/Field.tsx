@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import UiSettings from '../../config/UiSettings';
-import * as hexUtils from '../../hex-utils';
-import * as pointUtils from '../../point-utils';
+import * as hexUtils from '../../utils/hex-utils';
+import * as pointUtils from '../../utils/point-utils';
 
 export interface FieldProps {
     gridSize: number

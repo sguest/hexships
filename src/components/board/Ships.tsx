@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import Ship from "../../game-state/Ship";
 import { getDelta } from '../../game-state/Direction';
-import * as hexUtils from '../../hex-utils';
-import * as pointUtils from '../../point-utils';
+import * as hexUtils from '../../utils/hex-utils';
+import * as pointUtils from '../../utils/point-utils';
 import UiSettings from "../../config/UiSettings";
 
 export interface ShipsProps {

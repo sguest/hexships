@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import UiSettings from "../../config/UiSettings";
-import { Point } from "../../point-utils";
-import * as hexUtils from '../../hex-utils';
-import * as pointUtils from '../../point-utils';
+import { Point } from "../../utils/point-utils";
+import * as hexUtils from '../../utils/hex-utils';
+import * as pointUtils from '../../utils/point-utils';
 
 export interface MarkersProps {
     hits: Point[]

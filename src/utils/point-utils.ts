@@ -19,6 +19,10 @@ export function multiplyScalar(point: Point, scalar: number) {
     }
 }
 
+export function equal(a: Point, b: Point) {
+    return a.x === b.x && a.y === b.y;
+}
+
 export function moveTo(context: CanvasRenderingContext2D, point: Point) {
     context.moveTo(point.x, point.y);
 }

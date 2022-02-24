@@ -3,45 +3,30 @@ import GameSettings from './config/GameSettings';
 import Board from './components/board/Board';
 import Direction from './game-state/Direction';
 import UiSettings from './config/UiSettings';
+import { useState } from 'react';
+import MainMenu from './components/menu/MainMenu';
+import Game from './components/game/Game';
+import GameManager from './game-state/GameManager';
+
+const settings: GameSettings = {
+    gridSize: 7,
+};
+
+const uiSettings: UiSettings = {
+    cellSize: 20,
+    gridOffset: { x: 200, y: 250 },
+};
 
 function App() {
-    const settings: GameSettings = {
-        gridSize: 7,
-    };
+    const [gameManager, setGameManager] = useState<GameManager | null>(null);
 
-    const uiSettings: UiSettings = {
-        cellSize: 20,
-        gridOffset: { x: 200, y: 250 },
-    };
+    const onNewGame = () => {
+        setGameManager(new GameManager(settings));
+    }
 
-    const ships = [
-        {
-            x: 1,
-            y: 2,
-            size: 2,
-            facing: Direction.positiveX,
-        },
-        {
-            x: -3,
-            y: 3,
-            size: 4,
-            facing: Direction.positiveZ,
-        }
-    ];
-
-    const misses = [
-        {x: 3, y: 2},
-        {x: -3, y: -1},
-    ]
-
-    const hits = [
-        {x: 2, y: -3},
-        {x: 2, y: 2},
-    ]
-    
-    return (
-        <Board gridSize={settings.gridSize} ships={ships} uiSettings={uiSettings} hits={hits} misses={misses} />
-    )
+    return gameManager ?
+        <Game uiSettings={uiSettings} gameManager={gameManager} /> :
+        <MainMenu onNewGame={onNewGame} />;
 }
 
 export default App
