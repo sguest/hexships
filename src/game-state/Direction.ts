@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */ // eslint giving a false positive
 enum Direction {
     positiveX,
     positiveY,

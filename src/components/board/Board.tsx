@@ -1,13 +1,32 @@
-import Field, { FieldProps } from './Field';
-import Ships, { ShipsProps } from './Ships';
-import Markers, { MarkersProps } from './Markers';
+import Field from './Field';
+import Ships from './Ships';
+import Markers from './Markers';
+import Ship from '../../game-state/Ship';
+import UiSettings from '../../config/UiSettings';
+import { Point } from '../../utils/point-utils';
+import Interaction from './Interaction';
 
-export type BoardProps = FieldProps & ShipsProps & MarkersProps;
+export type BoardProps = {
+    uiSettings: UiSettings,
+    gridSize: number,
+    ships?: Ship[],
+    hits?: Point[],
+    misses?: Point[],
+    onSelectTile?: (tile: Point) => void
+    highlightTile?: Point
+    highlightTileStyle?: string | CanvasPattern | CanvasGradient
+}
 
 export default function Board(props: BoardProps) {
     return <div className="board">
-        <Field {...props} />
-        <Ships {...props} />
-        <Markers {...props} />
+        <Field gridSize={props.gridSize}
+            uiSettings={props.uiSettings} />
+        <Interaction gridSize={props.gridSize}
+            uiSettings={props.uiSettings}
+            onSelectTile={props.onSelectTile}
+            highlightTile={props.highlightTile}
+            highlightStyle={props.highlightTileStyle} />
+        { props.ships && <Ships ships={props.ships} uiSettings={props.uiSettings} /> }
+        { (props.hits || props.misses) && <Markers hits={props.hits} misses={props.misses} uiSettings={props.uiSettings} /> }
     </div>
 }

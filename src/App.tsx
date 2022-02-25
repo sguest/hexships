@@ -4,7 +4,8 @@ import UiSettings from './config/UiSettings';
 import { useState } from 'react';
 import MainMenu from './components/menu/MainMenu';
 import Game from './components/game/Game';
-import GameManager from './game-state/GameManager';
+import GameInterface from './game-interface/GameInterface';
+import LocalGameInterface from './game-interface/LocalGameInterface';
 
 const settings: GameSettings = {
     gridSize: 7,
@@ -16,14 +17,14 @@ const uiSettings: UiSettings = {
 };
 
 function App() {
-    const [gameManager, setGameManager] = useState<GameManager | null>(null);
+    const [gameInterface, setGameInterface] = useState<GameInterface | null>(null);
 
     const onNewGame = () => {
-        setGameManager(new GameManager(settings));
+        setGameInterface(new LocalGameInterface(settings));
     }
 
-    return gameManager
-        ? <Game uiSettings={uiSettings} gameManager={gameManager} />
+    return gameInterface
+        ? <Game uiSettings={uiSettings} gameInterface={gameInterface} gameSettings={settings} />
         : <MainMenu onNewGame={onNewGame} />;
 }
 

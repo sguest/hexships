@@ -8,14 +8,31 @@
 .field-canvas {
     position: absolute;
     z-index: 1;
+    pointer-events: none;
 }
 
-.ships-canvas {
+.interaction-canvas {
     position: absolute;
     z-index: 2;
 }
 
-.markers-canvas {
+.ships-canvas {
     position: absolute;
     z-index: 3;
+    pointer-events: none;
+}
+
+.markers-canvas {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.ship-selector {
+    display: inline-block;
+}
+
+.ship-selector .selected button {
+    background-color: black;
+    color: white;
 }

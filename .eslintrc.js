@@ -23,9 +23,14 @@ module.exports = {
         '@typescript-eslint',
     ],
     rules: {
-        // causes false positives https://stackoverflow.com/a/64024916
+        // turn off the default rules and turn on the typescript rules for a few - the default rules cause issues with TS
         'no-use-before-define': 'off',
+        'no-useless-constructor': 'off',
+        'no-unused-vars': 'off',
         '@typescript-eslint/no-use-before-define': ['error'],
+        '@typescript-eslint/no-useless-constructor': ['error'],
+        '@typescript-eslint/no-unused-vars': ['error'],
+
         semi: 'off',
         'space-before-function-paren': ['error', 'never'],
         indent: ['error', 4],
