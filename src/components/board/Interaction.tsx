@@ -12,7 +12,7 @@ export interface InteractionProps {
     onSelectTile?: (tile: Point) => void
 }
 
-export default function Markers(props: InteractionProps) {
+export default function Interaction(props: InteractionProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {

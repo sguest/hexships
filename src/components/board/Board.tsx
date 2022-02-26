@@ -21,12 +21,13 @@ export default function Board(props: BoardProps) {
     return <div className="board">
         <Field gridSize={props.gridSize}
             uiSettings={props.uiSettings} />
-        <Interaction gridSize={props.gridSize}
-            uiSettings={props.uiSettings}
-            onSelectTile={props.onSelectTile}
-            highlightTile={props.highlightTile}
-            highlightStyle={props.highlightTileStyle} />
+        { (props.highlightTile || props.onSelectTile) &&
+            <Interaction gridSize={props.gridSize}
+                uiSettings={props.uiSettings}
+                onSelectTile={props.onSelectTile}
+                highlightTile={props.highlightTile}
+                highlightStyle={props.highlightTileStyle} /> }
         { props.ships && <Ships ships={props.ships} uiSettings={props.uiSettings} /> }
-        { (props.hits || props.misses) && <Markers hits={props.hits} misses={props.misses} uiSettings={props.uiSettings} /> }
+        { (props.hits?.length || props.misses?.length) ? <Markers hits={props.hits} misses={props.misses} uiSettings={props.uiSettings} /> : <></>}
     </div>
 }

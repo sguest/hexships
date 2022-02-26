@@ -2,13 +2,17 @@ import { useEffect, useState } from 'react';
 import GameSettings from '../../config/GameSettings';
 import UiSettings from '../../config/UiSettings';
 import GameInterface from '../../game-interface/GameInterface';
-import Direction from '../../game-state/Direction';
 import LocalState from '../../game-state/LocalState';
-import { Point } from '../../utils/point-utils';
 import Board from '../board/Board';
-import ShipSelector from './ShipSelector';
-import UiState, { CurrentAction } from './UiState';
-import Ship, * as shipFuncs from '../../game-state/Ship';
+import Ship from '../../game-state/Ship';
+import ShipSelection from './ship-selection/ShipSelection';
+import { Point } from '../../utils/point-utils';
+import * as pointUtils from '../../utils/point-utils';
+
+enum CurrentAction {
+    PlacingShips,
+    SelectingShot,
+}
 
 export interface GameProps {
     uiSettings: UiSettings
@@ -17,27 +21,24 @@ export interface GameProps {
 }
 
 export default function Game(props: GameProps) {
-    const [localState, setLocalState] = useState<LocalState | null>(null);
-    const [uiState, setUiState] = useState<UiState>({
-        currentAction: CurrentAction.PlacingShips,
-        placedShips: [],
-        unplacedShips: [
-            { size: 2, name: 'Patrol Boat', id: 1 },
-            { size: 3, name: 'Destroyer', id: 2 },
-            { size: 3, name: 'Submarine', id: 3 },
-            { size: 4, name: 'Battleship', id: 4 },
-            { size: 5, name: 'Aircraft Carrier', id: 5 },
-        ],
-    })
+    const [localState, setLocalState] = useState<LocalState | undefined>(undefined);
+    const [currentAction, setCurrentAction] = useState(CurrentAction.PlacingShips);
+    const [targetTile, setTargetTile] = useState<Point | undefined>(undefined);
 
     useEffect(() => {
         const subscriber = (state: LocalState) => {
-            setLocalState(state);
+            setLocalState({
+                ownHits: state.ownHits.slice(0),
+                ownMisses: state.ownMisses.slice(0),
+                opponentHits: state.opponentHits.slice(0),
+                opponentMisses: state.opponentMisses.slice(0),
+                ownShips: state.ownShips.slice(0),
+            })
             let currentAction = CurrentAction.PlacingShips;
             if(state.ownShips?.length) {
                 currentAction = CurrentAction.SelectingShot;
             }
-            setUiState({ ...uiState, currentAction });
+            setCurrentAction(currentAction);
         }
 
         props.gameInterface.onStateChange(subscriber);
@@ -45,112 +46,58 @@ export default function Game(props: GameProps) {
         return () => {
             props.gameInterface.offStateChange(subscriber);
         }
-    }, [props.gameInterface, uiState]);
+    }, [props.gameInterface, localState]);
 
-    let ownShips = localState?.ownShips || [];
-    let highlightTileStyle: string | undefined;
-    if(uiState.currentAction === CurrentAction.PlacingShips) {
-        ownShips = uiState.placedShips.slice(0);
-        if(uiState.placingShip) {
-            ownShips.push(uiState.placingShip);
-
-            highlightTileStyle = shipFuncs.isPlacementValid(ownShips, props.gameSettings.gridSize) ? 'green' : 'red';
-        }
+    const onShipsPlaced = (ships: Ship[]) => {
+        props.gameInterface.setShips(ships);
     }
 
-    const onSelectShip = (id: number) => {
-        if(uiState.placingShipId !== id) {
-            setUiState({
-                ...uiState,
-                placingShipId: id,
-                placingShip: undefined,
-                highlightTile: undefined,
-            });
+    const isValidTarget = (target: Point) => {
+        if(localState?.ownHits.some(hit => pointUtils.equal(target, hit))) {
+            return false;
         }
-    }
-
-    const onRotateShip = () => {
-        if(uiState.placingShip) {
-            setUiState({
-                ...uiState,
-                placingShip: {
-                    ...uiState.placingShip,
-                    facing: (uiState.placingShip.facing + 1) % 6,
-                },
-            });
+        if(localState?.ownMisses.some(hit => pointUtils.equal(target, hit))) {
+            return false;
         }
-    }
-
-    const onPlaceShip = () => {
-        if(uiState.placingShip && shipFuncs.isPlacementValid(ownShips, props.gameSettings.gridSize)) {
-            const unplacedShips = uiState.unplacedShips.slice(0);
-            unplacedShips.splice(unplacedShips.findIndex(s => s.id === uiState.placingShipId), 1);
-            const placedShips = [...uiState.placedShips, uiState.placingShip];
-            setUiState({
-                ...uiState,
-                placedShips,
-                placingShip: undefined,
-                placingShipId: undefined,
-                highlightTile: undefined,
-                unplacedShips,
-            });
-            if(!unplacedShips.length) {
-                props.gameInterface.setShips(placedShips);
-            }
-        }
+        return true;
     }
 
     const onSelectTile = (tile: Point) => {
-        if(uiState.currentAction === CurrentAction.PlacingShips && uiState.placingShipId) {
-            let placingShip: Ship | undefined;
-            if(uiState.placingShip) {
-                placingShip = uiState.placingShip;
-                placingShip.x = tile.x;
-                placingShip.y = tile.y;
-            }
-            else {
-                const shipInfo = uiState.unplacedShips.find(s => s.id === uiState.placingShipId)
-                if(shipInfo) {
-                    placingShip = {
-                        x: tile.x,
-                        y: tile.y,
-                        size: shipInfo.size,
-                        facing: Direction.positiveX,
-                    }
-                }
-            }
-            setUiState({
-                ...uiState,
-                placingShip,
-                highlightTile: tile,
-            })
+        if(isValidTarget(tile)) {
+            setTargetTile(tile);
+        }
+    }
+
+    const onFireClick = () => {
+        if(targetTile && isValidTarget(targetTile)) {
+            props.gameInterface.fireShot(targetTile);
+            setTargetTile(undefined);
         }
     }
 
     return <>
-        <Board
-            uiSettings={props.uiSettings}
-            gridSize={props.gameSettings.gridSize}
-            ships={ownShips}
-            hits={localState?.opponentHits || []}
-            misses={localState?.opponentMisses || []}
-            onSelectTile={onSelectTile}
-            highlightTile={uiState.highlightTile}
-            highlightTileStyle={highlightTileStyle} />
-        { uiState.currentAction === CurrentAction.PlacingShips &&
-            <ShipSelector
-                ships={uiState.unplacedShips}
-                selectedId={uiState.placingShipId}
-                onSelected={onSelectShip}
-                onRotated={onRotateShip}
-                onPlace={onPlaceShip} />
-        }
-        { uiState.currentAction !== CurrentAction.PlacingShips &&
-            <Board
+        { currentAction === CurrentAction.PlacingShips
+            ? <ShipSelection
                 uiSettings={props.uiSettings}
                 gridSize={props.gameSettings.gridSize}
-                ships={[]}
-                hits={localState?.ownHits || []}
-                misses={localState?.ownMisses || []} /> }
+                onShipsPlaced={onShipsPlaced} />
+            : <>
+                <Board
+                    uiSettings={props.uiSettings}
+                    gridSize={props.gameSettings.gridSize}
+                    ships={localState?.ownShips}
+                    hits={localState?.opponentHits}
+                    misses={localState?.opponentMisses} />
+                <Board
+                    uiSettings={props.uiSettings}
+                    gridSize={props.gameSettings.gridSize}
+                    hits={localState?.ownHits}
+                    misses={localState?.ownMisses}
+                    onSelectTile={onSelectTile}
+                    highlightTileStyle='red'
+                    highlightTile={targetTile} />
+                <button onClick={onFireClick} disabled={!targetTile}>Fire</button>
+            </>
+        }
     </>
 }

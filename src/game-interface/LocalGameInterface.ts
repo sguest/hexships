@@ -6,6 +6,7 @@ import GameInterface, { StateSubscription } from './GameInterface';
 import * as shipFuncs from '../game-state/Ship';
 import * as mathUtils from '../utils/math-utils';
 import Direction from '../game-state/Direction';
+import { Point } from '../utils/point-utils';
 
 export default class LocalGameInterface implements GameInterface {
     private stateSubscriptions: StateSubscription[];
@@ -30,6 +31,10 @@ export default class LocalGameInterface implements GameInterface {
     public setShips(ships: Ship[]) {
         this.gameManager.setShips(0, ships);
         this.gameManager.setShips(1, this.generateShips());
+    }
+
+    public fireShot(target: Point) {
+        this.gameManager.fireShot(0, target);
     }
 
     private sendState(playerId: number, state: LocalState) {
