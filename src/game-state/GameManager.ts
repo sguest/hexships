@@ -35,9 +35,41 @@ export default class GameManager {
         }
     }
 
+    private validateShipPlacement(ships: Ship[]) {
+        if(!shipFuncs.isPlacementValid(ships, this.gameSettings.gridSize)) {
+            return [];
+        }
+
+        const neededSizes = [2, 3, 3, 4, 5];
+        const newShips: Ship[] = [];
+
+        for(const ship of ships) {
+            const index = neededSizes.indexOf(ship.size);
+            if(index === -1) {
+                return [];
+            }
+
+            newShips.push({
+                x: ship.x,
+                y: ship.y,
+                size: ship.size,
+                facing: ship.facing,
+            });
+
+            neededSizes.splice(index, 1);
+        }
+
+        if(neededSizes.length) {
+            return [];
+        }
+
+        return newShips;
+    }
+
     public setShips(playerId: number, ships: Ship[]) {
-        if(shipFuncs.isPlacementValid(ships, this.gameSettings.gridSize)) {
-            this.players[playerId].ships = ships;
+        const newShips = this.validateShipPlacement(ships);
+        if(newShips.length) {
+            this.players[playerId].ships = newShips;
         }
         this.broadcastState();
     }
