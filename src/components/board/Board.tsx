@@ -5,13 +5,13 @@ import Ship from '../../game-state/Ship';
 import UiSettings from '../../config/UiSettings';
 import { Point } from '../../utils/point-utils';
 import Interaction from './Interaction';
+import Marker from '../../game-state/Marker';
 
 export type BoardProps = {
     uiSettings: UiSettings,
     gridSize: number,
     ships?: Ship[],
-    hits?: Point[],
-    misses?: Point[],
+    markers?: Marker[],
     onSelectTile?: (tile: Point) => void
     highlightTile?: Point
     highlightTileStyle?: string | CanvasPattern | CanvasGradient
@@ -28,6 +28,6 @@ export default function Board(props: BoardProps) {
                 highlightTile={props.highlightTile}
                 highlightStyle={props.highlightTileStyle} /> }
         { props.ships && <Ships ships={props.ships} uiSettings={props.uiSettings} /> }
-        { (props.hits?.length || props.misses?.length) ? <Markers hits={props.hits} misses={props.misses} uiSettings={props.uiSettings} /> : <></>}
+        { !!props.markers?.length && <Markers markers={props.markers} uiSettings={props.uiSettings} /> }
     </div>
 }

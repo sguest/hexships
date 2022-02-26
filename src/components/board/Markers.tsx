@@ -1,12 +1,11 @@
 import { useEffect, useRef } from 'react';
 import UiSettings from '../../config/UiSettings';
-import { Point } from '../../utils/point-utils';
 import * as hexUtils from '../../utils/hex-utils';
 import * as pointUtils from '../../utils/point-utils';
+import Marker, { MarkerType } from '../../game-state/Marker';
 
 export interface MarkersProps {
-    hits?: Point[]
-    misses?: Point[]
+    markers: Marker[]
     uiSettings: UiSettings
 }
 
@@ -24,24 +23,16 @@ export default function Markers(props: MarkersProps) {
         }
 
         context.clearRect(0, 0, canvas.width, canvas.height);
-
-        const drawMarkers = (markers: Point[] | undefined, colour: string) => {
-            if(markers) {
-                context.strokeStyle = 'black';
-                context.fillStyle = colour;
-                for(const marker of markers) {
-                    context.beginPath();
-                    const coords = pointUtils.add(hexUtils.getCenter(marker, props.uiSettings.cellSize), props.uiSettings.gridOffset);
-                    context.arc(coords.x, coords.y, props.uiSettings.cellSize * 0.4, 0, Math.PI * 2);
-                    context.stroke();
-                    context.fill();
-                }
-            }
+        context.strokeStyle = 'black';
+        for(const marker of props.markers) {
+            context.fillStyle = marker.type === MarkerType.Hit ? 'red' : 'white';
+            context.beginPath();
+            const coords = pointUtils.add(hexUtils.getCenter(marker, props.uiSettings.cellSize), props.uiSettings.gridOffset);
+            context.arc(coords.x, coords.y, props.uiSettings.cellSize * 0.4, 0, Math.PI * 2);
+            context.stroke();
+            context.fill();
         }
-
-        drawMarkers(props.hits, 'red');
-        drawMarkers(props.misses, 'white');
-    }, [props.hits, props.misses, props.uiSettings, canvasRef])
+    }, [props.markers, props.uiSettings, canvasRef])
 
     return <canvas ref={canvasRef} width="500" height="500" className="markers-canvas" />
 }

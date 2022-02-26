@@ -28,11 +28,10 @@ export default function Game(props: GameProps) {
     useEffect(() => {
         const subscriber = (state: LocalState) => {
             setLocalState({
-                ownHits: state.ownHits.slice(0),
-                ownMisses: state.ownMisses.slice(0),
-                opponentHits: state.opponentHits.slice(0),
-                opponentMisses: state.opponentMisses.slice(0),
+                ownMarkers: state.ownMarkers.slice(0),
+                opponentMarkers: state.opponentMarkers.slice(0),
                 ownShips: state.ownShips.slice(0),
+                isOwnTurn: state.isOwnTurn,
             })
             let currentAction = CurrentAction.PlacingShips;
             if(state.ownShips?.length) {
@@ -53,13 +52,7 @@ export default function Game(props: GameProps) {
     }
 
     const isValidTarget = (target: Point) => {
-        if(localState?.ownHits.some(hit => pointUtils.equal(target, hit))) {
-            return false;
-        }
-        if(localState?.ownMisses.some(hit => pointUtils.equal(target, hit))) {
-            return false;
-        }
-        return true;
+        return !localState?.ownMarkers.some(marker => pointUtils.equal(target, marker));
     }
 
     const onSelectTile = (tile: Point) => {
@@ -86,17 +79,15 @@ export default function Game(props: GameProps) {
                     uiSettings={props.uiSettings}
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.ownShips}
-                    hits={localState?.opponentHits}
-                    misses={localState?.opponentMisses} />
+                    markers={localState?.opponentMarkers} />
                 <Board
                     uiSettings={props.uiSettings}
                     gridSize={props.gameSettings.gridSize}
-                    hits={localState?.ownHits}
-                    misses={localState?.ownMisses}
+                    markers={localState?.ownMarkers}
                     onSelectTile={onSelectTile}
                     highlightTileStyle='red'
                     highlightTile={targetTile} />
-                <button onClick={onFireClick} disabled={!targetTile}>Fire</button>
+                <button onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button>
             </>
         }
     </>

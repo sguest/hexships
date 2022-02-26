@@ -5,6 +5,7 @@ import Ship from '../game-state/Ship';
 import GameInterface, { StateSubscription } from './GameInterface';
 import * as shipFuncs from '../game-state/Ship';
 import * as mathUtils from '../utils/math-utils';
+import * as hexUtils from '../utils/hex-utils';
 import Direction from '../game-state/Direction';
 import { Point } from '../utils/point-utils';
 
@@ -41,6 +42,22 @@ export default class LocalGameInterface implements GameInterface {
         if(playerId === 0) {
             this.stateSubscriptions.forEach(s => s(state));
         }
+        else if(state.isOwnTurn) {
+            setTimeout(() => {
+                this.takeEnemyShot();
+            }, 1000);
+        }
+    }
+
+    private takeEnemyShot() {
+        let target: Point;
+        do {
+            target = {
+                x: mathUtils.randomInt(-this.gameSettings.gridSize, this.gameSettings.gridSize),
+                y: mathUtils.randomInt(-this.gameSettings.gridSize, this.gameSettings.gridSize),
+            };
+        } while(!hexUtils.isInGrid(target, this.gameSettings.gridSize));
+        this.gameManager.fireShot(1, target);
     }
 
     private generateShips(): Ship[] {

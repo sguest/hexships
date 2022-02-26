@@ -1,10 +1,9 @@
-import { Point } from '../utils/point-utils';
+import Marker from './Marker';
 import Ship from './Ship';
 
 export default interface LocalState {
     ownShips: Ship[];
-    ownHits: Point[];
-    ownMisses: Point[];
-    opponentHits: Point[];
-    opponentMisses: Point[];
+    ownMarkers: Marker[];
+    opponentMarkers: Marker[];
+    isOwnTurn: boolean;
 }

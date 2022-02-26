@@ -1,8 +1,7 @@
-import { Point } from '../utils/point-utils';
+import Marker from './Marker';
 import Ship from './Ship';
 
 export default interface Player {
     ships: Ship[]
-    hits: Point[]
-    misses: Point[]
+    markers: Marker[]
 }
