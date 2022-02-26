@@ -6,6 +6,7 @@ import GameInterface, { StateSubscription } from './GameInterface';
 import * as shipFuncs from '../game-state/Ship';
 import * as mathUtils from '../utils/math-utils';
 import * as hexUtils from '../utils/hex-utils';
+import * as pointUtils from '../utils/point-utils';
 import Direction from '../game-state/Direction';
 import { Point } from '../utils/point-utils';
 
@@ -44,20 +45,24 @@ export default class LocalGameInterface implements GameInterface {
         }
         else if(state.isOwnTurn) {
             setTimeout(() => {
-                this.takeEnemyShot();
+                this.takeEnemyShot(state);
             }, 1000);
         }
     }
 
-    private takeEnemyShot() {
-        let target: Point;
-        do {
-            target = {
-                x: mathUtils.randomInt(-this.gameSettings.gridSize, this.gameSettings.gridSize),
-                y: mathUtils.randomInt(-this.gameSettings.gridSize, this.gameSettings.gridSize),
-            };
-        } while(!hexUtils.isInGrid(target, this.gameSettings.gridSize));
-        this.gameManager.fireShot(1, target);
+    private takeEnemyShot(state: LocalState) {
+        const targets: Point[] = [];
+        for(let x = -this.gameSettings.gridSize; x <= this.gameSettings.gridSize; x++) {
+            for(let y = -this.gameSettings.gridSize; y <= this.gameSettings.gridSize; y++) {
+                const target = { x, y };
+                if(hexUtils.isInGrid(target, this.gameSettings.gridSize) &&
+                        !state.ownMarkers.some(marker => pointUtils.equal(target, marker))) {
+                    targets.push(target);
+                }
+            }
+        }
+
+        this.gameManager.fireShot(1, targets[mathUtils.randomInt(0, targets.length - 1)]);
     }
 
     private generateShips(): Ship[] {
