@@ -30,8 +30,12 @@ function App() {
         setGameInterface(new LocalGameInterface(settings));
     }
 
+    const onExitGame = () => {
+        setGameInterface(null);
+    }
+
     return gameInterface
-        ? <Game uiSettings={uiSettings} gameInterface={gameInterface} gameSettings={settings} />
+        ? <Game uiSettings={uiSettings} gameInterface={gameInterface} gameSettings={settings} onExit={onExitGame} />
         : <MainMenu onNewGame={onNewGame} />;
 }
 

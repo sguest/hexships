@@ -33,6 +33,8 @@ export default class GameManager {
             opponentMarkers: this.players[otherPlayerId].markers,
             isOwnTurn: playerId === this.activePlayerId && !!this.players[playerId].ships.length,
             sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.name),
+            gameWon: this.players[otherPlayerId].ships.every(s => s.hits === s.size),
+            gameLost: this.players[playerId].ships.every(s => s.hits === s.size),
         }
     }
 
