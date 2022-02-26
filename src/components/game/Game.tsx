@@ -89,6 +89,8 @@ export default function Game(props: GameProps) {
         }
     }
 
+    const lastOpponentShot = localState?.opponentMarkers[localState?.opponentMarkers.length - 1];
+
     return <>
         <button onClick={onMenuClick}>Return to menu</button>
         { currentAction === CurrentAction.PlacingShips
@@ -103,7 +105,9 @@ export default function Game(props: GameProps) {
                     uiSettings={props.uiSettings}
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.ownShips}
-                    markers={localState?.opponentMarkers} />
+                    markers={localState?.opponentMarkers}
+                    highlightTile={lastOpponentShot}
+                    highlightTileStyle='orange' />
                 <Board
                     uiSettings={props.uiSettings}
                     gridSize={props.gameSettings.gridSize}
