@@ -61,21 +61,22 @@ export default class LocalGameInterface implements GameInterface {
     }
 
     private generateShips(): Ship[] {
-        const lengths = [2, 3, 3, 4, 5];
         const ships: Ship[] = [];
         const minX = -this.gameSettings.gridSize;
         const minY = -this.gameSettings.gridSize;
         const maxX = this.gameSettings.gridSize;
         const maxY = this.gameSettings.gridSize;
 
-        for(const length of lengths) {
+        for(const shipInfo of this.gameSettings.ships) {
             let ship: Ship;
             do {
                 ship = {
-                    size: length,
+                    size: shipInfo.size,
+                    name: shipInfo.name,
                     x: mathUtils.randomInt(minX, maxX),
                     y: mathUtils.randomInt(minY, maxY),
                     facing: mathUtils.randomEnum(Direction),
+                    hits: 0,
                 }
             } while(!shipFuncs.isPlacementValid([...ships, ship], this.gameSettings.gridSize));
             ships.push(ship);

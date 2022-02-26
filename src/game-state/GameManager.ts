@@ -32,6 +32,7 @@ export default class GameManager {
             ownMarkers: this.players[playerId].markers,
             opponentMarkers: this.players[otherPlayerId].markers,
             isOwnTurn: playerId === this.activePlayerId && !!this.players[playerId].ships.length,
+            sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.name),
         }
     }
 
@@ -40,11 +41,11 @@ export default class GameManager {
             return [];
         }
 
-        const neededSizes = [2, 3, 3, 4, 5];
+        const neededShips = this.gameSettings.ships.slice(0);
         const newShips: Ship[] = [];
 
         for(const ship of ships) {
-            const index = neededSizes.indexOf(ship.size);
+            const index = neededShips.findIndex(s => s.name === ship.name && s.size === ship.size);
             if(index === -1) {
                 return [];
             }
@@ -54,12 +55,14 @@ export default class GameManager {
                 y: ship.y,
                 size: ship.size,
                 facing: ship.facing,
+                hits: 0,
+                name: ship.name,
             });
 
-            neededSizes.splice(index, 1);
+            neededShips.splice(index, 1);
         }
 
-        if(neededSizes.length) {
+        if(neededShips.length) {
             return [];
         }
 
@@ -81,11 +84,19 @@ export default class GameManager {
 
         if(valid) {
             const otherPlayerId = +!playerId;
-            const points = this.players[otherPlayerId].ships.map(ship => shipFuncs.getPoints(ship)).flat();
+            let isHit = false;
+            for(const ship of this.players[otherPlayerId].ships) {
+                for(const point of shipFuncs.getPoints(ship)) {
+                    if(pointUtils.equal(point, target)) {
+                        isHit = true;
+                        ship.hits++;
+                    }
+                }
+            }
             this.players[playerId].markers.push({
                 x: target.x,
                 y: target.y,
-                type: points.some(point => pointUtils.equal(point, target)) ? MarkerType.Hit : MarkerType.Miss,
+                type: isHit ? MarkerType.Hit : MarkerType.Miss,
             })
             this.activePlayerId = otherPlayerId;
         }

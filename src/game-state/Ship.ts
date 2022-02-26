@@ -8,6 +8,8 @@ export default interface Ship {
     y: number
     size: number
     facing: Direction
+    hits: number
+    name: string
 }
 
 export function getPoints(ship: Ship) {

@@ -27,11 +27,20 @@ export default function Game(props: GameProps) {
 
     useEffect(() => {
         const subscriber = (state: LocalState) => {
+            if(state.sunkEnemies.length !== localState?.sunkEnemies.length) {
+                for(const sunk of state.sunkEnemies) {
+                    if(localState?.sunkEnemies.indexOf(sunk) === -1) {
+                        alert(`${sunk} sunk!`);
+                    }
+                }
+            }
+
             setLocalState({
                 ownMarkers: state.ownMarkers.slice(0),
                 opponentMarkers: state.opponentMarkers.slice(0),
                 ownShips: state.ownShips.slice(0),
                 isOwnTurn: state.isOwnTurn,
+                sunkEnemies: state.sunkEnemies.slice(0),
             })
             let currentAction = CurrentAction.PlacingShips;
             if(state.ownShips?.length) {
@@ -56,7 +65,7 @@ export default function Game(props: GameProps) {
     }
 
     const onSelectTile = (tile: Point) => {
-        if(isValidTarget(tile)) {
+        if(localState?.isOwnTurn && isValidTarget(tile)) {
             setTargetTile(tile);
         }
     }
@@ -72,9 +81,10 @@ export default function Game(props: GameProps) {
         { currentAction === CurrentAction.PlacingShips
             ? <ShipSelection
                 uiSettings={props.uiSettings}
-                gridSize={props.gameSettings.gridSize}
+                gameSettings={props.gameSettings}
                 onShipsPlaced={onShipsPlaced} />
             : <>
+                <p>It is {localState?.isOwnTurn ? 'Your' : 'Enemy\'s'} turn</p>
                 <Board
                     uiSettings={props.uiSettings}
                     gridSize={props.gameSettings.gridSize}
