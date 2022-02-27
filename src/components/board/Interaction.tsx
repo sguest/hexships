@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Point } from '../../utils/point-utils';
 import * as hexUtils from '../../utils/hex-utils';
 import * as pointUtils from '../../utils/point-utils';
+import useScaledCanvas from './useScaledCanvas';
 
 export interface InteractionProps {
     highlightTile?: Point
@@ -18,37 +19,26 @@ export default function Interaction(props: InteractionProps) {
     const [hoverTile, setHoverTile] = useState<Point | null>(null);
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if(!canvas) {
-            return;
-        }
-        const context = canvas.getContext('2d');
-        if(!context) {
-            return;
-        }
-
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.scale(props.uiScale, props.uiScale);
-
-        const fillTile = (tile: Point, style: string | CanvasGradient | CanvasPattern) => {
-            const corners = hexUtils.getCorners(tile);
-            context.fillStyle = style;
-            context.beginPath();
-            pointUtils.moveTo(context, pointUtils.add(corners[5], pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
-            for(const corner of corners) {
-                pointUtils.lineTo(context, pointUtils.add(corner, pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
+        useScaledCanvas(canvasRef, props.uiScale, context => {
+            const fillTile = (tile: Point, style: string | CanvasGradient | CanvasPattern) => {
+                const corners = hexUtils.getCorners(tile);
+                context.fillStyle = style;
+                context.beginPath();
+                pointUtils.moveTo(context, pointUtils.add(corners[5], pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
+                for(const corner of corners) {
+                    pointUtils.lineTo(context, pointUtils.add(corner, pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
+                }
+                context.fill();
             }
-            context.fill();
-        }
 
-        if(hoverTile && props.mouseHighlightStyle) {
-            fillTile(hoverTile, props.mouseHighlightStyle);
-        }
+            if(hoverTile && props.mouseHighlightStyle) {
+                fillTile(hoverTile, props.mouseHighlightStyle);
+            }
 
-        if(props.highlightTile && props.highlightStyle) {
-            fillTile(props.highlightTile, props.highlightStyle);
-        }
+            if(props.highlightTile && props.highlightStyle) {
+                fillTile(props.highlightTile, props.highlightStyle);
+            }
+        });
     }, [canvasRef, props.highlightTile, props.highlightStyle, props.mouseHighlightStyle, hoverTile, props.uiScale, props.gridDimensions])
 
     const getMouseTile = (e: React.MouseEvent<HTMLCanvasElement>) => {
