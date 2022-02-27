@@ -70,8 +70,10 @@ export default function Game(props: GameProps) {
         return !localState?.ownMarkers.some(marker => pointUtils.equal(target, marker));
     }
 
+    const canSelect = localState?.isOwnTurn && currentAction === CurrentAction.SelectingShot;
+
     const onSelectTile = (tile: Point) => {
-        if(localState?.isOwnTurn && isValidTarget(tile) && currentAction === CurrentAction.SelectingShot) {
+        if(canSelect && isValidTarget(tile)) {
             setTargetTile(tile);
         }
     }
@@ -114,7 +116,8 @@ export default function Game(props: GameProps) {
                     markers={localState?.ownMarkers}
                     onSelectTile={onSelectTile}
                     highlightTileStyle='red'
-                    highlightTile={targetTile} />
+                    highlightTile={targetTile}
+                    mouseHighlightStyle={canSelect ? 'orange' : undefined} />
                 { currentAction === CurrentAction.SelectingShot && <button onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button> }
             </>
         }

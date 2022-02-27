@@ -36,11 +36,9 @@ export default function ShipSelection(props: ShipSelectionProps) {
     const highlightTileStyle = isPlacementValid ? 'green' : 'red';
 
     const onSelectShip = (id: number) => {
-        if(placingShipId !== id) {
-            setPlacingShipId(id);
-            setPlacingShip(undefined);
-            setHighlightTile(undefined)
-        }
+        setPlacingShipId(id === placingShipId ? undefined : id);
+        setPlacingShip(undefined);
+        setHighlightTile(undefined)
     }
 
     const onRotateShip = () => {
@@ -101,7 +99,8 @@ export default function ShipSelection(props: ShipSelectionProps) {
             ships={displayedShips}
             onSelectTile={onSelectTile}
             highlightTile={highlightTile}
-            highlightTileStyle={highlightTileStyle} />
+            highlightTileStyle={highlightTileStyle}
+            mouseHighlightStyle={placingShipId ? 'orange' : undefined} />
         <SelectorPanel
             ships={unplacedShips}
             selectedId={placingShipId}
