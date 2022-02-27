@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import GameSettings from '../../config/GameSettings';
-import UiSettings from '../../config/UiSettings';
 import GameInterface from '../../game-interface/GameInterface';
 import LocalState from '../../game-state/LocalState';
 import Board from '../board/Board';
@@ -16,7 +15,6 @@ enum CurrentAction {
 }
 
 export interface GameProps {
-    uiSettings: UiSettings
     gameSettings: GameSettings
     gameInterface: GameInterface
     onExit: () => void
@@ -97,21 +95,18 @@ export default function Game(props: GameProps) {
         <button onClick={onMenuClick}>Return to menu</button>
         { currentAction === CurrentAction.PlacingShips
             ? <ShipSelection
-                uiSettings={props.uiSettings}
                 gameSettings={props.gameSettings}
                 onShipsPlaced={onShipsPlaced} />
             : <>
                 { currentAction === CurrentAction.SelectingShot && <p>It is { localState?.isOwnTurn ? 'Your' : 'Enemy\'s'} turn</p> }
                 { currentAction === CurrentAction.GameOver && <p>You have {localState?.gameWon ? 'Won' : 'Lost' }</p> }
                 <Board
-                    uiSettings={props.uiSettings}
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.ownShips}
                     markers={localState?.opponentMarkers}
                     highlightTile={lastOpponentShot}
                     highlightTileStyle='orange' />
                 <Board
-                    uiSettings={props.uiSettings}
                     gridSize={props.gameSettings.gridSize}
                     markers={localState?.ownMarkers}
                     onSelectTile={onSelectTile}

@@ -2,13 +2,13 @@ import Field from './Field';
 import Ships from './Ships';
 import Markers from './Markers';
 import Ship from '../../game-state/Ship';
-import UiSettings from '../../config/UiSettings';
 import { Point } from '../../utils/point-utils';
+import * as hexUtils from '../../utils/hex-utils';
 import Interaction from './Interaction';
 import Marker from '../../game-state/Marker';
+import { useEffect, useRef, useState } from 'react';
 
 export type BoardProps = {
-    uiSettings: UiSettings,
     gridSize: number,
     ships?: Ship[],
     markers?: Marker[],
@@ -19,17 +19,37 @@ export type BoardProps = {
 }
 
 export default function Board(props: BoardProps) {
-    return <div className="board">
+    const boardRef = useRef<HTMLDivElement>(null);
+    const [uiScale, setUiScale] = useState(0);
+    useEffect(() => {
+        const listener = () => {
+            setUiScale((boardRef?.current?.clientWidth || 0) / 420);
+        };
+
+        window.addEventListener('resize', listener);
+
+        listener();
+
+        return () => {
+            window.removeEventListener('resize', listener);
+        }
+    }, [boardRef]);
+
+    const gridDimensions = hexUtils.getGridDimensions(props.gridSize);
+
+    return <div className="board" ref={boardRef}>
         <Field gridSize={props.gridSize}
-            uiSettings={props.uiSettings} />
+            uiScale={uiScale}
+            gridDimensions={gridDimensions} />
         { (props.highlightTile || props.onSelectTile || props.mouseHighlightStyle) &&
             <Interaction gridSize={props.gridSize}
-                uiSettings={props.uiSettings}
                 onSelectTile={props.onSelectTile}
                 highlightTile={props.highlightTile}
                 highlightStyle={props.highlightTileStyle}
-                mouseHighlightStyle={props.mouseHighlightStyle} /> }
-        { props.ships && <Ships ships={props.ships} uiSettings={props.uiSettings} /> }
-        { !!props.markers?.length && <Markers markers={props.markers} uiSettings={props.uiSettings} /> }
+                mouseHighlightStyle={props.mouseHighlightStyle}
+                uiScale={uiScale}
+                gridDimensions={gridDimensions} /> }
+        { props.ships && <Ships ships={props.ships} uiScale={uiScale} gridDimensions={gridDimensions} /> }
+        { !!props.markers?.length && <Markers markers={props.markers} uiScale={uiScale} gridDimensions={gridDimensions}/> }
     </div>
 }

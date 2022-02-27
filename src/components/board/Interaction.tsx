@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import UiSettings from '../../config/UiSettings';
 import { Point } from '../../utils/point-utils';
 import * as hexUtils from '../../utils/hex-utils';
 import * as pointUtils from '../../utils/point-utils';
@@ -8,8 +7,9 @@ export interface InteractionProps {
     highlightTile?: Point
     highlightStyle?: string | CanvasGradient | CanvasPattern
     mouseHighlightStyle?: string | CanvasGradient | CanvasPattern
-    uiSettings: UiSettings
     gridSize: number
+    uiScale: number
+    gridDimensions: Point
     onSelectTile?: (tile: Point) => void
 }
 
@@ -27,15 +27,17 @@ export default function Interaction(props: InteractionProps) {
             return;
         }
 
+        context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, canvas.width, canvas.height);
+        context.scale(props.uiScale, props.uiScale);
 
         const fillTile = (tile: Point, style: string | CanvasGradient | CanvasPattern) => {
-            const corners = hexUtils.getCorners(tile, props.uiSettings.cellSize);
+            const corners = hexUtils.getCorners(tile);
             context.fillStyle = style;
             context.beginPath();
-            pointUtils.moveTo(context, pointUtils.add(corners[5], props.uiSettings.gridOffset));
+            pointUtils.moveTo(context, pointUtils.add(corners[5], pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
             for(const corner of corners) {
-                pointUtils.lineTo(context, pointUtils.add(corner, props.uiSettings.gridOffset));
+                pointUtils.lineTo(context, pointUtils.add(corner, pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
             }
             context.fill();
         }
@@ -47,16 +49,16 @@ export default function Interaction(props: InteractionProps) {
         if(props.highlightTile && props.highlightStyle) {
             fillTile(props.highlightTile, props.highlightStyle);
         }
-    }, [props.uiSettings, canvasRef, props.highlightTile, props.highlightStyle, props.mouseHighlightStyle, hoverTile])
+    }, [canvasRef, props.highlightTile, props.highlightStyle, props.mouseHighlightStyle, hoverTile, props.uiScale, props.gridDimensions])
 
     const getMouseTile = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
         const relativeClick = pointUtils.add(
-            { x: e.clientX, y: e.clientY },
-            pointUtils.multiplyScalar(props.uiSettings.gridOffset, -1),
-            pointUtils.multiplyScalar(rect, -1),
+            pointUtils.multiplyScalar({ x: e.clientX, y: e.clientY }, 1 / props.uiScale),
+            pointUtils.multiplyScalar(props.gridDimensions, -0.5),
+            pointUtils.multiplyScalar(rect, -1 / props.uiScale),
         );
-        return hexUtils.getCellFromCoords(relativeClick, props.uiSettings.cellSize);
+        return hexUtils.getCellFromCoords(relativeClick);
     }
 
     const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -71,5 +73,5 @@ export default function Interaction(props: InteractionProps) {
         setHoverTile(hexUtils.isInGrid(tile, props.gridSize) ? tile : null);
     }
 
-    return <canvas ref={canvasRef} width="500" height="500" className="interaction-canvas" onClick={onClick} onMouseMove={onMove} />
+    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className="interaction-canvas" onClick={onClick} onMouseMove={onMove} />
 }

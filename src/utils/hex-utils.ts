@@ -2,23 +2,31 @@ import { Point } from './point-utils';
 
 // https://www.redblobgames.com/grids/hexagons/
 const sqrt3 = Math.sqrt(3);
+export const cellSize = 20;
 
-export function getCenter(cell: Point, size: number) {
+export function getCenter(cell: Point) {
     return {
-        x: 1.5 * cell.x * size, // 0.75 * 2 * x * size
-        y: (cell.y + 0.5 * cell.x) * size * sqrt3,
+        x: 1.5 * cell.x * cellSize, // 0.75 * 2 * x * size
+        y: (cell.y + 0.5 * cell.x) * cellSize * sqrt3,
     }
 }
 
-export function getCorners(cell: Point, size: number) {
-    const center = getCenter(cell, size);
+export function getCorners(cell: Point) {
+    const center = getCenter(cell);
     return [...Array(6).keys()].map(i => {
         const angle = Math.PI / 3 * i; // Math.PI / 180 * 60 * i === i * 60deg converted to radians
         return {
-            x: center.x + size * Math.cos(angle),
-            y: center.y + size * Math.sin(angle),
+            x: center.x + cellSize * Math.cos(angle),
+            y: center.y + cellSize * Math.sin(angle),
         }
     })
+}
+
+export function getGridDimensions(gridSize: number) {
+    return {
+        x: gridSize * 3 * cellSize,
+        y: gridSize * 2 * cellSize * sqrt3,
+    };
 }
 
 export function roundFractional(coords: Point) {
@@ -41,10 +49,10 @@ export function roundFractional(coords: Point) {
     return { x, y };
 }
 
-export function getCellFromCoords(hit: Point, size: number) {
+export function getCellFromCoords(hit: Point) {
     return roundFractional({
-        x: hit.x * 2 / 3 / size,
-        y: (hit.x * -1 / 3 + hit.y * sqrt3 / 3) / size,
+        x: hit.x * 2 / 3 / cellSize,
+        y: (hit.x * -1 / 3 + hit.y * sqrt3 / 3) / cellSize,
     });
 }
 

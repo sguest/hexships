@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import GameSettings from '../../../config/GameSettings';
-import UiSettings from '../../../config/UiSettings';
 import Direction from '../../../game-state/Direction';
 import Ship, * as shipFuncs from '../../../game-state/Ship';
 import { Point } from '../../../utils/point-utils';
@@ -9,7 +8,6 @@ import SelectorPanel from './SelectorPanel';
 
 export interface ShipSelectionProps {
     gameSettings: GameSettings
-    uiSettings: UiSettings
     onShipsPlaced: (ships: Ship[]) => void
 }
 
@@ -94,7 +92,6 @@ export default function ShipSelection(props: ShipSelectionProps) {
 
     return <>
         <Board
-            uiSettings={props.uiSettings}
             gridSize={props.gameSettings.gridSize}
             ships={displayedShips}
             onSelectTile={onSelectTile}
