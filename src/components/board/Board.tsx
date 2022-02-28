@@ -20,14 +20,25 @@ export type BoardProps = {
 }
 
 const useStyles = createUseStyles({
+    '@keyframes boardGradient': {
+        from: { backgroundPosition: '0% 50%' },
+        to: { backgroundPosition: '100% 50%' },
+    },
     board: {
+        animationName: '$boardGradient',
+        animationDuration: '20s',
+        animationIterationCount: 'infinite',
+        animationTimingFunction: 'ease',
+        animationDirection: 'alternate',
         position: 'relative',
         width: '100%',
         maxWidth: 500,
         display: 'inline-block',
-        border: '1px solid black',
         aspectRatio: 0.86,
         overflow: 'hidden',
+        background: 'linear-gradient(80deg, #00545c 0%, #00405c 30%, #00545c 60%, #00405c 90%)',
+        backgroundSize: '400% 400%',
+        border: '5px solid #242f40',
     },
 });
 

@@ -25,7 +25,7 @@ export default function Field(props: FieldProps) {
 
     useEffect(() => {
         useScaledCanvas(canvasRef, props.uiScale, context => {
-            context.strokeStyle = 'blue';
+            context.strokeStyle = 'black';
             context.beginPath();
             const cells = hexUtils.getGridCells(props.gridSize);
             for(const cell of cells) {

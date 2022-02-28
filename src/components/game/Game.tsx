@@ -7,6 +7,7 @@ import Ship from '../../game-state/Ship';
 import ShipSelection from './ship-selection/ShipSelection';
 import { Point } from '../../utils/point-utils';
 import * as pointUtils from '../../utils/point-utils';
+import { createUseStyles } from 'react-jss';
 
 enum CurrentAction {
     PlacingShips,
@@ -20,10 +21,18 @@ export interface GameProps {
     onExit: () => void
 }
 
+const useStyles = createUseStyles({
+    info: {
+        color: '#ccc',
+        fontSize: '1rem',
+    },
+})
+
 export default function Game(props: GameProps) {
     const [localState, setLocalState] = useState<LocalState | undefined>(undefined);
     const [currentAction, setCurrentAction] = useState(CurrentAction.PlacingShips);
     const [targetTile, setTargetTile] = useState<Point | undefined>(undefined);
+    const classes = useStyles();
 
     useEffect(() => {
         const subscriber = (state: LocalState) => {
@@ -102,8 +111,8 @@ export default function Game(props: GameProps) {
                 gameSettings={props.gameSettings}
                 onShipsPlaced={onShipsPlaced} />
             : <>
-                { currentAction === CurrentAction.SelectingShot && <p>It is { localState?.isOwnTurn ? 'Your' : 'Enemy\'s'} turn</p> }
-                { currentAction === CurrentAction.GameOver && <p>You have {localState?.gameWon ? 'Won' : 'Lost' }</p> }
+                { currentAction === CurrentAction.SelectingShot && <p className={classes.info}>It is { localState?.isOwnTurn ? 'Your' : 'Enemy\'s'} turn</p> }
+                { currentAction === CurrentAction.GameOver && <p className={classes.info}>You have {localState?.gameWon ? 'Won' : 'Lost' }</p> }
                 <Board
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.ownShips}

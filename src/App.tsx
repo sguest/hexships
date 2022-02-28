@@ -4,6 +4,7 @@ import MainMenu from './components/menu/MainMenu';
 import Game from './components/game/Game';
 import GameInterface from './game-interface/GameInterface';
 import LocalGameInterface from './game-interface/LocalGameInterface';
+import { createUseStyles } from 'react-jss';
 
 const settings: GameSettings = {
     gridSize: 7,
@@ -16,8 +17,17 @@ const settings: GameSettings = {
     ],
 };
 
+const useStyles = createUseStyles({
+    container: {
+        backgroundColor: '#022866',
+        width: '100%',
+        height: '100%',
+    },
+})
+
 function App() {
     const [gameInterface, setGameInterface] = useState<GameInterface | null>(null);
+    const classes = useStyles();
 
     const onNewGame = () => {
         setGameInterface(new LocalGameInterface(settings));
@@ -27,9 +37,11 @@ function App() {
         setGameInterface(null);
     }
 
-    return gameInterface
-        ? <Game gameInterface={gameInterface} gameSettings={settings} onExit={onExitGame} />
-        : <MainMenu onNewGame={onNewGame} />;
+    return <div className={classes.container}>
+        { gameInterface
+            ? <Game gameInterface={gameInterface} gameSettings={settings} onExit={onExitGame} />
+            : <MainMenu onNewGame={onNewGame} />}
+    </div>
 }
 
 export default App

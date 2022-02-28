@@ -13,6 +13,7 @@ export interface ShipSelectorProps {
 const useStyles = createUseStyles({
     panel: {
         display: 'inline-block',
+        margin: 0,
     },
     selectedButton: {
         color: 'white',
