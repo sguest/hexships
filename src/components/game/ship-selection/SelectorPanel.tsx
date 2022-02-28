@@ -1,3 +1,5 @@
+import { createUseStyles } from 'react-jss'
+
 export interface ShipSelectorProps {
     ships: Array<{name: string, id: number}>
     selectedId?: number
@@ -8,12 +10,24 @@ export interface ShipSelectorProps {
     onPlace: () => void
 }
 
+const useStyles = createUseStyles({
+    panel: {
+        display: 'inline-block',
+    },
+    selectedButton: {
+        color: 'white',
+        backgroundColor: 'black',
+    },
+})
+
 export default function SelectorPanel(props: ShipSelectorProps) {
+    const classes = useStyles();
+
     return <>
-        <ul className="ship-selector">
+        <ul className={classes.panel}>
             {props.ships.map(s => {
-                return <li key={s.id} className={s.id === props.selectedId ? 'selected' : ''}>
-                    <button onClick={() => props.onSelected(s.id)}>{s.name}</button>
+                return <li key={s.id}>
+                    <button onClick={() => props.onSelected(s.id)} className={s.id === props.selectedId ? classes.selectedButton : ''}>{s.name}</button>
                 </li>
             })}
         </ul>

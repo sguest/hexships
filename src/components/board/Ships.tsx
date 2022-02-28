@@ -5,6 +5,7 @@ import * as hexUtils from '../../utils/hex-utils';
 import { Point } from '../../utils/point-utils';
 import * as pointUtils from '../../utils/point-utils';
 import useScaledCanvas from './useScaledCanvas';
+import { createUseStyles } from 'react-jss';
 
 export interface ShipsProps {
     ships: Ship[]
@@ -12,8 +13,17 @@ export interface ShipsProps {
     gridDimensions: Point
 }
 
+const useStyles = createUseStyles({
+    canvas: {
+        position: 'absolute',
+        zIndex: 3,
+        pointerEvents: 'none',
+    },
+})
+
 export default function Ships(props: ShipsProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const classes = useStyles();
 
     useEffect(() => {
         useScaledCanvas(canvasRef, props.uiScale, context => {
@@ -33,5 +43,5 @@ export default function Ships(props: ShipsProps) {
         });
     }, [props.ships, canvasRef, props.uiScale, props.gridDimensions])
 
-    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className="ships-canvas"/>
+    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas}/>
 }

@@ -7,6 +7,7 @@ import * as hexUtils from '../../utils/hex-utils';
 import Interaction from './Interaction';
 import Marker from '../../game-state/Marker';
 import { useEffect, useRef, useState } from 'react';
+import { createUseStyles } from 'react-jss';
 
 export type BoardProps = {
     gridSize: number,
@@ -18,9 +19,22 @@ export type BoardProps = {
     mouseHighlightStyle?: string | CanvasPattern | CanvasGradient
 }
 
+const useStyles = createUseStyles({
+    board: {
+        position: 'relative',
+        width: '100%',
+        maxWidth: 500,
+        display: 'inline-block',
+        border: '1px solid black',
+        aspectRatio: 0.86,
+        overflow: 'hidden',
+    },
+});
+
 export default function Board(props: BoardProps) {
     const boardRef = useRef<HTMLDivElement>(null);
     const [uiScale, setUiScale] = useState(0);
+    const classes = useStyles();
     useEffect(() => {
         const listener = () => {
             setUiScale((boardRef?.current?.clientWidth || 0) / 420);
@@ -37,7 +51,7 @@ export default function Board(props: BoardProps) {
 
     const gridDimensions = hexUtils.getGridDimensions(props.gridSize);
 
-    return <div className="board" ref={boardRef}>
+    return <div className={classes.board} ref={boardRef}>
         <Field gridSize={props.gridSize}
             uiScale={uiScale}
             gridDimensions={gridDimensions} />

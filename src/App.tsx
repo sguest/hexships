@@ -1,4 +1,3 @@
-import './App.css'
 import GameSettings from './config/GameSettings';
 import { useState } from 'react';
 import MainMenu from './components/menu/MainMenu';

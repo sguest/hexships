@@ -3,6 +3,7 @@ import { Point } from '../../utils/point-utils';
 import * as hexUtils from '../../utils/hex-utils';
 import * as pointUtils from '../../utils/point-utils';
 import useScaledCanvas from './useScaledCanvas';
+import { createUseStyles } from 'react-jss';
 
 export interface InteractionProps {
     highlightTile?: Point
@@ -14,9 +15,17 @@ export interface InteractionProps {
     onSelectTile?: (tile: Point) => void
 }
 
+const useStyles = createUseStyles({
+    canvas: {
+        position: 'absolute',
+        zIndex: 2,
+    },
+})
+
 export default function Interaction(props: InteractionProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hoverTile, setHoverTile] = useState<Point | null>(null);
+    const classes = useStyles();
 
     useEffect(() => {
         useScaledCanvas(canvasRef, props.uiScale, context => {
@@ -63,5 +72,5 @@ export default function Interaction(props: InteractionProps) {
         setHoverTile(hexUtils.isInGrid(tile, props.gridSize) ? tile : null);
     }
 
-    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className="interaction-canvas" onClick={onClick} onMouseMove={onMove} />
+    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas} onClick={onClick} onMouseMove={onMove} />
 }
