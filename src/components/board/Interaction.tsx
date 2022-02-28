@@ -8,7 +8,7 @@ import { createUseStyles } from 'react-jss';
 export interface InteractionProps {
     highlightTile?: Point
     highlightStyle?: string | CanvasGradient | CanvasPattern
-    mouseHighlightStyle?: string | CanvasGradient | CanvasPattern
+    mouseHighlightStyle?: (tile: Point) => string | CanvasGradient | CanvasPattern | undefined
     gridSize: number
     uiScale: number
     gridDimensions: Point
@@ -25,6 +25,7 @@ const useStyles = createUseStyles({
 export default function Interaction(props: InteractionProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hoverTile, setHoverTile] = useState<Point | null>(null);
+    const [hoverStyle, setHoverStyle] = useState<string | CanvasGradient | CanvasPattern | undefined>(undefined);
     const classes = useStyles();
 
     useEffect(() => {
@@ -40,15 +41,15 @@ export default function Interaction(props: InteractionProps) {
                 context.fill();
             }
 
-            if(hoverTile && props.mouseHighlightStyle) {
-                fillTile(hoverTile, props.mouseHighlightStyle);
+            if(hoverTile && hoverStyle) {
+                fillTile(hoverTile, hoverStyle);
             }
 
             if(props.highlightTile && props.highlightStyle) {
                 fillTile(props.highlightTile, props.highlightStyle);
             }
         });
-    }, [canvasRef, props.highlightTile, props.highlightStyle, props.mouseHighlightStyle, hoverTile, props.uiScale, props.gridDimensions])
+    }, [canvasRef, props.highlightTile, props.highlightStyle, hoverTile, hoverStyle, props.uiScale, props.gridDimensions])
 
     const getMouseTile = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
@@ -70,7 +71,18 @@ export default function Interaction(props: InteractionProps) {
     const onMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const tile = getMouseTile(e);
         setHoverTile(hexUtils.isInGrid(tile, props.gridSize) ? tile : null);
+        setHoverStyle(props.mouseHighlightStyle ? props.mouseHighlightStyle(tile) : undefined);
     }
 
-    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas} onClick={onClick} onMouseMove={onMove} />
+    const onLeave = () => {
+        setHoverTile(null);
+    }
+
+    return <canvas ref={canvasRef}
+        width={props.gridDimensions.x * props.uiScale}
+        height={props.gridDimensions.y * props.uiScale}
+        className={classes.canvas}
+        onClick={onClick}
+        onMouseMove={onMove}
+        onMouseLeave={onLeave} />
 }

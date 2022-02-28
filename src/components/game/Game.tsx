@@ -76,6 +76,10 @@ export default function Game(props: GameProps) {
         }
     }
 
+    const checkMouseHighlight = (tile: Point) => {
+        return (canSelect && isValidTarget(tile)) ? 'orange' : undefined;
+    }
+
     const onFireClick = () => {
         if(targetTile && isValidTarget(targetTile)) {
             props.gameInterface.fireShot(targetTile);
@@ -112,7 +116,7 @@ export default function Game(props: GameProps) {
                     onSelectTile={onSelectTile}
                     highlightTileStyle='red'
                     highlightTile={targetTile}
-                    mouseHighlightStyle={canSelect ? 'orange' : undefined} />
+                    mouseHighlightStyle={checkMouseHighlight} />
                 { currentAction === CurrentAction.SelectingShot && <button onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button> }
             </>
         }

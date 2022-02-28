@@ -16,7 +16,7 @@ export type BoardProps = {
     onSelectTile?: (tile: Point) => void
     highlightTile?: Point
     highlightTileStyle?: string | CanvasPattern | CanvasGradient
-    mouseHighlightStyle?: string | CanvasPattern | CanvasGradient
+    mouseHighlightStyle?: (tile: Point) => string | CanvasPattern | CanvasGradient | undefined
 }
 
 const useStyles = createUseStyles({

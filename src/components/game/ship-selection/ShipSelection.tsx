@@ -90,6 +90,10 @@ export default function ShipSelection(props: ShipSelectionProps) {
         }
     }
 
+    const checkMouseHighlight = () => {
+        return placingShipId ? 'orange' : undefined;
+    }
+
     return <>
         <Board
             gridSize={props.gameSettings.gridSize}
@@ -97,7 +101,7 @@ export default function ShipSelection(props: ShipSelectionProps) {
             onSelectTile={onSelectTile}
             highlightTile={highlightTile}
             highlightTileStyle={highlightTileStyle}
-            mouseHighlightStyle={placingShipId ? 'orange' : undefined} />
+            mouseHighlightStyle={checkMouseHighlight} />
         <SelectorPanel
             ships={unplacedShips}
             selectedId={placingShipId}
