@@ -6,8 +6,7 @@ import useScaledCanvas from './useScaledCanvas';
 import { createUseStyles } from 'react-jss';
 
 export interface InteractionProps {
-    highlightTile?: Point
-    highlightStyle?: string | CanvasGradient | CanvasPattern
+    highlightTiles?: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}>
     mouseHighlightStyle?: (tile: Point) => string | CanvasGradient | CanvasPattern | undefined
     gridSize: number
     uiScale: number
@@ -45,11 +44,13 @@ export default function Interaction(props: InteractionProps) {
                 fillTile(hoverTile, hoverStyle);
             }
 
-            if(props.highlightTile && props.highlightStyle) {
-                fillTile(props.highlightTile, props.highlightStyle);
+            if(props.highlightTiles) {
+                for(const tile of props.highlightTiles) {
+                    fillTile(tile, tile.style);
+                }
             }
         });
-    }, [canvasRef, props.highlightTile, props.highlightStyle, hoverTile, hoverStyle, props.uiScale, props.gridDimensions])
+    }, [canvasRef, props.highlightTiles, hoverTile, hoverStyle, props.uiScale, props.gridDimensions])
 
     const getMouseTile = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();

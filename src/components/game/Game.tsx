@@ -9,6 +9,7 @@ import { Point } from '../../utils/point-utils';
 import * as pointUtils from '../../utils/point-utils';
 import { createUseStyles } from 'react-jss';
 import Dialog from '../Dialog';
+import { MarkerType } from '../../game-state/Marker';
 
 enum CurrentAction {
     PlacingShips,
@@ -188,6 +189,14 @@ export default function Game(props: GameProps) {
         statusMessage = `You have ${localState?.gameWon ? 'Won' : 'List'}`;
     }
 
+    let displayedTargets: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}> | undefined;
+    if(localState?.gameWon) {
+        displayedTargets = localState.ownMarkers.filter(m => m.type === MarkerType.Hit).map(m => ({ x: m.x, y: m.y, style: 'red' }));
+    }
+    else if(targetTile) {
+        displayedTargets = [{ x: targetTile.x, y: targetTile.y, style: 'red' }];
+    }
+
     return <>
         {showDialog && <Dialog
             text="Are you sure you want to end the game?"
@@ -204,14 +213,13 @@ export default function Game(props: GameProps) {
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.ownShips}
                     markers={localState?.opponentMarkers}
-                    highlightTile={lastOpponentShot}
-                    highlightTileStyle='orange' />
+                    highlightTiles={lastOpponentShot ? [{ x: lastOpponentShot.x, y: lastOpponentShot.y, style: 'orange' }] : undefined} />
                 <Board
                     gridSize={props.gameSettings.gridSize}
+                    ships={localState?.opponentShips}
                     markers={localState?.ownMarkers}
                     onSelectTile={onSelectTile}
-                    highlightTileStyle='red'
-                    highlightTile={targetTile}
+                    highlightTiles={displayedTargets}
                     mouseHighlightStyle={checkMouseHighlight} />
                 <div className={classes.statusPanel}>
                     {statusMessage && <p className={classes.info}>{statusMessage}</p>}

@@ -23,12 +23,10 @@ const useStyles = createUseStyles({
         position: 'fixed',
         width: '100%',
         height: '100%',
-        background: '#555',
-        opacity: 0.6,
+        background: 'rgba(50, 50, 50, 0.6)',
         zIndex: 99,
     },
     dialog: {
-        opacity: 1,
         border: '3px solid #ccc',
         display: 'inline-block',
         background: '#333',

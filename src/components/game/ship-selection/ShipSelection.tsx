@@ -41,6 +41,7 @@ export default function ShipSelection(props: ShipSelectionProps) {
     }
     const isPlacementValid = !!placingShip && shipFuncs.isPlacementValid(displayedShips, props.gameSettings.gridSize);
     const highlightTileStyle = isPlacementValid ? 'green' : 'red';
+    const displayedTargets = highlightTile ? [{ x: highlightTile.x, y: highlightTile.y, style: highlightTileStyle }] : [];
 
     const onSelectShip = (id: number) => {
         setPlacingShipId(id === placingShipId ? undefined : id);
@@ -109,8 +110,7 @@ export default function ShipSelection(props: ShipSelectionProps) {
             gridSize={props.gameSettings.gridSize}
             ships={displayedShips}
             onSelectTile={onSelectTile}
-            highlightTile={highlightTile}
-            highlightTileStyle={highlightTileStyle}
+            highlightTiles={displayedTargets}
             mouseHighlightStyle={checkMouseHighlight} />
         <SelectorPanel
             ships={unplacedShips}

@@ -14,8 +14,7 @@ export type BoardProps = {
     ships?: Ship[],
     markers?: Marker[],
     onSelectTile?: (tile: Point) => void
-    highlightTile?: Point
-    highlightTileStyle?: string | CanvasPattern | CanvasGradient
+    highlightTiles?: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}>
     mouseHighlightStyle?: (tile: Point) => string | CanvasPattern | CanvasGradient | undefined
 }
 
@@ -65,11 +64,10 @@ export default function Board(props: BoardProps) {
         <Field gridSize={props.gridSize}
             uiScale={uiScale}
             gridDimensions={gridDimensions} />
-        { (props.highlightTile || props.onSelectTile || props.mouseHighlightStyle) &&
+        { (!!props.highlightTiles?.length || props.onSelectTile || props.mouseHighlightStyle) &&
             <Interaction gridSize={props.gridSize}
                 onSelectTile={props.onSelectTile}
-                highlightTile={props.highlightTile}
-                highlightStyle={props.highlightTileStyle}
+                highlightTiles={props.highlightTiles}
                 mouseHighlightStyle={props.mouseHighlightStyle}
                 uiScale={uiScale}
                 gridDimensions={gridDimensions} /> }

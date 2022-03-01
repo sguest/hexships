@@ -27,14 +27,18 @@ export default class GameManager {
 
     public getLocalState(playerId: number): LocalState {
         const otherPlayerId = +!playerId;
+        const gameWon = this.playerLost(otherPlayerId);
+        const gameLost = this.playerLost(playerId);
+        const gameOver = gameLost || gameWon;
         return {
             ownShips: this.players[playerId].ships,
             ownMarkers: this.players[playerId].markers,
+            opponentShips: gameOver ? this.players[otherPlayerId].ships : undefined,
             opponentMarkers: this.players[otherPlayerId].markers,
             isOwnTurn: playerId === this.activePlayerId && !!this.players[playerId].ships.length,
             sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.definitionId),
-            gameWon: this.playerLost(otherPlayerId),
-            gameLost: this.playerLost(playerId),
+            gameWon,
+            gameLost,
         }
     }
 
