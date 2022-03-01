@@ -43,7 +43,7 @@ export default class LocalGameInterface implements GameInterface {
         if(playerId === 0) {
             this.stateSubscriptions.forEach(s => s(state));
         }
-        else if(state.isOwnTurn) {
+        else if(state.isOwnTurn && !state.gameLost && !state.gameWon) {
             setTimeout(() => {
                 this.takeEnemyShot(state);
             }, 1000);
@@ -82,6 +82,7 @@ export default class LocalGameInterface implements GameInterface {
                     y: mathUtils.randomInt(minY, maxY),
                     facing: mathUtils.randomEnum(Direction),
                     hits: 0,
+                    definitionId: shipInfo.id,
                 }
             } while(!shipFuncs.isPlacementValid([...ships, ship], this.gameSettings.gridSize));
             ships.push(ship);

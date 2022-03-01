@@ -9,11 +9,11 @@ import { createUseStyles } from 'react-jss';
 const settings: GameSettings = {
     gridSize: 7,
     ships: [
-        { size: 2, name: 'Patrol Boat' },
-        { size: 3, name: 'Destroyer' },
-        { size: 3, name: 'Submarine' },
-        { size: 4, name: 'Battleship' },
-        { size: 5, name: 'Aircraft Carrier' },
+        { id: 1, size: 2, name: 'Patrol Boat' },
+        { id: 2, size: 3, name: 'Destroyer' },
+        { id: 3, size: 3, name: 'Submarine' },
+        { id: 4, size: 4, name: 'Battleship' },
+        { id: 5, size: 5, name: 'Aircraft Carrier' },
     ],
 };
 
@@ -22,6 +22,7 @@ const useStyles = createUseStyles({
         backgroundColor: '#022866',
         width: '100%',
         height: '100%',
+        overflow: 'auto',
     },
 })
 

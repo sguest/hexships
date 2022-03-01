@@ -32,10 +32,14 @@ export default class GameManager {
             ownMarkers: this.players[playerId].markers,
             opponentMarkers: this.players[otherPlayerId].markers,
             isOwnTurn: playerId === this.activePlayerId && !!this.players[playerId].ships.length,
-            sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.name),
-            gameWon: this.players[otherPlayerId].ships.every(s => s.hits === s.size),
-            gameLost: this.players[playerId].ships.every(s => s.hits === s.size),
+            sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.definitionId),
+            gameWon: this.playerLost(otherPlayerId),
+            gameLost: this.playerLost(playerId),
         }
+    }
+
+    private playerLost(playerId: number) {
+        return this.players[playerId].ships.every(s => s.hits === s.size);
     }
 
     private validateShipPlacement(ships: Ship[]) {
@@ -59,6 +63,7 @@ export default class GameManager {
                 facing: ship.facing,
                 hits: 0,
                 name: ship.name,
+                definitionId: ship.definitionId,
             });
 
             neededShips.splice(index, 1);
@@ -80,12 +85,14 @@ export default class GameManager {
     }
 
     public fireShot(playerId: number, target: Point) {
+        const otherPlayerId = +!playerId;
         const valid = this.activePlayerId === playerId &&
             hexUtils.isInGrid(target, this.gameSettings.gridSize) &&
-            !this.players[playerId].markers.some(marker => pointUtils.equal(marker, target));
+            !this.players[playerId].markers.some(marker => pointUtils.equal(marker, target)) &&
+            !this.playerLost(playerId) &&
+            !this.playerLost(otherPlayerId);
 
         if(valid) {
-            const otherPlayerId = +!playerId;
             let isHit = false;
             for(const ship of this.players[otherPlayerId].ships) {
                 for(const point of shipFuncs.getPoints(ship)) {

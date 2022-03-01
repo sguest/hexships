@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createUseStyles } from 'react-jss';
 import GameSettings from '../../../config/GameSettings';
 import Direction from '../../../game-state/Direction';
 import Ship, * as shipFuncs from '../../../game-state/Ship';
@@ -11,12 +12,20 @@ export interface ShipSelectionProps {
     onShipsPlaced: (ships: Ship[]) => void
 }
 
+const useStyles = createUseStyles({
+    wrapper: {
+        display: 'flex',
+        flexWrap: 'wrap',
+    },
+})
+
 export default function ShipSelection(props: ShipSelectionProps) {
     const [placedShips, setPlacedShips] = useState<Ship[]>([]);
     const [unplacedShips, setUnplacedShips] = useState<Array<{size: number, name: string, id: number}>>([]);
     const [placingShip, setPlacingShip] = useState<Ship | undefined>(undefined);
     const [placingShipId, setPlacingShipId] = useState<number | undefined>(undefined);
     const [highlightTile, setHighlightTile] = useState<Point | undefined>(undefined);
+    const classes = useStyles();
 
     useEffect(() => {
         setUnplacedShips(props.gameSettings.ships.map((ship, idx) => ({
@@ -83,6 +92,7 @@ export default function ShipSelection(props: ShipSelectionProps) {
                         facing: Direction.positiveX,
                         hits: 0,
                         name: shipInfo.name,
+                        definitionId: shipInfo.id,
                     });
                 }
             }
@@ -94,7 +104,7 @@ export default function ShipSelection(props: ShipSelectionProps) {
         return placingShipId ? 'orange' : undefined;
     }
 
-    return <>
+    return <div className={classes.wrapper}>
         <Board
             gridSize={props.gameSettings.gridSize}
             ships={displayedShips}
@@ -110,5 +120,5 @@ export default function ShipSelection(props: ShipSelectionProps) {
             onSelected={onSelectShip}
             onRotated={onRotateShip}
             onPlace={onPlaceShip} />
-    </>
+    </div>
 }

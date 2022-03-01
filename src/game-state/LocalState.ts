@@ -6,7 +6,7 @@ export default interface LocalState {
     ownMarkers: Marker[];
     opponentMarkers: Marker[];
     isOwnTurn: boolean;
-    sunkEnemies: string[];
+    sunkEnemies: number[];
     gameWon: boolean;
     gameLost: boolean;
 }

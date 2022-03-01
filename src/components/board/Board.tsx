@@ -33,7 +33,6 @@ const useStyles = createUseStyles({
         position: 'relative',
         width: '100%',
         maxWidth: 500,
-        display: 'inline-block',
         aspectRatio: 0.86,
         overflow: 'hidden',
         background: 'linear-gradient(80deg, #00545c 0%, #00405c 30%, #00545c 60%, #00405c 90%)',

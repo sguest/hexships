@@ -10,6 +10,7 @@ export default interface Ship {
     facing: Direction
     hits: number
     name: string
+    definitionId: number
 }
 
 export function getPoints(ship: Ship) {
