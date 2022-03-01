@@ -186,7 +186,7 @@ export default function Game(props: GameProps) {
         statusMessage = localState?.isOwnTurn ? 'Take your shot' : 'Enemy\'s turn';
     }
     else if(currentAction === CurrentAction.GameOver) {
-        statusMessage = `You have ${localState?.gameWon ? 'Won' : 'List'}`;
+        statusMessage = `You have ${localState?.gameWon ? 'Won' : 'Lost'}`;
     }
 
     let displayedTargets: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}> | undefined;
