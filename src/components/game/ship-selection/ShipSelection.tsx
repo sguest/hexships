@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import GameSettings from '../../../config/GameSettings';
 import Direction from '../../../game-state/Direction';
@@ -20,80 +20,84 @@ const useStyles = createUseStyles({
 })
 
 export default function ShipSelection(props: ShipSelectionProps) {
-    const [placedShips, setPlacedShips] = useState<Ship[]>([]);
-    const [unplacedShips, setUnplacedShips] = useState<Array<{size: number, name: string, id: number}>>([]);
-    const [placingShip, setPlacingShip] = useState<Ship | undefined>(undefined);
-    const [placingShipId, setPlacingShipId] = useState<number | undefined>(undefined);
+    const [placedShips, setPlacedShips] = useState<{ [key: number]: Ship }>([]);
+    const [placingShip, setPlacingShip] = useState<{ id: number, ship: Ship | undefined } | undefined>(undefined);
     const [highlightTile, setHighlightTile] = useState<Point | undefined>(undefined);
     const classes = useStyles();
 
-    useEffect(() => {
-        setUnplacedShips(props.gameSettings.ships.map((ship, idx) => ({
-            size: ship.size,
-            name: ship.name,
-            id: idx + 1,
-        })));
-    }, [props.gameSettings.ships])
-
-    const displayedShips = placedShips.slice(0);
-    if(placingShip) {
-        displayedShips.push(placingShip);
+    const displayedShips = Object.values(placedShips);
+    if(placingShip?.ship) {
+        displayedShips.push(placingShip.ship);
     }
-    const isPlacementValid = !!placingShip && shipFuncs.isPlacementValid(displayedShips, props.gameSettings.gridSize);
-    const highlightTileStyle = isPlacementValid ? 'green' : 'red';
+    const isShipValid = !!placingShip?.ship && shipFuncs.isShipValid(placingShip.ship, Object.values(placedShips), props.gameSettings.gridSize);
+    const isPlacementValid = displayedShips.length === props.gameSettings.ships.length &&
+        shipFuncs.isPlacementValid(displayedShips, props.gameSettings.gridSize);
+    const highlightTileStyle = isShipValid ? 'green' : 'red';
     const displayedTargets = highlightTile ? [{ x: highlightTile.x, y: highlightTile.y, style: highlightTileStyle }] : [];
 
     const onSelectShip = (id: number) => {
-        setPlacingShipId(id === placingShipId ? undefined : id);
-        setPlacingShip(undefined);
-        setHighlightTile(undefined)
+        if(id !== placingShip?.id) {
+            const placed = { ...placedShips };
+            if(placingShip?.ship) {
+                placed[placingShip.id] = placingShip.ship;
+            }
+            if(placedShips[id]) {
+                setPlacingShip({ id, ship: placedShips[id] });
+                setHighlightTile(placedShips[id]);
+                delete placed[id];
+            }
+            else {
+                setPlacingShip({ id, ship: undefined });
+                setHighlightTile(undefined)
+            }
+            setPlacedShips(placed);
+        }
     }
 
     const onRotateShip = () => {
-        if(placingShip) {
+        if(placingShip?.ship) {
             setPlacingShip({
-                ...placingShip,
-                facing: (placingShip.facing + 1) % 6,
+                id: placingShip.id,
+                ship: {
+                    ...placingShip.ship,
+                    facing: (placingShip.ship.facing + 1) % 6,
+                },
             });
         }
     }
 
     const onPlaceShip = () => {
         if(isPlacementValid) {
-            const unplaced = unplacedShips.slice(0);
-            unplaced.splice(unplacedShips.findIndex(s => s.id === placingShipId), 1);
-            const placed = [...placedShips, placingShip];
-            setUnplacedShips(unplaced);
-            setPlacedShips(placed);
-            setPlacingShip(undefined);
-            setPlacingShipId(undefined);
-            setHighlightTile(undefined);
-            if(!unplaced.length) {
-                props.onShipsPlaced(placed);
-            }
+            props.onShipsPlaced(displayedShips);
         }
     }
 
     const onSelectTile = (tile: Point) => {
-        if(placingShipId) {
-            if(placingShip) {
+        if(placingShip) {
+            if(placingShip.ship) {
                 setPlacingShip({
-                    ...placingShip,
-                    x: tile.x,
-                    y: tile.y,
+                    id: placingShip.id,
+                    ship: {
+                        ...placingShip.ship,
+                        x: tile.x,
+                        y: tile.y,
+                    },
                 });
             }
             else {
-                const shipInfo = unplacedShips.find(s => s.id === placingShipId)
+                const shipInfo = props.gameSettings.ships.find(s => s.id === placingShip.id)
                 if(shipInfo) {
                     setPlacingShip({
-                        x: tile.x,
-                        y: tile.y,
-                        size: shipInfo.size,
-                        facing: Direction.positiveX,
-                        hits: 0,
-                        name: shipInfo.name,
-                        definitionId: shipInfo.id,
+                        id: placingShip.id,
+                        ship: {
+                            x: tile.x,
+                            y: tile.y,
+                            size: shipInfo.size,
+                            facing: Direction.positiveX,
+                            hits: 0,
+                            name: shipInfo.name,
+                            definitionId: shipInfo.id,
+                        },
                     });
                 }
             }
@@ -102,7 +106,7 @@ export default function ShipSelection(props: ShipSelectionProps) {
     }
 
     const checkMouseHighlight = () => {
-        return placingShipId ? 'orange' : undefined;
+        return placingShip?.id ? 'orange' : undefined;
     }
 
     return <div className={classes.wrapper}>
@@ -113,8 +117,9 @@ export default function ShipSelection(props: ShipSelectionProps) {
             highlightTiles={displayedTargets}
             mouseHighlightStyle={checkMouseHighlight} />
         <SelectorPanel
-            ships={unplacedShips}
-            selectedId={placingShipId}
+            ships={props.gameSettings.ships}
+            placedIds={Object.keys(placedShips).map(Number)}
+            selectedId={placingShip?.id}
             placementValid={isPlacementValid}
             canRotate={!!placingShip}
             onSelected={onSelectShip}

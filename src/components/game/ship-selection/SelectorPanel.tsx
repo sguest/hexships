@@ -3,6 +3,7 @@ import { ShipDefinition } from '../../../config/GameSettings';
 
 export interface ShipSelectorProps {
     ships: ShipDefinition[]
+    placedIds: number[]
     selectedId?: number
     placementValid: boolean
     canRotate: boolean
@@ -67,6 +68,9 @@ const useStyles = createUseStyles({
     selectedShip: {
         backgroundColor: '#0050d4',
     },
+    placedShip: {
+        borderColor: '#ccc',
+    },
     actionContainer: {
         display: 'flex',
         justifyContent: 'space-between',
@@ -96,7 +100,11 @@ export default function SelectorPanel(props: ShipSelectorProps) {
     return <div className={classes.container}>
         <div className={classes.shipList}>
             {props.ships.map(s => {
-                return <button key={s.id} onClick={() => props.onSelected(s.id)} className={`${classes.ship} ${s.id === props.selectedId ? classes.selectedShip : ''}`}>
+                return <button
+                    key={s.id}
+                    onClick={() => props.onSelected(s.id)}
+                    className={`${classes.ship} ${s.id === props.selectedId ? classes.selectedShip : ''} ${props.placedIds.indexOf(s.id) === -1 ? '' : classes.placedShip}`}
+                >
                     <div>{s.name}</div>
                     <span>Size: {s.size}</span>
                 </button>
@@ -104,7 +112,7 @@ export default function SelectorPanel(props: ShipSelectorProps) {
         </div>
         <div className={classes.actionContainer}>
             <button className={classes.actionButton} onClick={props.onRotated} disabled={!props.canRotate}>Rotate</button>
-            <button className={classes.actionButton} onClick={props.onPlace} disabled={!props.placementValid}>Place</button>
+            <button className={classes.actionButton} onClick={props.onPlace} disabled={!props.placementValid}>Confirm</button>
         </div>
     </div>
 }

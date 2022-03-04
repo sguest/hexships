@@ -24,20 +24,27 @@ export function getPoints(ship: Ship) {
     return points;
 }
 
-export function isPlacementValid(ships: Ship[], gridSize: number) {
-    const points = ships.map(s => getPoints(s));
-    for(let i = 0; i < ships.length; i++) {
-        for(const point of points[i]) {
-            if(!hexUtils.isInGrid(point, gridSize)) {
+export function isShipValid(ship: Ship, otherShips: Ship[], gridSize: number) {
+    const shipPoints = getPoints(ship);
+    const otherPoints = otherShips.map(s => getPoints(s)).flat();
+    for(const point of shipPoints) {
+        if(!hexUtils.isInGrid(point, gridSize)) {
+            return false;
+        }
+        for(const otherPoint of otherPoints) {
+            if(pointUtils.equal(point, otherPoint)) {
                 return false;
             }
-            for(let j = i + 1; j < ships.length; j++) {
-                for(const point2 of points[j]) {
-                    if(pointUtils.equal(point, point2)) {
-                        return false;
-                    }
-                }
-            }
+        }
+    }
+
+    return true;
+}
+
+export function isPlacementValid(ships: Ship[], gridSize: number) {
+    for(let i = 0; i < ships.length; i++) {
+        if(!isShipValid(ships[i], ships.slice(i + 1), gridSize)) {
+            return false;
         }
     }
 
