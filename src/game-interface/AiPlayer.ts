@@ -142,13 +142,34 @@ export default class AiPlayer {
             this.priorityHits.splice(0, 1);
         }
 
+        const remainingShips = this.gameSettings.ships.filter(s => !this.sunkShips.some(ss => s.id === ss));
+        const minSize = Math.min(...remainingShips.map(s => s.size));
+
         const targets: Point[] = [];
         for(let x = -this.gameSettings.gridSize; x <= this.gameSettings.gridSize; x++) {
             for(let y = -this.gameSettings.gridSize; y <= this.gameSettings.gridSize; y++) {
                 const target = { x, y };
                 if(hexUtils.isInGrid(target, this.gameSettings.gridSize) &&
                         (this.getOwnShot(target)) === undefined) {
-                    targets.push(target);
+                    for(let dir = 0; dir < 3; dir++) {
+                        const delta = direction.getDelta(dir);
+                        let valid = true;
+                        const newTargets = [target];
+                        let current = target;
+                        for(let i = 1; i < minSize; i++) {
+                            current = pointUtils.add(current, delta);
+                            const ownShot = this.getOwnShot(current);
+                            if(!hexUtils.isInGrid(current, this.gameSettings.gridSize) || ownShot === MarkerType.Miss) {
+                                valid = false;
+                            }
+                            else if(ownShot === undefined) {
+                                newTargets.push(current);
+                            }
+                        }
+                        if(valid) {
+                            targets.push(...newTargets);
+                        }
+                    }
                 }
             }
         }
