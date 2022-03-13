@@ -226,7 +226,7 @@ export default function Game(props: GameProps) {
                     <p className={classes.enemyShipHeader}>Enemy Ships</p>
                     <div>
                         {props.gameSettings.ships.map(ship => {
-                            return <div className={`${classes.enemyShip} ${localState?.sunkEnemies.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name}</div>
+                            return <div className={`${classes.enemyShip} ${localState?.sunkEnemies.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name} ({ship.size})</div>
                         })}
                     </div>
                     { currentAction === CurrentAction.SelectingShot &&
