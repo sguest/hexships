@@ -12,10 +12,23 @@ export interface FieldProps {
 }
 
 const useStyles = createUseStyles({
+    '@keyframes boardGradient': {
+        from: { backgroundPosition: '0% 50%' },
+        to: { backgroundPosition: '100% 50%' },
+    },
     canvas: {
+        animationName: '$boardGradient',
+        animationDuration: '20s',
+        animationIterationCount: 'infinite',
+        animationTimingFunction: 'ease',
+        animationDirection: 'alternate',
         position: 'absolute',
         zIndex: 1,
         pointerEvents: 'none',
+        background: 'linear-gradient(80deg, #00545c 0%, #00405c 30%, #00545c 60%, #00405c 90%)',
+        backgroundSize: '400% 400%',
+        border: '5px solid #242f40',
+        boxSizing: 'border-box',
     },
 })
 

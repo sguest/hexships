@@ -17,6 +17,8 @@ const useStyles = createUseStyles({
         position: 'absolute',
         zIndex: 4,
         pointerEvents: 'none',
+        border: '5px solid transparent',
+        boxSizing: 'border-box',
     },
 })
 

@@ -14,8 +14,17 @@ export interface ShipSelectionProps {
 
 const useStyles = createUseStyles({
     wrapper: {
-        display: 'flex',
-        flexWrap: 'wrap',
+        display: 'grid',
+        gridTemplateColumns: '5fr 1fr',
+        gridTemplateRows: '100%',
+        width: '100%',
+        height: '100%',
+        columnGap: '10px',
+        '@media (max-width: 640px)': {
+            gridTemplateColumns: '100%',
+            gridTemplateRows: '5fr 1fr',
+            rowGap: '10px',
+        },
     },
 })
 

@@ -12,12 +12,11 @@ export interface ShipSelectorProps {
     onPlace: () => void
 }
 
-const wrapBreakpoint = 750;
+const wrapBreakpoint = 640;
 
 const useStyles = createUseStyles({
     container: {
         display: 'inline-block',
-        padding: 10,
         [`@media (max-width: ${wrapBreakpoint}px)`]: {
             width: '100%',
         },
@@ -29,15 +28,11 @@ const useStyles = createUseStyles({
         width: '100%',
     },
     shipList: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
+        display: 'grid',
+        gridTemplateRows: 'repeat(6, 1fr)',
         [`@media (max-width: ${wrapBreakpoint}px)`]: {
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            width: '100%',
+            gridTemplateRows: 'repeat(2, 1fr)',
+            gridTemplateColumns: 'repeat(3, 1fr)',
         },
     },
     ship: {
@@ -45,7 +40,6 @@ const useStyles = createUseStyles({
         background: 'transparent',
         color: '#ccc',
         cursor: 'pointer',
-        width: 220,
         textAlign: 'left',
         boxSizing: 'border-box',
         margin: {
@@ -57,12 +51,26 @@ const useStyles = createUseStyles({
             top: 5,
             bottom: 5,
         },
+        '@media (max-width: 560px)': {
+            padding: {
+                left: 4,
+                right: 4,
+                top: 2,
+                bottom: 2,
+            },
+        },
         '& div': {
             fontSize: '1.5rem',
+            '@media (max-width: 560px)': {
+                fontSize: '1.1rem',
+            },
         },
         '& span': {
             fontSize: '1rem',
             display: 'inline-block',
+            '@media (max-width: 560px)': {
+                fontSize: '0.8rem',
+            },
         },
     },
     selectedShip: {
@@ -90,6 +98,7 @@ const useStyles = createUseStyles({
         },
         [`@media (max-width: ${wrapBreakpoint}px)`]: {
             alignSelf: 'stretch',
+            fontSize: '1rem',
         },
     },
 })

@@ -25,8 +25,17 @@ export interface GameProps {
 
 const useStyles = createUseStyles({
     wrapper: {
-        display: 'flex',
-        flexWrap: 'wrap',
+        display: 'grid',
+        gridTemplateRows: '100%',
+        gridTemplateColumns: '4fr 4fr 1fr',
+        width: '100%',
+        height: '100%',
+        gridTemplateAreas: '"friend enemy panel"',
+        '@media (max-width: 640px)': {
+            gridTemplateColumns: '8fr 1fr',
+            gridTemplateRows: '4fr 3fr',
+            gridTemplateAreas: '"enemy enemy" "friend panel"',
+        },
     },
     menuButton: {
         position: 'absolute',
@@ -46,15 +55,26 @@ const useStyles = createUseStyles({
             right: 10,
             bottom: 60,
         },
+        boxSizing: 'border-box',
         minHeight: 90,
         width: '100%',
         maxWidth: 200,
+        gridArea: 'panel',
+        '@media (max-width: 640px)': {
+            padding: 0,
+        },
+        display: 'grid',
+        gridTemplateColumns: '100%',
+        gridTemplateRows: 'repeat(7, 1fr)',
     },
     info: {
         fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
         color: '#ccc',
         fontSize: '2rem',
         margin: 0,
+        '@media (max-width: 640px)': {
+            fontSize: '1rem',
+        },
     },
     enemyShipHeader: {
         fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
@@ -63,6 +83,18 @@ const useStyles = createUseStyles({
         margin: {
             top: 10,
             bottom: 0,
+        },
+        '@media (max-width: 640px)': {
+            fontSize: '0.8rem',
+        },
+    },
+    enemyShips: {
+        display: 'grid',
+        gridTemplateColumns: '100%',
+        gridTemplateRows: 'repeat(6, 1fr)',
+        '@media (max-width: 640px)': {
+            gridTemplateColumns: '1fr 1fr',
+            gridTemplateRows: 'repeat(3, 1fr)',
         },
     },
     enemyShip: {
@@ -73,6 +105,10 @@ const useStyles = createUseStyles({
         position: 'relative',
         padding: 4,
         margin: { top: 5 },
+        '@media (max-width: 640px)': {
+            fontSize: '0.6rem',
+            padding: 2,
+        },
     },
     enemyShipSunk: {
         border: '2px solid red',
@@ -95,9 +131,6 @@ const useStyles = createUseStyles({
         textShadow: '1px 1px 0 black',
         background: 'radial-gradient(#ff8000, #ff0000)',
         textTransform: 'uppercase',
-        position: 'absolute',
-        bottom: 10,
-        left: 10,
         '&:hover': {
             background: 'radial-gradient(#ffa447, #ff4747)',
         },
@@ -203,7 +236,7 @@ export default function Game(props: GameProps) {
             onOk={props.onExit}
             onCancel={onDialogCancel}
         />}
-        <button className={classes.menuButton} onClick={onMenuClick}>Return to Menu</button>
+        <button className={classes.menuButton} onClick={onMenuClick}>Menu</button>
         { currentAction === CurrentAction.PlacingShips
             ? <ShipSelection
                 gameSettings={props.gameSettings}
@@ -213,24 +246,26 @@ export default function Game(props: GameProps) {
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.ownShips}
                     markers={localState?.opponentMarkers}
-                    highlightTiles={lastOpponentShot ? [{ x: lastOpponentShot.x, y: lastOpponentShot.y, style: 'orange' }] : undefined} />
+                    highlightTiles={lastOpponentShot ? [{ x: lastOpponentShot.x, y: lastOpponentShot.y, style: 'orange' }] : undefined}
+                    gridArea="friend" />
                 <Board
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.opponentShips}
                     markers={localState?.ownMarkers}
                     onSelectTile={onSelectTile}
                     highlightTiles={displayedTargets}
-                    mouseHighlightStyle={checkMouseHighlight} />
+                    mouseHighlightStyle={checkMouseHighlight}
+                    gridArea="enemy" />
                 <div className={classes.statusPanel}>
                     {statusMessage && <p className={classes.info}>{statusMessage}</p>}
                     <p className={classes.enemyShipHeader}>Enemy Ships</p>
-                    <div>
+                    <div className={classes.enemyShips}>
                         {props.gameSettings.ships.map(ship => {
                             return <div className={`${classes.enemyShip} ${localState?.sunkEnemies.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name} ({ship.size})</div>
                         })}
+                        { currentAction === CurrentAction.SelectingShot &&
+                            <button className={classes.fire} onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button> }
                     </div>
-                    { currentAction === CurrentAction.SelectingShot &&
-                        <button className={classes.fire} onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button> }
                 </div>
             </div>
         }

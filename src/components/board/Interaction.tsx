@@ -18,6 +18,8 @@ const useStyles = createUseStyles({
     canvas: {
         position: 'absolute',
         zIndex: 2,
+        border: '5px solid transparent',
+        boxSizing: 'border-box',
     },
 })
 

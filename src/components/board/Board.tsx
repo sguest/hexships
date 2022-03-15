@@ -16,37 +16,31 @@ export type BoardProps = {
     onSelectTile?: (tile: Point) => void
     highlightTiles?: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}>
     mouseHighlightStyle?: (tile: Point) => string | CanvasPattern | CanvasGradient | undefined
+    gridArea?: string
 }
 
 const useStyles = createUseStyles({
-    '@keyframes boardGradient': {
-        from: { backgroundPosition: '0% 50%' },
-        to: { backgroundPosition: '100% 50%' },
-    },
     board: {
-        animationName: '$boardGradient',
-        animationDuration: '20s',
-        animationIterationCount: 'infinite',
-        animationTimingFunction: 'ease',
-        animationDirection: 'alternate',
         position: 'relative',
         width: '100%',
-        maxWidth: 500,
+        maxHeight: '100%',
         aspectRatio: 0.86,
         overflow: 'hidden',
-        background: 'linear-gradient(80deg, #00545c 0%, #00405c 30%, #00545c 60%, #00405c 90%)',
-        backgroundSize: '400% 400%',
-        border: '5px solid #242f40',
+        '@media (max-width: 640px)': {
+            maxWidth: '100%',
+            height: '100%',
+        },
+        gridArea: (props: BoardProps) => props.gridArea,
     },
 });
 
 export default function Board(props: BoardProps) {
     const boardRef = useRef<HTMLDivElement>(null);
     const [uiScale, setUiScale] = useState(0);
-    const classes = useStyles();
+    const classes = useStyles(props);
     useEffect(() => {
         const listener = () => {
-            setUiScale((boardRef?.current?.clientWidth || 0) / 420);
+            setUiScale(Math.min((boardRef?.current?.clientWidth || 0) / 420, (boardRef?.current?.clientHeight || 0) / 500));
         };
 
         window.addEventListener('resize', listener);
