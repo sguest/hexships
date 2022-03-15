@@ -8,9 +8,7 @@ function run(command, options) {
     exec(command, options);
 }
 
-run('git stash', err => console.log(err));
 run('yarn run build');
 run('git add . --force', { cwd: distPath });
 run('git commit -m "gh-pages"', { cwd: distPath });
 run('git push origin gh-pages --force', { cwd: distPath });
-run('git stash pop');
