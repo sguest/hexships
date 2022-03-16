@@ -17,6 +17,7 @@ export type BoardProps = {
     highlightTiles?: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}>
     mouseHighlightStyle?: (tile: Point) => string | CanvasPattern | CanvasGradient | undefined
     gridArea?: string
+    overlayStyle?: string | CanvasGradient | CanvasPattern
 }
 
 const useStyles = createUseStyles({
@@ -64,7 +65,8 @@ export default function Board(props: BoardProps) {
                 highlightTiles={props.highlightTiles}
                 mouseHighlightStyle={props.mouseHighlightStyle}
                 uiScale={uiScale}
-                gridDimensions={gridDimensions} /> }
+                gridDimensions={gridDimensions}
+                overlayStyle={props.overlayStyle} /> }
         { props.ships && <Ships ships={props.ships} uiScale={uiScale} gridDimensions={gridDimensions} /> }
         { !!props.markers?.length && <Markers markers={props.markers} uiScale={uiScale} gridDimensions={gridDimensions}/> }
     </div>

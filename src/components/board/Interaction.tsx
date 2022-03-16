@@ -12,6 +12,7 @@ export interface InteractionProps {
     uiScale: number
     gridDimensions: Point
     onSelectTile?: (tile: Point) => void
+    overlayStyle?: string | CanvasGradient | CanvasPattern
 }
 
 const useStyles = createUseStyles({
@@ -42,6 +43,11 @@ export default function Interaction(props: InteractionProps) {
                 context.fill();
             }
 
+            if(props.overlayStyle && canvasRef?.current) {
+                context.fillStyle = props.overlayStyle;
+                context.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            }
+
             if(hoverTile && hoverStyle) {
                 fillTile(hoverTile, hoverStyle);
             }
@@ -52,7 +58,7 @@ export default function Interaction(props: InteractionProps) {
                 }
             }
         });
-    }, [canvasRef, props.highlightTiles, hoverTile, hoverStyle, props.uiScale, props.gridDimensions])
+    }, [canvasRef, props.highlightTiles, hoverTile, hoverStyle, props.uiScale, props.gridDimensions, props.overlayStyle])
 
     const getMouseTile = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();

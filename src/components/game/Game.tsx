@@ -230,6 +230,14 @@ export default function Game(props: GameProps) {
         displayedTargets = [{ x: targetTile.x, y: targetTile.y, style: 'red' }];
     }
 
+    let overlayStyle: string | undefined;
+    if(localState?.gameWon) {
+        overlayStyle = 'rgba(0, 255, 0, 0.3)';
+    }
+    else if(localState?.gameLost) {
+        overlayStyle = 'rgba(255, 0, 0, 0.3)';
+    }
+
     return <>
         {showDialog && <Dialog
             text="Are you sure you want to end the game?"
@@ -247,7 +255,8 @@ export default function Game(props: GameProps) {
                     ships={localState?.ownShips}
                     markers={localState?.opponentMarkers}
                     highlightTiles={lastOpponentShot ? [{ x: lastOpponentShot.x, y: lastOpponentShot.y, style: 'orange' }] : undefined}
-                    gridArea="friend" />
+                    gridArea="friend"
+                    overlayStyle={overlayStyle} />
                 <Board
                     gridSize={props.gameSettings.gridSize}
                     ships={localState?.opponentShips}
@@ -255,7 +264,8 @@ export default function Game(props: GameProps) {
                     onSelectTile={onSelectTile}
                     highlightTiles={displayedTargets}
                     mouseHighlightStyle={checkMouseHighlight}
-                    gridArea="enemy" />
+                    gridArea="enemy"
+                    overlayStyle={overlayStyle} />
                 <div className={classes.statusPanel}>
                     {statusMessage && <p className={classes.info}>{statusMessage}</p>}
                     <p className={classes.enemyShipHeader}>Enemy Ships</p>
