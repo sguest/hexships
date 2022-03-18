@@ -17,9 +17,17 @@ export default class Game {
     private players: {[key: number]: Player};
 
     constructor(player1: Player, player2: Player) {
-        this.players = {
-            0: player1,
-            1: player2,
+        if(Math.random() < 0.5) {
+            this.players = {
+                0: player1,
+                1: player2,
+            }
+        }
+        else {
+            this.players = {
+                0: player2,
+                1: player1,
+            }
         }
 
         const gameManager = new GameManager(settings, (playerId, state) => {
