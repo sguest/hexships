@@ -50,6 +50,25 @@ const useStyles = createUseStyles({
             left: 20,
         },
     },
+    buttonStyle: {
+        fontSize: '1.2rem',
+        border: '2px solid black',
+        padding: {
+            top: 4,
+            bottom: 4,
+            left: 10,
+            right: 10,
+        },
+        margin: {
+            left: 20,
+        },
+        cursor: 'pointer',
+        color: '#ccc',
+        backgroundColor: '#333',
+        '&:hover': {
+            backgroundColor: '#555',
+        },
+    },
 })
 
 export default function MainMenu(props: MainMenuProps) {
@@ -74,7 +93,7 @@ export default function MainMenu(props: MainMenuProps) {
         <h1 className={classes.heading}>Hexships</h1>
         {isQuickMatchSearch && <>
             <p className={classes.statusText}>Searching for opponent...</p>
-            <button onClick={cancelQuickConnect}>Cancel</button>
+            <button className={classes.buttonStyle} onClick={cancelQuickConnect}>Cancel</button>
         </>}
         {!isQuickMatchSearch &&
             <ul className={classes.menu}>
