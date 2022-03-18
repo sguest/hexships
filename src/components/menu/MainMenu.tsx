@@ -64,9 +64,18 @@ export default function MainMenu(props: MainMenuProps) {
         props.socket.emit('quick-connect');
     }
 
+    const cancelQuickConnect = () => {
+        props.socket.emit('cancel-quick-connect');
+        props.socket.off('quick-match-found');
+        setIsquickMatchSearch(false);
+    }
+
     return <>
         <h1 className={classes.heading}>Hexships</h1>
-        {isQuickMatchSearch && <p className={classes.statusText}>Searching for opponent...</p>}
+        {isQuickMatchSearch && <>
+            <p className={classes.statusText}>Searching for opponent...</p>
+            <button onClick={cancelQuickConnect}>Cancel</button>
+        </>}
         {!isQuickMatchSearch &&
             <ul className={classes.menu}>
                 <li><button className={classes.menuButton} onClick={() => props.onNewGame(new LocalGameInterface(props.gameSettings))}>Versus AI</button></li>

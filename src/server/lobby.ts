@@ -14,8 +14,22 @@ function requestQuickConnect(player: Player) {
     }
 }
 
+function cancelQuickConnect(player: Player) {
+    if(quickConnectWaiting === player) {
+        quickConnectWaiting = undefined;
+    }
+}
+
 export function registerQuickConnect(player: Player) {
     player.on('quick-connect', () => {
         requestQuickConnect(player);
+    });
+
+    player.on('cancel-quick-connect', () => {
+        cancelQuickConnect(player);
     })
+
+    player.on('disconnect', () => {
+        cancelQuickConnect(player);
+    });
 }
