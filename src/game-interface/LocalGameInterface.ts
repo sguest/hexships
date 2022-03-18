@@ -40,6 +40,9 @@ export default class LocalGameInterface implements GameInterface {
         this.gameManager.fireShot(localPlayerId, target);
     }
 
+    public leaveGame() {
+    }
+
     private sendState(playerId: number, state: LocalState) {
         if(playerId === localPlayerId) {
             this.stateSubscriptions.forEach(s => s(state));

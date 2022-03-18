@@ -16,10 +16,12 @@ export default class GameManager {
             {
                 ships: [],
                 markers: [],
+                active: true,
             },
             {
                 ships: [],
                 markers: [],
+                active: true,
             },
         ];
         this.activePlayerId = 0;
@@ -39,12 +41,14 @@ export default class GameManager {
             sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.definitionId),
             gameWon,
             gameLost,
-            enemyShipsPlaced: !!this.players[otherPlayerId].ships.length,
+            opponentShipsPlaced: !!this.players[otherPlayerId].ships.length,
+            opponentLeft: !this.players[otherPlayerId].active,
         }
     }
 
     private playerLost(playerId: number) {
-        return !!this.players[playerId].ships.length && this.players[playerId].ships.every(s => s.hits === s.size);
+        const player = this.players[playerId];
+        return !player.active || (!!player.ships.length && player.ships.every(s => s.hits === s.size));
     }
 
     private validateShipPlacement(ships: Ship[]) {
@@ -120,6 +124,11 @@ export default class GameManager {
             })
             this.activePlayerId = otherPlayerId;
         }
+        this.broadcastState();
+    }
+
+    public leaveGame(playerId: number) {
+        this.players[playerId].active = false;
         this.broadcastState();
     }
 

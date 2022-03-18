@@ -30,6 +30,8 @@ export default class Game {
             const player = this.players[id];
             player.on('set-ships', ships => gameManager.setShips(+id, ships));
             player.on('fire-shot', target => gameManager.fireShot(+id, target));
+            player.on('disconnect', () => gameManager.leaveGame(+id));
+            player.on('leave-game', () => gameManager.leaveGame(+id));
             player.send('quick-match-found');
         }
     }

@@ -165,7 +165,7 @@ export default function Game(props: GameProps) {
                 currentAction = CurrentAction.GameOver;
             }
             else if(state.ownShips?.length) {
-                if(state.enemyShipsPlaced) {
+                if(state.opponentShipsPlaced) {
                     currentAction = CurrentAction.SelectingShot;
                 }
                 else {
@@ -213,6 +213,11 @@ export default function Game(props: GameProps) {
         setShowDialog(true);
     }
 
+    const onDialogOk = () => {
+        props.gameInterface.leaveGame();
+        props.onExit();
+    }
+
     const onDialogCancel = () => {
         setShowDialog(false);
     }
@@ -225,7 +230,12 @@ export default function Game(props: GameProps) {
         statusMessage = localState?.isOwnTurn ? 'Take your shot' : 'Enemy\'s turn';
     }
     else if(currentAction === CurrentAction.GameOver) {
-        statusMessage = `You have ${localState?.gameWon ? 'Won' : 'Lost'}`;
+        if(localState?.opponentLeft) {
+            statusMessage = 'Your opponent left';
+        }
+        else {
+            statusMessage = `You have ${localState?.gameWon ? 'Won' : 'Lost'}`;
+        }
     }
     else if(currentAction === CurrentAction.EnemyPlacingShips) {
         statusMessage = 'Enemy placing ships';
@@ -250,7 +260,7 @@ export default function Game(props: GameProps) {
     return <>
         {showDialog && <Dialog
             text="Are you sure you want to end the game?"
-            onOk={props.onExit}
+            onOk={onDialogOk}
             onCancel={onDialogCancel}
         />}
         <button className={classes.menuButton} onClick={onMenuClick}>Menu</button>
