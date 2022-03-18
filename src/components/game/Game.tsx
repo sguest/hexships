@@ -13,6 +13,7 @@ import { MarkerType } from '../../game-state/Marker';
 
 enum CurrentAction {
     PlacingShips,
+    EnemyPlacingShips,
     SelectingShot,
     GameOver,
 }
@@ -164,7 +165,12 @@ export default function Game(props: GameProps) {
                 currentAction = CurrentAction.GameOver;
             }
             else if(state.ownShips?.length) {
-                currentAction = CurrentAction.SelectingShot;
+                if(state.enemyShipsPlaced) {
+                    currentAction = CurrentAction.SelectingShot;
+                }
+                else {
+                    currentAction = CurrentAction.EnemyPlacingShips;
+                }
             }
             setCurrentAction(currentAction);
         }
@@ -220,6 +226,9 @@ export default function Game(props: GameProps) {
     }
     else if(currentAction === CurrentAction.GameOver) {
         statusMessage = `You have ${localState?.gameWon ? 'Won' : 'Lost'}`;
+    }
+    else if(currentAction === CurrentAction.EnemyPlacingShips) {
+        statusMessage = 'Enemy placing ships';
     }
 
     let displayedTargets: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}> | undefined;

@@ -10,4 +10,5 @@ export default interface LocalState {
     sunkEnemies: number[];
     gameWon: boolean;
     gameLost: boolean;
+    enemyShipsPlaced: boolean;
 }

@@ -39,11 +39,12 @@ export default class GameManager {
             sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.definitionId),
             gameWon,
             gameLost,
+            enemyShipsPlaced: !!this.players[otherPlayerId].ships.length,
         }
     }
 
     private playerLost(playerId: number) {
-        return this.players[playerId].ships.every(s => s.hits === s.size);
+        return !!this.players[playerId].ships.length && this.players[playerId].ships.every(s => s.hits === s.size);
     }
 
     private validateShipPlacement(ships: Ship[]) {
@@ -84,8 +85,14 @@ export default class GameManager {
         const newShips = this.validateShipPlacement(ships);
         if(newShips.length) {
             this.players[playerId].ships = newShips;
+            const otherPlayerId = +!playerId;
+            if(this.players[otherPlayerId].ships.length) {
+                this.broadcastState();
+            }
+            else {
+                this.subscriber(playerId, this.getLocalState(playerId));
+            }
         }
-        this.broadcastState();
     }
 
     public fireShot(playerId: number, target: Point) {

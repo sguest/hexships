@@ -1,9 +1,9 @@
-const exec = require('child_process').execSync;
-const path = require('path');
+import { execSync as exec } from 'child_process';
+import * as path from 'path';
 
-const distPath = path.join(__dirname, '..\\dist');
+const distPath = path.join(__dirname, '../dist');
 
-function run(command, options) {
+function run(command: string, options?: any) {
     console.log(command);
     exec(command, options);
 }

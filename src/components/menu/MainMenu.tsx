@@ -1,7 +1,15 @@
+import { useState } from 'react';
 import { createUseStyles } from 'react-jss'
+import { Socket } from 'socket.io-client';
+import GameSettings from '../../config/GameSettings';
+import GameInterface from '../../game-interface/GameInterface';
+import LocalGameInterface from '../../game-interface/LocalGameInterface';
+import RemoteGameInterface from '../../game-interface/RemoteGameInterface';
 
 export interface MainMenuProps {
-    onNewGame: () => void
+    onNewGame: (gameInterface: GameInterface) => void
+    gameSettings: GameSettings
+    socket: Socket
 }
 
 const useStyles = createUseStyles({
@@ -34,14 +42,36 @@ const useStyles = createUseStyles({
             color: '#fff',
         },
     },
+    statusText: {
+        fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
+        color: '#ccc',
+        fontSize: '1.5rem',
+        padding: {
+            left: 20,
+        },
+    },
 })
 
 export default function MainMenu(props: MainMenuProps) {
     const classes = useStyles();
+    const [isQuickMatchSearch, setIsquickMatchSearch] = useState(false);
+
+    const enterQuickMatch = () => {
+        setIsquickMatchSearch(true);
+        props.socket.once('quick-match-found', () => {
+            props.onNewGame(new RemoteGameInterface(props.socket));
+        })
+        props.socket.emit('quick-connect');
+    }
+
     return <>
         <h1 className={classes.heading}>Hexships</h1>
-        <ul className={classes.menu}>
-            <li><button className={classes.menuButton} onClick={props.onNewGame}>New Game</button></li>
-        </ul>
+        {isQuickMatchSearch && <p className={classes.statusText}>Searching for opponent...</p>}
+        {!isQuickMatchSearch &&
+            <ul className={classes.menu}>
+                <li><button className={classes.menuButton} onClick={() => props.onNewGame(new LocalGameInterface(props.gameSettings))}>Versus AI</button></li>
+                <li><button className={classes.menuButton} onClick={enterQuickMatch}>Find Opponent</button></li>
+            </ul>
+        }
     </>
 }

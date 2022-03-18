@@ -3,8 +3,8 @@ import { useState } from 'react';
 import MainMenu from './components/menu/MainMenu';
 import Game from './components/game/Game';
 import GameInterface from './game-interface/GameInterface';
-import LocalGameInterface from './game-interface/LocalGameInterface';
 import { createUseStyles } from 'react-jss';
+import { io } from 'socket.io-client';
 
 const settings: GameSettings = {
     gridSize: 7,
@@ -26,12 +26,14 @@ const useStyles = createUseStyles({
     },
 })
 
+const socket = io();
+
 function App() {
     const [gameInterface, setGameInterface] = useState<GameInterface | null>(null);
     const classes = useStyles();
 
-    const onNewGame = () => {
-        setGameInterface(new LocalGameInterface(settings));
+    const onNewGame = (gameInterface: GameInterface) => {
+        setGameInterface(gameInterface);
     }
 
     const onExitGame = () => {
@@ -41,7 +43,7 @@ function App() {
     return <div className={classes.container}>
         { gameInterface
             ? <Game gameInterface={gameInterface} gameSettings={settings} onExit={onExitGame} />
-            : <MainMenu onNewGame={onNewGame} />}
+            : <MainMenu onNewGame={onNewGame} gameSettings={settings} socket={socket} />}
     </div>
 }
 
