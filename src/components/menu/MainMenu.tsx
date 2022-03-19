@@ -9,7 +9,8 @@ import RemoteGameInterface from '../../game-interface/RemoteGameInterface';
 export interface MainMenuProps {
     onNewGame: (gameInterface: GameInterface) => void
     gameSettings: GameSettings
-    socket: Socket
+    socket: Socket | undefined
+    isConnected: boolean
 }
 
 const useStyles = createUseStyles({
@@ -77,15 +78,15 @@ export default function MainMenu(props: MainMenuProps) {
 
     const enterQuickMatch = () => {
         setIsquickMatchSearch(true);
-        props.socket.once('quick-match-found', () => {
-            props.onNewGame(new RemoteGameInterface(props.socket));
+        props.socket?.once('quick-match-found', () => {
+            props.onNewGame(new RemoteGameInterface(props.socket!));
         })
-        props.socket.emit('quick-connect');
+        props.socket?.emit('quick-connect');
     }
 
     const cancelQuickConnect = () => {
-        props.socket.emit('cancel-quick-connect');
-        props.socket.off('quick-match-found');
+        props.socket?.emit('cancel-quick-connect');
+        props.socket?.off('quick-match-found');
         setIsquickMatchSearch(false);
     }
 
@@ -98,7 +99,7 @@ export default function MainMenu(props: MainMenuProps) {
         {!isQuickMatchSearch &&
             <ul className={classes.menu}>
                 <li><button className={classes.menuButton} onClick={() => props.onNewGame(new LocalGameInterface(props.gameSettings))}>Versus AI</button></li>
-                <li><button className={classes.menuButton} onClick={enterQuickMatch}>Find Opponent</button></li>
+                { props.socket && props.isConnected && <li><button className={classes.menuButton} onClick={enterQuickMatch}>Find Opponent</button></li>}
             </ul>
         }
     </>
