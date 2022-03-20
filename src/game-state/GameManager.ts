@@ -128,8 +128,11 @@ export default class GameManager {
     }
 
     public leaveGame(playerId: number) {
-        this.players[playerId].active = false;
-        this.broadcastState();
+        const otherPlayerId = +!playerId;
+        if(!this.playerLost(playerId) && !this.playerLost(otherPlayerId)) {
+            this.players[playerId].active = false;
+            this.broadcastState();
+        }
     }
 
     private broadcastState() {
