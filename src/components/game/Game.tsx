@@ -287,14 +287,16 @@ export default function Game(props: GameProps) {
                     overlayStyle={overlayStyle} />
                 <div className={classes.statusPanel}>
                     {statusMessage && <p className={classes.info}>{statusMessage}</p>}
-                    <p className={classes.enemyShipHeader}>Enemy Ships</p>
-                    <div className={classes.enemyShips}>
-                        {props.gameSettings.ships.map(ship => {
-                            return <div className={`${classes.enemyShip} ${localState?.sunkEnemies.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name} ({ship.size})</div>
-                        })}
-                        { currentAction === CurrentAction.SelectingShot &&
-                            <button className={classes.fire} onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button> }
-                    </div>
+                    {currentAction !== CurrentAction.EnemyPlacingShips && <>
+                        <p className={classes.enemyShipHeader}>Enemy Ships</p>
+                        <div className={classes.enemyShips}>
+                            {props.gameSettings.ships.map(ship => {
+                                return <div className={`${classes.enemyShip} ${localState?.sunkEnemies.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name} ({ship.size})</div>
+                            })}
+                            { currentAction === CurrentAction.SelectingShot &&
+                                <button className={classes.fire} onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button> }
+                        </div>
+                    </>}
                 </div>
             </div>
         }
