@@ -8,8 +8,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
     "publish": "ts-node build/publish.ts",
-    "server": "ts-node src/server/index.ts",
-    "start": "npm run build && npm run server"
+    "start": "ts-node src/server/index.ts"
   },
   "dependencies": {
     "express": "^4.17.3",
