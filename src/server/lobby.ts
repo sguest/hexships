@@ -21,15 +21,15 @@ function cancelQuickConnect(player: Player) {
 }
 
 export function registerQuickConnect(player: Player) {
-    player.on('quick-connect', () => {
+    player.on('quick-connect', 'lobby', () => {
         requestQuickConnect(player);
     });
 
-    player.on('cancel-quick-connect', () => {
+    player.on('cancel-quick-connect', 'lobby', () => {
         cancelQuickConnect(player);
     })
 
-    player.on('disconnect', () => {
+    player.on('disconnect', 'lobby', () => {
         cancelQuickConnect(player);
     });
 }
