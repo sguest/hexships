@@ -45,7 +45,7 @@ export default function Interaction(props: InteractionProps) {
 
             if(props.overlayStyle && canvasRef?.current) {
                 context.fillStyle = props.overlayStyle;
-                context.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                context.fillRect(0, 0, 999999, 999999);
             }
 
             if(hoverTile && hoverStyle) {
