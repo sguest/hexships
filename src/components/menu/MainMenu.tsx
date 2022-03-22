@@ -93,7 +93,7 @@ export default function MainMenu(props: MainMenuProps) {
             { currentMenu === CurrentMenu.MainMenu &&
                 <Menu items={[
                     { text: 'Versus AI', onClick: () => setCurrentMenu(CurrentMenu.SinglePlayerMode) },
-                    { text: 'Find Opponent', onClick: () => setCurrentMenu(CurrentMenu.MultiplayerMode) },
+                    { text: 'Find Opponent', onClick: () => setCurrentMenu(CurrentMenu.MultiplayerMode), condition: props.isConnected },
                 ]} />
             }
             { currentMenu === CurrentMenu.SinglePlayerMode &&
