@@ -2,13 +2,15 @@ import { Socket } from 'socket.io-client';
 import GameSettings from '../config/GameSettings';
 import LocalState from '../game-state/LocalState';
 import Ship from '../game-state/Ship';
+import { ClientToServerEvents, ServerToClientEvents } from '../MessageTypes';
 import { Point } from '../utils/point-utils';
 import GameInterface, { StateSubscription } from './GameInterface';
 
+export type ClientSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 export default class RemoteGameInterface implements GameInterface {
     private stateSubscriptions: StateSubscription[];
 
-    constructor(private socket: Socket, private gameSettings: GameSettings) {
+    constructor(private socket: ClientSocket, private gameSettings: GameSettings) {
         this.stateSubscriptions = [];
 
         this.socket.on('update-state', (state: LocalState) => {

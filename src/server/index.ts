@@ -3,11 +3,11 @@ import * as http from 'http';
 import * as path from 'path';
 import { Server } from 'socket.io';
 import ConnectedPlayer from './ConnectedPlayer';
-import { registerQuickConnect } from './lobby';
+import { ClientToServerEvents, ServerToClientEvents } from '../MessageTypes';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
 
 app.use('/hexships', express.static(path.join(__dirname, '../../dist')));
 
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', socket => {
-    registerQuickConnect(new ConnectedPlayer(socket));
+    new ConnectedPlayer(socket).registerQuickConnect();
 })
 
 server.listen(3000, () => {

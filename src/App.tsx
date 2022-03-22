@@ -3,7 +3,8 @@ import MainMenu from './components/menu/MainMenu';
 import Game from './components/game/Game';
 import GameInterface from './game-interface/GameInterface';
 import { createUseStyles } from 'react-jss';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
+import { ClientSocket } from './game-interface/RemoteGameInterface';
 
 const useStyles = createUseStyles({
     container: {
@@ -17,7 +18,7 @@ const useStyles = createUseStyles({
 function App() {
     const [gameInterface, setGameInterface] = useState<GameInterface | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [socket, setSocket] = useState<Socket | undefined>(undefined);
+    const [socket, setSocket] = useState<ClientSocket | undefined>(undefined);
     const classes = useStyles();
 
     useEffect(() => {

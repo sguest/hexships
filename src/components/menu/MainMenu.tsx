@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { createUseStyles } from 'react-jss'
-import { Socket } from 'socket.io-client';
 import GameInterface from '../../game-interface/GameInterface';
 import LocalGameInterface from '../../game-interface/LocalGameInterface';
-import RemoteGameInterface from '../../game-interface/RemoteGameInterface';
+import RemoteGameInterface, { ClientSocket } from '../../game-interface/RemoteGameInterface';
 import GameSettings from '../../config/GameSettings';
 import { GameModeId } from '../../config/GameMode';
 import Menu from './Menu';
 import ModeSelection from './ModeSelection';
 export interface MainMenuProps {
     onNewGame: (gameInterface: GameInterface) => void
-    socket: Socket | undefined
+    socket: ClientSocket | undefined
     isConnected: boolean
 }
 
@@ -68,7 +67,7 @@ export default function MainMenu(props: MainMenuProps) {
 
     const enterQuickMatch = (mode: GameModeId) => {
         setIsquickMatchSearch(true);
-        props.socket?.once('quick-match-found', (settings: GameSettings) => {
+        props.socket?.once('join-game', (settings: GameSettings) => {
             props.onNewGame(new RemoteGameInterface(props.socket!, settings));
         })
         props.socket?.emit('quick-connect', mode);
@@ -76,7 +75,7 @@ export default function MainMenu(props: MainMenuProps) {
 
     const cancelQuickConnect = () => {
         props.socket?.emit('cancel-quick-connect');
-        props.socket?.off('quick-match-found');
+        props.socket?.off('join-game');
         setIsquickMatchSearch(false);
     }
 

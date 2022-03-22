@@ -1,29 +1,35 @@
-import { Socket } from 'socket.io';
+import GameManager from '../game-state/GameManager';
+import LocalState from '../game-state/LocalState';
+import { cancelQuickConnect, requestQuickConnect } from './lobby';
+import { ServerSocket } from './ServerSocket';
 
 export default class ConnectedPlayer {
-    private listeners: {[key: string]: Array<{name: string, listener:(...args: any[]) => void}>} = {};
-    constructor(private socket: Socket) {
+    constructor(private socket: ServerSocket) {
     }
 
-    public startGame() {
-        this.socket.broadcast.to(this.socket.id).emit('start-game');
+    public updateState(state: LocalState) {
+        this.socket.emit('update-state', state);
     }
 
-    public send(message: string, data?: any) {
-        this.socket.emit(message, data);
+    public joinGame(gameManager: GameManager, playerId: number) {
+        this.socket.on('set-ships', ships => gameManager.setShips(playerId, ships));
+        this.socket.on('fire-shot', target => gameManager.fireShot(playerId, target));
+        this.socket.on('disconnect', () => gameManager.leaveGame(playerId));
+        this.socket.on('leave-game', () => gameManager.leaveGame(playerId));
+
+        this.socket.emit('join-game', gameManager.gameSettings);
     }
 
-    public on(message: string, room: string, listener: (val: any) => void) {
-        this.socket.on(message, listener);
-        this.listeners[room] = this.listeners[room] || [];
-        this.listeners[room].push({ name: message, listener });
+    public leaveGame() {
+        this.socket.removeAllListeners('set-ships');
+        this.socket.removeAllListeners('fire-shot');
+        this.socket.removeAllListeners('disconnect');
+        this.socket.removeAllListeners('leave-game');
     }
 
-    public removeListeners(room: string) {
-        if(this.listeners[room]) {
-            for(const listener of this.listeners[room]) {
-                this.socket.off(listener.name, listener.listener);
-            }
-        }
+    public registerQuickConnect() {
+        this.socket.on('quick-connect', mode => requestQuickConnect(this, mode));
+        this.socket.on('cancel-quick-connect', () => cancelQuickConnect(this))
+        this.socket.on('disconnect', () => cancelQuickConnect(this));
     }
 }
