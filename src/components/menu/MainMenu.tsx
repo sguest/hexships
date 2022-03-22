@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { createUseStyles } from 'react-jss'
 import { Socket } from 'socket.io-client';
-import GameSettings from '../../config/GameSettings';
 import GameInterface from '../../game-interface/GameInterface';
 import LocalGameInterface from '../../game-interface/LocalGameInterface';
 import RemoteGameInterface from '../../game-interface/RemoteGameInterface';
-
+import GameSettings from '../../config/GameSettings';
+import { GameModeId } from '../../config/GameMode';
+import Menu from './Menu';
+import ModeSelection from './ModeSelection';
 export interface MainMenuProps {
     onNewGame: (gameInterface: GameInterface) => void
-    gameSettings: GameSettings
     socket: Socket | undefined
     isConnected: boolean
 }
@@ -23,24 +24,6 @@ const useStyles = createUseStyles({
             top: 10,
             bottom: 10,
             left: 20,
-        },
-    },
-    menu: {
-        margin: 0,
-        padding: {
-            left: 20,
-        },
-        listStyleType: 'none',
-    },
-    menuButton: {
-        background: 'transparent',
-        border: 'none',
-        fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
-        color: '#ccc',
-        fontSize: '1.5rem',
-        cursor: 'pointer',
-        '&:hover': {
-            color: '#fff',
         },
     },
     statusText: {
@@ -72,16 +55,23 @@ const useStyles = createUseStyles({
     },
 })
 
+enum CurrentMenu {
+    MainMenu,
+    SinglePlayerMode,
+    MultiplayerMode,
+}
+
 export default function MainMenu(props: MainMenuProps) {
     const classes = useStyles();
     const [isQuickMatchSearch, setIsquickMatchSearch] = useState(false);
+    const [currentMenu, setCurrentMenu] = useState(CurrentMenu.MainMenu);
 
-    const enterQuickMatch = () => {
+    const enterQuickMatch = (mode: GameModeId) => {
         setIsquickMatchSearch(true);
-        props.socket?.once('quick-match-found', () => {
-            props.onNewGame(new RemoteGameInterface(props.socket!));
+        props.socket?.once('quick-match-found', (settings: GameSettings) => {
+            props.onNewGame(new RemoteGameInterface(props.socket!, settings));
         })
-        props.socket?.emit('quick-connect');
+        props.socket?.emit('quick-connect', mode);
     }
 
     const cancelQuickConnect = () => {
@@ -90,17 +80,35 @@ export default function MainMenu(props: MainMenuProps) {
         setIsquickMatchSearch(false);
     }
 
+    const startAiGame = (settings: GameSettings) => {
+        props.onNewGame(new LocalGameInterface(settings));
+    }
+
     return <>
         <h1 className={classes.heading}>Hexships</h1>
         {isQuickMatchSearch && <>
             <p className={classes.statusText}>Searching for opponent...</p>
             <button className={classes.buttonStyle} onClick={cancelQuickConnect}>Cancel</button>
         </>}
-        {!isQuickMatchSearch &&
-            <ul className={classes.menu}>
-                <li><button className={classes.menuButton} onClick={() => props.onNewGame(new LocalGameInterface(props.gameSettings))}>Versus AI</button></li>
-                { props.socket && props.isConnected && <li><button className={classes.menuButton} onClick={enterQuickMatch}>Find Opponent</button></li>}
-            </ul>
-        }
+        {!isQuickMatchSearch && <>
+            { currentMenu === CurrentMenu.MainMenu &&
+                <Menu items={[
+                    { text: 'Versus AI', onClick: () => setCurrentMenu(CurrentMenu.SinglePlayerMode) },
+                    { text: 'Find Opponent', onClick: () => setCurrentMenu(CurrentMenu.MultiplayerMode) },
+                ]} />
+            }
+            { currentMenu === CurrentMenu.SinglePlayerMode &&
+                <ModeSelection
+                    onSelection={mode => startAiGame(mode.settings)}
+                    onCancel={() => setCurrentMenu(CurrentMenu.MainMenu)}
+                />
+            }
+            { currentMenu === CurrentMenu.MultiplayerMode &&
+                <ModeSelection
+                    onSelection={mode => enterQuickMatch(mode.id)}
+                    onCancel={() => setCurrentMenu(CurrentMenu.MainMenu)}
+                />
+            }
+        </>}
     </>
 }

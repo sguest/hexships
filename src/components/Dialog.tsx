@@ -2,8 +2,8 @@ import { createUseStyles } from 'react-jss';
 
 export interface DialogProps {
     text: string,
-    onOk: () => void,
-    onCancel: () => void,
+    onOk?: () => void,
+    onCancel?: () => void,
 }
 
 const buttonStyle = {
@@ -25,6 +25,8 @@ const useStyles = createUseStyles({
         height: '100%',
         background: 'rgba(50, 50, 50, 0.6)',
         zIndex: 99,
+        top: 0,
+        left: 0,
     },
     dialog: {
         border: '3px solid #ccc',
@@ -66,8 +68,8 @@ export default function Dialog(props: DialogProps) {
         <div className={classes.dialog}>
             <p>{props.text}</p>
             <div className={classes.buttonContainer}>
-                <button className={classes.okButton} onClick={props.onOk}>OK</button>
-                <button className={classes.cancelButton} onClick={props.onCancel}>Cancel</button>
+                { props.onOk && <button className={classes.okButton} onClick={props.onOk}>OK</button> }
+                { props.onCancel && <button className={classes.cancelButton} onClick={props.onCancel}>Cancel</button> }
             </div>
         </div>
     </div>;

@@ -1,3 +1,4 @@
+import GameSettings from '../config/GameSettings';
 import LocalState from '../game-state/LocalState';
 import Ship from '../game-state/Ship';
 import { Point } from '../utils/point-utils';
@@ -10,4 +11,5 @@ export default interface GameInterface {
     setShips: (ships: Ship[]) => void
     fireShot: (target: Point) => void
     leaveGame: () => void
+    getSettings: () => GameSettings
 }

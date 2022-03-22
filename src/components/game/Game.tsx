@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import GameSettings from '../../config/GameSettings';
 import GameInterface from '../../game-interface/GameInterface';
 import LocalState from '../../game-state/LocalState';
 import Board from '../board/Board';
@@ -19,7 +18,6 @@ enum CurrentAction {
 }
 
 export interface GameProps {
-    gameSettings: GameSettings
     gameInterface: GameInterface
     onExit: () => void
 }
@@ -150,6 +148,8 @@ export default function Game(props: GameProps) {
     const [showDialog, setShowDialog] = useState(false);
     const classes = useStyles();
 
+    const gameSettings = props.gameInterface.getSettings();
+
     useEffect(() => {
         const subscriber = (state: LocalState) => {
             setLocalState({
@@ -266,18 +266,18 @@ export default function Game(props: GameProps) {
         <button className={classes.menuButton} onClick={onMenuClick}>Menu</button>
         { currentAction === CurrentAction.PlacingShips
             ? <ShipSelection
-                gameSettings={props.gameSettings}
+                gameSettings={gameSettings}
                 onShipsPlaced={onShipsPlaced} />
             : <div className={classes.wrapper}>
                 <Board
-                    gridSize={props.gameSettings.gridSize}
+                    gridSize={gameSettings.gridSize}
                     ships={localState?.ownShips}
                     markers={localState?.opponentMarkers}
                     highlightTiles={lastOpponentShot ? [{ x: lastOpponentShot.x, y: lastOpponentShot.y, style: 'orange' }] : undefined}
                     gridArea="friend"
                     overlayStyle={overlayStyle} />
                 <Board
-                    gridSize={props.gameSettings.gridSize}
+                    gridSize={gameSettings.gridSize}
                     ships={localState?.opponentShips}
                     markers={localState?.ownMarkers}
                     onSelectTile={onSelectTile}
@@ -290,7 +290,7 @@ export default function Game(props: GameProps) {
                     {currentAction !== CurrentAction.EnemyPlacingShips && <>
                         <p className={classes.enemyShipHeader}>Enemy Ships</p>
                         <div className={classes.enemyShips}>
-                            {props.gameSettings.ships.map(ship => {
+                            {gameSettings.ships.map(ship => {
                                 return <div className={`${classes.enemyShip} ${localState?.sunkEnemies.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name} ({ship.size})</div>
                             })}
                             { currentAction === CurrentAction.SelectingShot &&

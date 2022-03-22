@@ -1,23 +1,12 @@
-import GameSettings from '../config/GameSettings';
 import GameManager from '../game-state/GameManager';
 import Player from './ConnectedPlayer';
-
-const settings: GameSettings = {
-    gridSize: 7,
-    ships: [
-        { id: 1, size: 2, name: 'Patrol Boat' },
-        { id: 2, size: 3, name: 'Destroyer' },
-        { id: 3, size: 3, name: 'Submarine' },
-        { id: 4, size: 4, name: 'Battleship' },
-        { id: 5, size: 5, name: 'Aircraft Carrier' },
-    ],
-};
+import GameSettings from '../config/GameSettings';
 
 export default class Game {
     private players: {[key: number]: Player};
     private id: string;
 
-    constructor(player1: Player, player2: Player) {
+    constructor(settings: GameSettings, player1: Player, player2: Player) {
         this.id = Math.random().toString();
         if(Math.random() < 0.5) {
             this.players = {
@@ -48,7 +37,7 @@ export default class Game {
             player.on('fire-shot', this.id, target => gameManager.fireShot(+id, target));
             player.on('disconnect', this.id, () => gameManager.leaveGame(+id));
             player.on('leave-game', this.id, () => gameManager.leaveGame(+id));
-            player.send('quick-match-found');
+            player.send('quick-match-found', settings);
         }
     }
 }

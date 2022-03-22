@@ -7,4 +7,5 @@ export interface ShipDefinition {
 export default interface GameSettings {
     gridSize: number
     ships: ShipDefinition[]
+    streak: boolean
 }

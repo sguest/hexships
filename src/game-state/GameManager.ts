@@ -121,8 +121,10 @@ export default class GameManager {
                 x: target.x,
                 y: target.y,
                 type: isHit ? MarkerType.Hit : MarkerType.Miss,
-            })
-            this.activePlayerId = otherPlayerId;
+            });
+            if(!this.gameSettings.streak || !isHit) {
+                this.activePlayerId = otherPlayerId;
+            }
         }
         this.broadcastState();
     }
