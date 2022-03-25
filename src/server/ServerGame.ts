@@ -1,9 +1,9 @@
 import GameManager from '../game-state/GameManager';
-import Player from './ConnectedPlayer';
+import ConnectedPlayer from './ConnectedPlayer';
 import GameSettings from '../config/GameSettings';
 
-export function startGame(settings: GameSettings, player1: Player, player2: Player) {
-    let players: {[key: number]: Player}
+export function startGame(settings: GameSettings, player1: ConnectedPlayer, player2: ConnectedPlayer) {
+    let players: {[key: number]: ConnectedPlayer}
     if(Math.random() < 0.5) {
         players = {
             0: player1,

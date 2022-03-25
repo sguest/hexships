@@ -1,7 +1,6 @@
 import GameSettings from '../config/GameSettings';
-import GameManager from '../game-state/GameManager';
+import GameManager, { ShipPlacement } from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
-import Ship from '../game-state/Ship';
 import GameInterface, { StateSubscription } from './GameInterface';
 import { Point } from '../utils/point-utils';
 import AiPlayer from './AiPlayer';
@@ -14,7 +13,7 @@ export default class LocalGameInterface implements GameInterface {
     private gameManager: GameManager;
     private aiPlayer: AiPlayer;
 
-    constructor(public gameSettings: GameSettings) {
+    constructor(private gameSettings: GameSettings) {
         this.stateSubscriptions = [];
         this.gameManager = new GameManager(gameSettings, (playerId: number, state: LocalState) => this.sendState(playerId, state));
         this.aiPlayer = new AiPlayer(gameSettings);
@@ -31,7 +30,7 @@ export default class LocalGameInterface implements GameInterface {
         }
     }
 
-    public setShips(ships: Ship[]) {
+    public setShips(ships: ShipPlacement[]) {
         this.gameManager.setShips(localPlayerId, ships);
         this.gameManager.setShips(aiPlayerId, this.aiPlayer.generateShips());
     }

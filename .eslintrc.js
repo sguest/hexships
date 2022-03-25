@@ -3,6 +3,7 @@ module.exports = {
         browser: true,
         es2021: true,
         node: true,
+        'jest/globals': true,
     },
     extends: [
         'plugin:react/recommended',
@@ -21,6 +22,7 @@ module.exports = {
         'react',
         'react-hooks',
         '@typescript-eslint',
+        'jest',
     ],
     rules: {
         // turn off the default rules and turn on the typescript rules for a few - the default rules cause issues with TS

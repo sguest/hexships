@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import GameSettings from '../../../config/GameSettings';
 import Direction from '../../../game-state/Direction';
+import { ShipPlacement } from '../../../game-state/GameManager';
 import Ship, * as shipFuncs from '../../../game-state/Ship';
 import { Point } from '../../../utils/point-utils';
 import Board from '../../board/Board';
@@ -9,7 +10,7 @@ import SelectorPanel from './SelectorPanel';
 
 export interface ShipSelectionProps {
     gameSettings: GameSettings
-    onShipsPlaced: (ships: Ship[]) => void
+    onShipsPlaced: (ships: ShipPlacement[]) => void
 }
 
 const useStyles = createUseStyles({

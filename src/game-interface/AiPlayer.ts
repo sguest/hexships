@@ -9,6 +9,7 @@ import * as direction from '../game-state/Direction';
 import LocalState from '../game-state/LocalState';
 import { Point } from '../utils/point-utils';
 import { MarkerType } from '../game-state/Marker';
+import { ShipPlacement } from '../game-state/GameManager';
 
 export default class AiPlayer {
     private ownShots: MarkerType[][] = [];
@@ -19,7 +20,7 @@ export default class AiPlayer {
     constructor(private gameSettings: GameSettings) {
     }
 
-    public generateShips(): Ship[] {
+    public generateShips(): ShipPlacement[] {
         const ships: Ship[] = [];
         const minX = -this.gameSettings.gridSize;
         const minY = -this.gameSettings.gridSize;

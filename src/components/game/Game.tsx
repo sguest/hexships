@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import GameInterface from '../../game-interface/GameInterface';
 import LocalState from '../../game-state/LocalState';
 import Board from '../board/Board';
-import Ship from '../../game-state/Ship';
 import ShipSelection from './ship-selection/ShipSelection';
 import { Point } from '../../utils/point-utils';
 import * as pointUtils from '../../utils/point-utils';
 import { createUseStyles } from 'react-jss';
 import Dialog from '../Dialog';
 import { MarkerType } from '../../game-state/Marker';
+import { ShipPlacement } from '../../game-state/GameManager';
 
 enum CurrentAction {
     PlacingShips,
@@ -182,7 +182,7 @@ export default function Game(props: GameProps) {
         }
     }, [props.gameInterface, localState]);
 
-    const onShipsPlaced = (ships: Ship[]) => {
+    const onShipsPlaced = (ships: ShipPlacement[]) => {
         props.gameInterface.setShips(ships);
     }
 
