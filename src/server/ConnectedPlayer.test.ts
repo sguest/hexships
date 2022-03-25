@@ -1,4 +1,4 @@
-import * as events from 'events';
+import { EventEmitter } from 'events';
 import GameManager from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
 import ConnectedPlayer from './ConnectedPlayer';
@@ -8,7 +8,7 @@ import * as lobby from './lobby';
 
 describe('updateState', () => {
     test('should emit state update', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const subscriber = jest.fn();
         socket.on('update-state', subscriber);
@@ -31,7 +31,7 @@ describe('updateState', () => {
 
 describe('joinGame', () => {
     test('should emit join-game', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const subscriber = jest.fn();
         socket.on('join-game', subscriber);
@@ -41,7 +41,7 @@ describe('joinGame', () => {
     });
 
     test('should register ship listener', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         const spy = jest.spyOn(gameManager, 'setShips');
@@ -51,7 +51,7 @@ describe('joinGame', () => {
     })
 
     test('should register shot listener', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         const spy = jest.spyOn(gameManager, 'fireShot')
@@ -62,7 +62,7 @@ describe('joinGame', () => {
     });
 
     test('should register disconnect listener', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         const spy = jest.spyOn(gameManager, 'leaveGame');
@@ -72,7 +72,7 @@ describe('joinGame', () => {
     });
 
     test('should register leave game listener', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         const spy = jest.spyOn(gameManager, 'leaveGame');
@@ -84,7 +84,7 @@ describe('joinGame', () => {
 
 describe('leaveGame', () => {
     test('should remove all game-related handlers', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         subject.joinGame(gameManager, 0);
@@ -95,7 +95,7 @@ describe('leaveGame', () => {
 
 describe('registerQuickConnect', () => {
     test('should register quick-connect listener', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const spy = jest.spyOn(lobby, 'requestQuickConnect');
         subject.registerQuickConnect();
@@ -104,7 +104,7 @@ describe('registerQuickConnect', () => {
     });
 
     test('should register cancel-quick-connect listener', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const spy = jest.spyOn(lobby, 'cancelQuickConnect');
         subject.registerQuickConnect();
@@ -113,7 +113,7 @@ describe('registerQuickConnect', () => {
     });
 
     test('should register disconnect listener', () => {
-        const socket = new events.EventEmitter();
+        const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const spy = jest.spyOn(lobby, 'cancelQuickConnect');
         subject.registerQuickConnect();

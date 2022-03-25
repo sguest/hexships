@@ -1,4 +1,4 @@
-import * as events from 'events';
+import { EventEmitter } from 'events';
 import ConnectedPlayer from './ConnectedPlayer';
 import { startGame } from './ServerGame';
 import { ServerSocket } from './ServerSocket';
@@ -11,8 +11,8 @@ jest.mock('../game-state/GameManager');
 
 describe('startGame', () => {
     test('should call joinGame for players', () => {
-        const player1 = new ConnectedPlayer(new events.EventEmitter() as ServerSocket);
-        const player2 = new ConnectedPlayer(new events.EventEmitter() as ServerSocket);
+        const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const spy1 = jest.spyOn(player1, 'joinGame').mockImplementation();
         const spy2 = jest.spyOn(player2, 'joinGame').mockImplementation();
         startGame(GameMode.Basic.settings, player1, player2);
@@ -26,8 +26,8 @@ describe('startGame', () => {
             subscriber = sub;
             return {}
         })
-        const player1 = new ConnectedPlayer(new events.EventEmitter() as ServerSocket);
-        const player2 = new ConnectedPlayer(new events.EventEmitter() as ServerSocket);
+        const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const spy = jest.spyOn(player1, 'updateState').mockImplementation();
         startGame(GameMode.Basic.settings, player1, player2);
         subscriber!(0, {} as LocalState);
@@ -41,8 +41,8 @@ describe('startGame', () => {
             subscriber = sub;
             return {}
         })
-        const player1 = new ConnectedPlayer(new events.EventEmitter() as ServerSocket);
-        const player2 = new ConnectedPlayer(new events.EventEmitter() as ServerSocket);
+        const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const spy1 = jest.spyOn(player1, 'leaveGame').mockImplementation();
         const spy2 = jest.spyOn(player2, 'leaveGame').mockImplementation();
         startGame(GameMode.Basic.settings, player1, player2);
