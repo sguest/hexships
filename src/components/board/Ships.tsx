@@ -45,5 +45,5 @@ export default function Ships(props: ShipsProps) {
         });
     }, [props.ships, canvasRef, props.uiScale, props.gridDimensions])
 
-    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas}/>
+    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas} data-testid="ships-canvas" />
 }

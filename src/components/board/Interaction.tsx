@@ -93,5 +93,6 @@ export default function Interaction(props: InteractionProps) {
         className={classes.canvas}
         onClick={onClick}
         onMouseMove={onMove}
-        onMouseLeave={onLeave} />
+        onMouseLeave={onLeave}
+        data-testid="interaction-canvas" />
 }

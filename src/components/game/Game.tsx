@@ -9,6 +9,7 @@ import { createUseStyles } from 'react-jss';
 import Dialog from '../Dialog';
 import { MarkerType } from '../../game-state/Marker';
 import { ShipPlacement } from '../../game-state/GameManager';
+import StatusPanel from './StatusPanel';
 
 enum CurrentAction {
     PlacingShips,
@@ -46,100 +47,7 @@ const useStyles = createUseStyles({
         color: '#ccc',
         fontSize: '1rem',
     },
-    statusPanel: {
-        position: 'relative',
-        padding: {
-            top: 10,
-            left: 10,
-            right: 10,
-            bottom: 60,
-        },
-        boxSizing: 'border-box',
-        minHeight: 90,
-        width: '100%',
-        maxWidth: 200,
-        gridArea: 'panel',
-        '@media (max-width: 640px)': {
-            padding: 0,
-        },
-        display: 'grid',
-        gridTemplateColumns: '100%',
-        gridTemplateRows: 'repeat(7, 1fr)',
-    },
-    info: {
-        fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
-        color: '#ccc',
-        fontSize: '2rem',
-        margin: 0,
-        '@media (max-width: 640px)': {
-            fontSize: '1rem',
-        },
-    },
-    enemyShipHeader: {
-        fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
-        color: '#ccc',
-        fontSize: '1.6rem',
-        margin: {
-            top: 10,
-            bottom: 0,
-        },
-        '@media (max-width: 640px)': {
-            fontSize: '0.8rem',
-        },
-    },
-    enemyShips: {
-        display: 'grid',
-        gridTemplateColumns: '100%',
-        gridTemplateRows: 'repeat(6, 1fr)',
-        '@media (max-width: 640px)': {
-            gridTemplateColumns: '1fr 1fr',
-            gridTemplateRows: 'repeat(3, 1fr)',
-        },
-    },
-    enemyShip: {
-        border: '2px solid black',
-        color: '#ccc',
-        fontFamily: 'sans-serif',
-        fontSize: '1.2rem',
-        position: 'relative',
-        padding: 4,
-        margin: { top: 5 },
-        '@media (max-width: 640px)': {
-            fontSize: '0.6rem',
-            padding: 2,
-        },
-    },
-    enemyShipSunk: {
-        border: '2px solid red',
-        '&:after': {
-            width: '100%',
-            height: '100%',
-            display: 'inline-block',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            content: '""',
-            background: 'linear-gradient(10deg, transparent 47%, red 47%, red 53%, transparent 53%), linear-gradient(170deg, transparent 47%, red 47%, red 53%, transparent 53%)',
-        },
-    },
-    fire: {
-        border: '2px solid #ccc',
-        cursor: 'pointer',
-        color: 'white',
-        fontSize: '1.5rem',
-        textShadow: '1px 1px 0 black',
-        background: 'radial-gradient(#ff8000, #ff0000)',
-        textTransform: 'uppercase',
-        '&:hover': {
-            background: 'radial-gradient(#ffa447, #ff4747)',
-        },
-        '&:disabled': {
-            color: '#aaa',
-            background: '#777',
-            cursor: 'default',
-        },
-    },
-})
+});
 
 export default function Game(props: GameProps) {
     const [localState, setLocalState] = useState<LocalState | undefined>(undefined);
@@ -285,19 +193,13 @@ export default function Game(props: GameProps) {
                     mouseHighlightStyle={checkMouseHighlight}
                     gridArea="enemy"
                     overlayStyle={overlayStyle} />
-                <div className={classes.statusPanel}>
-                    {statusMessage && <p className={classes.info}>{statusMessage}</p>}
-                    {currentAction !== CurrentAction.EnemyPlacingShips && <>
-                        <p className={classes.enemyShipHeader}>Enemy Ships</p>
-                        <div className={classes.enemyShips}>
-                            {gameSettings.ships.map(ship => {
-                                return <div className={`${classes.enemyShip} ${localState?.sunkEnemies.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name} ({ship.size})</div>
-                            })}
-                            { currentAction === CurrentAction.SelectingShot &&
-                                <button className={classes.fire} onClick={onFireClick} disabled={!targetTile || !localState?.isOwnTurn}>Fire</button> }
-                        </div>
-                    </>}
-                </div>
+                <StatusPanel
+                    statusMessage={statusMessage}
+                    ships={currentAction === CurrentAction.EnemyPlacingShips ? undefined : gameSettings.ships}
+                    sunkShipIds={localState?.sunkEnemies}
+                    fireButtonVisible={currentAction === CurrentAction.SelectingShot}
+                    fireButtonEnabled={!!(targetTile && localState?.isOwnTurn)}
+                    onFireClick={onFireClick} />
             </div>
         }
     </>

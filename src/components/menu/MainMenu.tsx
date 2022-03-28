@@ -75,7 +75,7 @@ export default function MainMenu(props: MainMenuProps) {
 
     const cancelQuickConnect = () => {
         props.socket?.emit('cancel-quick-connect');
-        props.socket?.off('join-game');
+        props.socket?.removeAllListeners('join-game');
         setIsquickMatchSearch(false);
     }
 

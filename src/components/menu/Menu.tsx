@@ -37,6 +37,8 @@ const useStyles = createUseStyles({
         cursor: 'pointer',
         marginLeft: '20px',
         color: '#cfc',
+        border: 'none',
+        background: 'transparent',
     },
 });
 
@@ -53,7 +55,7 @@ export default function Menu(props: MenuProps) {
         <ul className={classes.menu}>
             {props.items.filter(i => i.condition === undefined || i.condition).map(i => <li key={i.text}>
                 <button className={classes.menuButton} onClick={i.onClick}>{i.text}</button>
-                {i.tooltip && <a className={classes.tooltip} onClick={() => setTooltipText(i.tooltip)}>(?)</a>}
+                {i.tooltip && <button className={classes.tooltip} onClick={() => setTooltipText(i.tooltip)}>(?)</button>}
             </li>)}
         </ul>
     </>

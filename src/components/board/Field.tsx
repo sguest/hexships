@@ -52,5 +52,5 @@ export default function Field(props: FieldProps) {
         });
     }, [props.gridSize, canvasRef, props.uiScale, props.gridDimensions])
 
-    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas} />
+    return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas} data-testid="field-canvas" />
 }
