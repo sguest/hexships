@@ -28,7 +28,7 @@ Also, mapping a coordinate system to a hexagonal grid is not entirely intuitive 
 
 `yarn run build` will build static files to the `dist` directory
 
-`yarn run start` will run a node server that serves up the static assets and proves a websocket endpoint for multiplayer. Note static assets must be build via `yarn run build` in order to be served up
+`yarn start` will run a node server that serves up the static assets and proves a websocket endpoint for multiplayer. Note static assets must be build via `yarn run build` in order to be served up
 
 ### Github Pages - static files
 
@@ -36,4 +36,4 @@ Also, mapping a coordinate system to a hexagonal grid is not entirely intuitive 
 
 ### Glitch.com - hosted version
 
-Pull the repo on [https://glitch.com](Glitch) (only default branch is supported by the tooling) and then use the terminal to `npm run build
+Pull the repo on [https://glitch.com](Glitch) (only default branch is supported by the tooling) and then use the terminal to `npm run build`
