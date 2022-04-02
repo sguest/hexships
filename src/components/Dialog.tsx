@@ -1,9 +1,12 @@
+import ReactModal from 'react-modal';
 import { createUseStyles } from 'react-jss';
 
 export interface DialogProps {
     text: string,
     onOk?: () => void,
-    onCancel?: () => void,
+    onClose: () => void,
+    okButton?: boolean,
+    cancelButton?: boolean,
 }
 
 const buttonStyle = {
@@ -19,28 +22,6 @@ const buttonStyle = {
 }
 
 const useStyles = createUseStyles({
-    background: {
-        position: 'fixed',
-        width: '100%',
-        height: '100%',
-        background: 'rgba(50, 50, 50, 0.6)',
-        zIndex: 99,
-        top: 0,
-        left: 0,
-    },
-    dialog: {
-        border: '3px solid #ccc',
-        display: 'inline-block',
-        background: '#333',
-        color: 'white',
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        padding: 20,
-        fontSize: '1.5rem',
-        fontFamily: 'sans-serif',
-    },
     buttonContainer: {
         display: 'flex',
         justifyContent: 'space-between',
@@ -59,18 +40,42 @@ const useStyles = createUseStyles({
             backgroundColor: '#555',
         },
     },
-})
+});
+
+const dialogStyles = {
+    content: {
+        border: '3px solid #ccc',
+        display: 'inline-block',
+        background: '#333',
+        color: 'white',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        padding: 20,
+        fontSize: '1.5rem',
+        fontFamily: 'sans-serif',
+        inset: '50% auto auto 50%',
+    },
+    overlay: {
+        zIndex: 999,
+    },
+};
 
 export default function Dialog(props: DialogProps) {
     const classes = useStyles();
 
-    return <div className={classes.background}>
-        <div className={classes.dialog}>
-            <p>{props.text}</p>
-            <div className={classes.buttonContainer}>
-                { props.onOk && <button className={classes.okButton} onClick={props.onOk}>OK</button> }
-                { props.onCancel && <button className={classes.cancelButton} onClick={props.onCancel}>Cancel</button> }
-            </div>
+    const onOk = () => {
+        props.onClose();
+        if(props.onOk) {
+            props.onOk();
+        }
+    }
+
+    return <ReactModal isOpen={true} onRequestClose={props.onClose} style={dialogStyles}>
+        <p>{props.text}</p>
+        <div className={classes.buttonContainer}>
+            { props.okButton && <button className={classes.okButton} onClick={onOk}>OK</button> }
+            { props.cancelButton && <button className={classes.cancelButton} onClick={props.onClose}>Cancel</button> }
         </div>
-    </div>;
+    </ReactModal>;
 }

@@ -50,7 +50,8 @@ export default function Menu(props: MenuProps) {
         {tooltipText &&
             <Dialog
                 text={tooltipText}
-                onOk={() => setTooltipText(undefined)} />
+                okButton={true}
+                onClose={() => setTooltipText(undefined)} />
         }
         <ul className={classes.menu}>
             {props.items.filter(i => i.condition === undefined || i.condition).map(i => <li key={i.text}>
