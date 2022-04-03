@@ -50,3 +50,30 @@ describe('fire button', () => {
         expect(callback).toBeCalled();
     })
 });
+
+describe('remaining shots display', () => {
+    test('should show number of shots remaining', () => {
+        render(<StatusPanel ships={[{ id: 1, size: 3, name: 'X' }]} shotsRemaining={2} sunkShipIds={[1]} fireButtonEnabled={false} fireButtonVisible={true} onFireClick={() => {}} />);
+        expect(screen.getByText('2 shots remaining')).not.toBeNull();
+    })
+
+    test('should use correct pluralization for 1 shot remaining', () => {
+        render(<StatusPanel ships={[{ id: 1, size: 3, name: 'X' }]} shotsRemaining={1} sunkShipIds={[1]} fireButtonEnabled={false} fireButtonVisible={true} onFireClick={() => {}} />);
+        expect(screen.getByText('1 shot remaining')).not.toBeNull();
+    })
+
+    test('should not show when 0 shots remain', () => {
+        render(<StatusPanel ships={[{ id: 1, size: 3, name: 'X' }]} shotsRemaining={0} sunkShipIds={[1]} fireButtonEnabled={false} fireButtonVisible={true} onFireClick={() => {}} />);
+        expect(screen.queryByText(/shots? remaining/)).toBeNull();
+    })
+
+    test('should not show label when fire button hidden', () => {
+        render(<StatusPanel ships={[{ id: 1, size: 3, name: 'X' }]} shotsRemaining={2} sunkShipIds={[1]} fireButtonEnabled={false} fireButtonVisible={false} onFireClick={() => {}} />);
+        expect(screen.queryByText(/shots? remaining/)).toBeNull();
+    })
+
+    test('should not show label when shots undefined', () => {
+        render(<StatusPanel ships={[{ id: 1, size: 3, name: 'X' }]} sunkShipIds={[1]} fireButtonEnabled={false} fireButtonVisible={true} onFireClick={() => {}} />);
+        expect(screen.queryByText(/shots? remaining/)).toBeNull();
+    })
+});

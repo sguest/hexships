@@ -33,8 +33,8 @@ export default class RemoteGameInterface implements GameInterface {
         this.socket.emit('set-ships', ships);
     }
 
-    public fireShot(target: Point) {
-        this.socket.emit('fire-shot', target);
+    public fireShots(targets: Point[]) {
+        this.socket.emit('fire-shots', targets);
     }
 
     public leaveGame() {

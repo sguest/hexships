@@ -10,6 +10,7 @@ import Dialog from '../Dialog';
 import { MarkerType } from '../../game-state/Marker';
 import { ShipPlacement } from '../../game-state/GameManager';
 import StatusPanel from './StatusPanel';
+import { getNumShots } from '../../game-state/state-util';
 
 enum CurrentAction {
     PlacingShips,
@@ -52,7 +53,7 @@ const useStyles = createUseStyles({
 export default function Game(props: GameProps) {
     const [localState, setLocalState] = useState<LocalState | undefined>(undefined);
     const [currentAction, setCurrentAction] = useState(CurrentAction.PlacingShips);
-    const [targetTile, setTargetTile] = useState<Point | undefined>(undefined);
+    const [targetTiles, setTargetTiles] = useState<Point[]>([]);
     const [showDialog, setShowDialog] = useState(false);
     const classes = useStyles();
 
@@ -100,9 +101,24 @@ export default function Game(props: GameProps) {
 
     const canSelect = localState?.isOwnTurn && currentAction === CurrentAction.SelectingShot;
 
+    const numShots = localState ? getNumShots(gameSettings, localState) : 0;
+
     const onSelectTile = (tile: Point) => {
         if(canSelect && isValidTarget(tile)) {
-            setTargetTile(tile);
+            const index = targetTiles.findIndex(t => pointUtils.equal(t, tile));
+            if(index === -1) {
+                if(numShots === 1) {
+                    setTargetTiles([tile]);
+                }
+                else if(targetTiles.length < numShots) {
+                    setTargetTiles([...targetTiles, tile]);
+                }
+            }
+            else {
+                const targets = [...targetTiles];
+                targets.splice(index, 1);
+                setTargetTiles(targets);
+            }
         }
     }
 
@@ -111,9 +127,9 @@ export default function Game(props: GameProps) {
     }
 
     const onFireClick = () => {
-        if(targetTile && isValidTarget(targetTile)) {
-            props.gameInterface.fireShot(targetTile);
-            setTargetTile(undefined);
+        if(targetTiles.length === numShots && targetTiles.every(t => isValidTarget(t))) {
+            props.gameInterface.fireShots(targetTiles);
+            setTargetTiles([]);
         }
     }
 
@@ -153,8 +169,8 @@ export default function Game(props: GameProps) {
     if(localState?.gameWon) {
         displayedTargets = localState.ownMarkers.filter(m => m.type === MarkerType.Hit).map(m => ({ x: m.x, y: m.y, style: 'red' }));
     }
-    else if(targetTile) {
-        displayedTargets = [{ x: targetTile.x, y: targetTile.y, style: 'red' }];
+    else {
+        displayedTargets = targetTiles.map(t => ({ x: t.x, y: t.y, style: 'red' }));
     }
 
     let overlayStyle: string | undefined;
@@ -164,6 +180,10 @@ export default function Game(props: GameProps) {
     else if(localState?.gameLost) {
         overlayStyle = 'rgba(255, 0, 0, 0.3)';
     }
+
+    const shotsRemainingDisplay = canSelect && (gameSettings.shots > 1 || gameSettings.shotPerShip)
+        ? numShots - targetTiles.length
+        : undefined;
 
     return <>
         {showDialog && <Dialog
@@ -200,7 +220,8 @@ export default function Game(props: GameProps) {
                     ships={currentAction === CurrentAction.EnemyPlacingShips ? undefined : gameSettings.ships}
                     sunkShipIds={localState?.sunkEnemies}
                     fireButtonVisible={currentAction === CurrentAction.SelectingShot}
-                    fireButtonEnabled={!!(targetTile && localState?.isOwnTurn)}
+                    fireButtonEnabled={!!(targetTiles.length === numShots && localState?.isOwnTurn)}
+                    shotsRemaining={shotsRemainingDisplay}
                     onFireClick={onFireClick} />
             </div>
         }

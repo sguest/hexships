@@ -13,7 +13,7 @@ export default class ConnectedPlayer {
 
     public joinGame(gameManager: GameManager, playerId: number) {
         this.socket.on('set-ships', ships => gameManager.setShips(playerId, ships));
-        this.socket.on('fire-shot', target => gameManager.fireShot(playerId, target));
+        this.socket.on('fire-shots', targets => gameManager.fireShots(playerId, targets));
         this.socket.on('disconnect', () => gameManager.leaveGame(playerId));
         this.socket.on('leave-game', () => gameManager.leaveGame(playerId));
 
@@ -22,7 +22,7 @@ export default class ConnectedPlayer {
 
     public leaveGame() {
         this.socket.removeAllListeners('set-ships');
-        this.socket.removeAllListeners('fire-shot');
+        this.socket.removeAllListeners('fire-shots');
         this.socket.removeAllListeners('disconnect');
         this.socket.removeAllListeners('leave-game');
     }

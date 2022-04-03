@@ -24,12 +24,12 @@ test('setShips calls subscribers', () => {
     expect(testShip.size).toBe(GameMode.Basic.settings.ships[0].size);
 });
 
-test('fireShot calls subscribers', () => {
+test('fireShots calls subscribers', () => {
     const subject = new LocalGameInterface(GameMode.Basic.settings);
     const states: LocalState[] = [];
     subject.setShips(getValidShips());
     subject.onStateChange(state => states.push(state));
-    subject.fireShot({ x: 1, y: 1 });
+    subject.fireShots([{ x: 1, y: 1 }]);
     const marker = states[0].ownMarkers[0];
     expect(marker.x).toBe(1);
     expect(marker.y).toBe(1);
@@ -42,6 +42,6 @@ test('offStateChange removes subscribers', () => {
     subject.setShips(getValidShips());
     subject.onStateChange(subscriber);
     subject.offStateChange(subscriber);
-    subject.fireShot({ x: 1, y: 1 });
+    subject.fireShots([{ x: 1, y: 1 }]);
     expect(states.length).toBe(0);
 });

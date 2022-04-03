@@ -7,6 +7,7 @@ import * as pointUtils from '../utils/point-utils';
 import * as hexUtils from '../utils/hex-utils';
 import { MarkerType } from './Marker';
 import Direction from './Direction';
+import { getNumShots, getSunkShips } from './state-util';
 
 export interface ShipPlacement {
     x: number,
@@ -46,7 +47,7 @@ export default class GameManager {
             opponentShips: gameOver ? this.players[otherPlayerId].ships : undefined,
             opponentMarkers: this.players[otherPlayerId].markers,
             isOwnTurn: playerId === this.activePlayerId && !!this.players[playerId].ships.length,
-            sunkEnemies: this.players[otherPlayerId].ships.filter(s => s.hits === s.size).map(s => s.definitionId),
+            sunkEnemies: getSunkShips(this.players[otherPlayerId].ships).map(s => s.definitionId),
             gameWon,
             gameLost,
             opponentShipsPlaced: !!this.players[otherPlayerId].ships.length,
@@ -114,31 +115,41 @@ export default class GameManager {
         }
     }
 
-    public fireShot(playerId: number, target: Point) {
+    public fireShots(playerId: number, targets: Point[]) {
+        const player = this.players[playerId];
+        const localState = this.getLocalState(playerId);
+
         const otherPlayerId = +!playerId;
         const valid = this.activePlayerId === playerId &&
-            hexUtils.isInGrid(target, this.gameSettings.gridSize) &&
-            !this.players[playerId].markers.some(marker => pointUtils.equal(marker, target)) &&
             !this.playerLost(playerId) &&
             !this.playerLost(otherPlayerId) &&
-            this.allShipsPlaced();
+            this.allShipsPlaced() &&
+            targets.length === getNumShots(this.gameSettings, localState) &&
+            targets.every(target => !!target &&
+                hexUtils.isInGrid(target, this.gameSettings.gridSize) &&
+                !player.markers.some(marker => pointUtils.equal(marker, target)) &&
+                !targets.some(target2 => target2 !== target && pointUtils.equal(target, target2)));
 
         if(valid) {
-            let isHit = false;
-            for(const ship of this.players[otherPlayerId].ships) {
-                for(const point of shipFuncs.getPoints(ship)) {
-                    if(pointUtils.equal(point, target)) {
-                        isHit = true;
-                        ship.hits++;
+            let anyHit = false;
+            for(const target of targets) {
+                let isHit = false;
+                for(const ship of this.players[otherPlayerId].ships) {
+                    for(const point of shipFuncs.getPoints(ship)) {
+                        if(pointUtils.equal(point, target)) {
+                            isHit = true;
+                            ship.hits++;
+                        }
                     }
                 }
+                player.markers.push({
+                    x: target.x,
+                    y: target.y,
+                    type: isHit ? MarkerType.Hit : MarkerType.Miss,
+                });
+                anyHit = anyHit || isHit;
             }
-            this.players[playerId].markers.push({
-                x: target.x,
-                y: target.y,
-                type: isHit ? MarkerType.Hit : MarkerType.Miss,
-            });
-            if(!this.gameSettings.streak || !isHit) {
+            if(!this.gameSettings.streak || !anyHit) {
                 this.activePlayerId = otherPlayerId;
             }
             this.broadcastState();

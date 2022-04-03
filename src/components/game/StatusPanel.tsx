@@ -7,6 +7,7 @@ export interface StatusPanelProps {
     sunkShipIds?: number[]
     fireButtonVisible: boolean
     fireButtonEnabled: boolean
+    shotsRemaining?: number
     onFireClick: () => void
 }
 
@@ -104,6 +105,14 @@ const useStyles = createUseStyles({
             cursor: 'default',
         },
     },
+    shotsRemaining: {
+        color: '#ccc',
+        fontFamily: 'sans-serif',
+        fontSize: '1.2rem',
+        '@media (max-width: 640px)': {
+            fontSize: '0.6rem',
+        },
+    },
 });
 
 export default function StatusPanel(props: StatusPanelProps) {
@@ -117,8 +126,10 @@ export default function StatusPanel(props: StatusPanelProps) {
                 {props.ships.map(ship => {
                     return <div className={`${classes.enemyShip} ${props.sunkShipIds && props.sunkShipIds.indexOf(ship.id) !== -1 ? classes.enemyShipSunk : ''}`} key={ship.id}>{ship.name} ({ship.size})</div>
                 })}
-                { props.fireButtonVisible &&
-                    <button className={classes.fire} onClick={props.onFireClick} disabled={!props.fireButtonEnabled}>Fire</button> }
+                { props.fireButtonVisible && <>
+                    <button className={classes.fire} onClick={props.onFireClick} disabled={!props.fireButtonEnabled}>Fire</button>
+                    { !!props.shotsRemaining && <p className={classes.shotsRemaining}>{props.shotsRemaining} shot{props.shotsRemaining === 1 ? '' : 's'} remaining</p> }
+                </>}
             </div>
         </>}
     </div>

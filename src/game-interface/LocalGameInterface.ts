@@ -4,6 +4,7 @@ import LocalState from '../game-state/LocalState';
 import GameInterface, { StateSubscription } from './GameInterface';
 import { Point } from '../utils/point-utils';
 import AiPlayer from './AiPlayer';
+import { getNumShots } from '../game-state/state-util';
 
 const localPlayerId = 0;
 const aiPlayerId = 1;
@@ -35,8 +36,8 @@ export default class LocalGameInterface implements GameInterface {
         this.gameManager.setShips(aiPlayerId, this.aiPlayer.generateShips());
     }
 
-    public fireShot(target: Point) {
-        this.gameManager.fireShot(localPlayerId, target);
+    public fireShots(targets: Point[]) {
+        this.gameManager.fireShots(localPlayerId, targets);
     }
 
     public leaveGame() {
@@ -54,13 +55,13 @@ export default class LocalGameInterface implements GameInterface {
             this.aiPlayer.updateState(state);
             if(state.isOwnTurn && !state.gameLost && !state.gameWon) {
                 setTimeout(() => {
-                    this.takeEnemyShot();
+                    this.takeEnemyShot(state);
                 }, 1000);
             }
         }
     }
 
-    private takeEnemyShot() {
-        this.gameManager.fireShot(aiPlayerId, this.aiPlayer.getShot());
+    private takeEnemyShot(state: LocalState) {
+        this.gameManager.fireShots(aiPlayerId, this.aiPlayer.getShots(getNumShots(this.gameSettings, state)));
     }
 }

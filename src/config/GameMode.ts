@@ -10,11 +10,15 @@ const defaultSettings: GameSettings = {
     ],
     gridSize: 7,
     streak: false,
+    shots: 1,
+    shotPerShip: false,
 }
 
 export enum GameModeId {
     Basic,
     Streak,
+    Barrage,
+    Salvo,
 }
 
 export const Basic: ModeSettings = {
@@ -34,9 +38,31 @@ export const Streak: ModeSettings = {
     },
 }
 
+export const Barrage: ModeSettings = {
+    title: 'Barrage',
+    id: GameModeId.Barrage,
+    description: 'Fire 4 shots each turn',
+    settings: {
+        ...defaultSettings,
+        shots: 4,
+    },
+}
+
+export const Salvo: ModeSettings = {
+    title: 'Salvo',
+    id: GameModeId.Salvo,
+    description: 'Fire 1 shot for each surviving ship',
+    settings: {
+        ...defaultSettings,
+        shotPerShip: true,
+    },
+}
+
 const gameModes: {[key in GameModeId]: ModeSettings } = {
     [GameModeId.Basic]: Basic,
     [GameModeId.Streak]: Streak,
+    [GameModeId.Barrage]: Barrage,
+    [GameModeId.Salvo]: Salvo,
 }
 
 export function getGameMode(id: GameModeId) {

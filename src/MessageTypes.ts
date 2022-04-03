@@ -8,7 +8,7 @@ export interface ClientToServerEvents {
     'quick-connect': (mode: GameModeId) => void;
     'cancel-quick-connect': () => void;
     'set-ships': (ships: ShipPlacement[]) => void;
-    'fire-shot': (target: Point) => void;
+    'fire-shots': (targets: Point[]) => void;
     'leave-game': () => void;
 }
 

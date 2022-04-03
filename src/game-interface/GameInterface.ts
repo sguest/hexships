@@ -9,7 +9,7 @@ export default interface GameInterface {
     onStateChange: (subscriber: StateSubscription) => void
     offStateChange: (subscriber: StateSubscription) => void
     setShips: (ships: ShipPlacement[]) => void
-    fireShot: (target: Point) => void
+    fireShots: (targets: Point[]) => void
     leaveGame: () => void
     getSettings: () => GameSettings
 }

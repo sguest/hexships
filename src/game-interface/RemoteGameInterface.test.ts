@@ -49,14 +49,14 @@ test('setShips sends message', () => {
     expect(subscriber).toBeCalledWith(ships);
 });
 
-test('fireShot sends message', () => {
+test('fireShots sends message', () => {
     const socket = new EventEmitter();
     const subject = new RemoteGameInterface(socket as unknown as ClientSocket, GameMode.Basic.settings);
     const target = { x: 1, y: 2 };
     const subscriber = jest.fn();
-    socket.on('fire-shot', subscriber);
-    subject.fireShot(target);
-    expect(subscriber).toBeCalledWith(target);
+    socket.on('fire-shots', subscriber);
+    subject.fireShots([target]);
+    expect(subscriber).toBeCalledWith([target]);
 });
 
 test('leaveGame sends message', () => {

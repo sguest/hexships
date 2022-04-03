@@ -54,11 +54,11 @@ describe('joinGame', () => {
         const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
-        const spy = jest.spyOn(gameManager, 'fireShot')
+        const spy = jest.spyOn(gameManager, 'fireShots')
         subject.joinGame(gameManager, 0);
         const target = { x: 0, y: 0 };
-        socket.emit('fire-shot', target);
-        expect(spy).toBeCalledWith(0, target);
+        socket.emit('fire-shots', [target]);
+        expect(spy).toBeCalledWith(0, [target]);
     });
 
     test('should register disconnect listener', () => {
