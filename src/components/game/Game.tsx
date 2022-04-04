@@ -55,6 +55,8 @@ export default function Game(props: GameProps) {
     const [currentAction, setCurrentAction] = useState(CurrentAction.PlacingShips);
     const [targetTiles, setTargetTiles] = useState<Point[]>([]);
     const [showDialog, setShowDialog] = useState(false);
+    const [trackedOpponentMarkers, setTrackedOpponentMarkers] = useState<Point[]>([]);
+    const [displayedOpponentMarkers, setDisplayedOpponentMarkers] = useState<Point[]>([]);
     const classes = useStyles();
 
     const gameSettings = props.gameInterface.getSettings();
@@ -68,7 +70,12 @@ export default function Game(props: GameProps) {
                 ownShips: state.ownShips.slice(0),
                 isOwnTurn: state.isOwnTurn,
                 sunkEnemies: state.sunkEnemies.slice(0),
-            })
+            });
+            const newShotCount = state.opponentMarkers.length - trackedOpponentMarkers.length
+            if(newShotCount > 0) {
+                setDisplayedOpponentMarkers(state.opponentMarkers.slice(-newShotCount));
+                setTrackedOpponentMarkers([...state.opponentMarkers]);
+            }
             let currentAction = CurrentAction.PlacingShips;
             if(state.gameWon || state.gameLost) {
                 currentAction = CurrentAction.GameOver;
@@ -89,7 +96,7 @@ export default function Game(props: GameProps) {
         return () => {
             props.gameInterface.offStateChange(subscriber);
         }
-    }, [props.gameInterface, localState]);
+    }, [props.gameInterface, localState, trackedOpponentMarkers.length]);
 
     const onShipsPlaced = (ships: ShipPlacement[]) => {
         props.gameInterface.setShips(ships);
@@ -146,7 +153,7 @@ export default function Game(props: GameProps) {
         setShowDialog(false);
     }
 
-    const lastOpponentShot = localState?.opponentMarkers[localState?.opponentMarkers.length - 1];
+    const opponentShotHighlights = displayedOpponentMarkers.map(m => ({ x: m.x, y: m.y, style: 'orange' }));
 
     let statusMessage: string | undefined;
 
@@ -203,7 +210,7 @@ export default function Game(props: GameProps) {
                     gridSize={gameSettings.gridSize}
                     ships={localState?.ownShips}
                     markers={localState?.opponentMarkers}
-                    highlightTiles={lastOpponentShot ? [{ x: lastOpponentShot.x, y: lastOpponentShot.y, style: 'orange' }] : undefined}
+                    highlightTiles={opponentShotHighlights}
                     gridArea="friend"
                     overlayStyle={overlayStyle} />
                 <Board
