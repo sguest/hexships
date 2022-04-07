@@ -23,6 +23,8 @@ describe('updateState', () => {
             gameLost: false,
             opponentShipsPlaced: true,
             opponentLeft: false,
+            ownMines: [],
+            opponentMines: [],
         };
         subject.updateState(localState);
         expect(subscriber).toBeCalledWith(localState);
@@ -44,10 +46,10 @@ describe('joinGame', () => {
         const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
-        const spy = jest.spyOn(gameManager, 'setShips');
+        const spy = jest.spyOn(gameManager, 'setFleet');
         subject.joinGame(gameManager, 0);
-        socket.emit('set-ships', []);
-        expect(spy).toBeCalledWith(0, []);
+        socket.emit('set-fleet', { ships: [], fleet: [] });
+        expect(spy).toBeCalledWith(0, { ships: [], fleet: [] });
     })
 
     test('should register shot listener', () => {

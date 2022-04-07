@@ -1,15 +1,16 @@
 import { createUseStyles } from 'react-jss'
 import { ShipDefinition } from '../../../config/GameSettings';
 
-export interface ShipSelectorProps {
+export interface SelectorPanelProps {
     ships: ShipDefinition[]
+    mines?: number
     placedIds: number[]
     selectedId?: number
     placementValid: boolean
     canRotate: boolean
     onSelected: (id: number) => void
     onRotated: () => void
-    onPlace: () => void
+    onConfirm: () => void
 }
 
 const wrapBreakpoint = 640;
@@ -76,6 +77,11 @@ const useStyles = createUseStyles({
     selectedShip: {
         backgroundColor: '#0050d4',
     },
+    mines: {
+        color: '#ccc',
+        fontSize: '1.5rem',
+        fontFamily: 'sans-serif',
+    },
     placedShip: {
         borderColor: '#ccc',
     },
@@ -103,25 +109,28 @@ const useStyles = createUseStyles({
     },
 })
 
-export default function SelectorPanel(props: ShipSelectorProps) {
+export default function SelectorPanel(props: SelectorPanelProps) {
     const classes = useStyles();
 
     return <div className={classes.container}>
-        <div className={classes.shipList}>
-            {props.ships.map(s => {
-                return <button
-                    key={s.id}
-                    onClick={() => props.onSelected(s.id)}
-                    className={`${classes.ship} ${s.id === props.selectedId ? classes.selectedShip : ''} ${props.placedIds.indexOf(s.id) === -1 ? '' : classes.placedShip}`}
-                >
-                    <div>{s.name}</div>
-                    <span>Size: {s.size}</span>
-                </button>
-            })}
-        </div>
+        {props.mines === undefined
+            ? <div className={classes.shipList}>
+                {props.ships.map(s => {
+                    return <button
+                        key={s.id}
+                        onClick={() => props.onSelected(s.id)}
+                        className={`${classes.ship} ${s.id === props.selectedId ? classes.selectedShip : ''} ${props.placedIds.indexOf(s.id) === -1 ? '' : classes.placedShip}`}
+                    >
+                        <div>{s.name}</div>
+                        <span>Size: {s.size}</span>
+                    </button>
+                })}
+            </div>
+            : <p className={classes.mines}>{props.mines} Mine{props.mines === 1 ? '' : 's'} remaining</p>
+        }
         <div className={classes.actionContainer}>
-            <button className={classes.actionButton} onClick={props.onRotated} disabled={!props.canRotate}>Rotate</button>
-            <button className={classes.actionButton} onClick={props.onPlace} disabled={!props.placementValid}>Confirm</button>
+            {props.mines === undefined && <button className={classes.actionButton} onClick={props.onRotated} disabled={!props.canRotate}>Rotate</button>}
+            <button className={classes.actionButton} onClick={props.onConfirm} disabled={!props.placementValid}>Confirm</button>
         </div>
     </div>
 }

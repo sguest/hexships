@@ -10,4 +10,5 @@ export default interface GameSettings {
     streak: boolean
     shots: number
     shotPerShip: boolean
+    mines: number
 }

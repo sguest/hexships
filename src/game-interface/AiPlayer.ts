@@ -9,7 +9,7 @@ import * as direction from '../game-state/Direction';
 import LocalState from '../game-state/LocalState';
 import { Point } from '../utils/point-utils';
 import { MarkerType } from '../game-state/Marker';
-import { ShipPlacement } from '../game-state/GameManager';
+import { FleetPlacement } from '../game-state/GameManager';
 
 export default class AiPlayer {
     private ownShots: MarkerType[][] = [];
@@ -21,7 +21,7 @@ export default class AiPlayer {
     constructor(private gameSettings: GameSettings) {
     }
 
-    public generateShips(): ShipPlacement[] {
+    public generateFleet(): FleetPlacement {
         const ships: Ship[] = [];
         const minX = -this.gameSettings.gridSize;
         const minY = -this.gameSettings.gridSize;
@@ -44,7 +44,21 @@ export default class AiPlayer {
             ships.push(ship);
         }
 
-        return ships;
+        const mines: Point[] = [];
+        const shipPoints = ships.map(shipFuncs.getPoints).flat();
+
+        for(let i = 0; i < this.gameSettings.mines; i++) {
+            let mine: Point;
+            do {
+                mine = {
+                    x: mathUtils.randomInt(minX, maxX),
+                    y: mathUtils.randomInt(minY, maxY),
+                }
+            } while(!hexUtils.isInGrid(mine, this.gameSettings.gridSize) || mines.some(m => pointUtils.equal(m, mine) || shipPoints.some(s => pointUtils.equal(s, mine))));
+            mines.push(mine);
+        }
+
+        return { ships, mines };
     }
 
     public updateState(state: LocalState) {
@@ -110,7 +124,7 @@ export default class AiPlayer {
         const shots: Point[] = [];
         while(this.priorityHits.length) {
             const current = this.priorityHits[0];
-            const directions = [Direction.negativeX, Direction.negativeY, Direction.negativeZ, Direction.positiveX, Direction.positiveY, Direction.positiveZ];
+            const directions = direction.allDirections();
             while(directions.length) {
                 const dir = directions.splice(mathUtils.randomInt(0, directions.length - 1), 1)[0];
                 let delta = direction.getDelta(dir);

@@ -16,6 +16,11 @@ export interface ShipPlacement {
     definitionId: number,
 }
 
+export interface FleetPlacement {
+    ships: ShipPlacement[],
+    mines: Point[],
+}
+
 export default class GameManager {
     private players: Player[];
     private activePlayerId: number;
@@ -24,11 +29,13 @@ export default class GameManager {
         this.players = [
             {
                 ships: [],
+                mines: [],
                 markers: [],
                 active: true,
             },
             {
                 ships: [],
+                mines: [],
                 markers: [],
                 active: true,
             },
@@ -44,8 +51,10 @@ export default class GameManager {
         return {
             ownShips: this.players[playerId].ships,
             ownMarkers: this.players[playerId].markers,
+            ownMines: this.players[playerId].mines,
             opponentShips: gameOver ? this.players[otherPlayerId].ships : undefined,
             opponentMarkers: this.players[otherPlayerId].markers,
+            opponentMines: this.players[otherPlayerId].mines.filter(mine => gameOver || this.players[playerId].markers.some(marker => pointUtils.equal(mine, marker))),
             isOwnTurn: playerId === this.activePlayerId && !!this.players[playerId].ships.length,
             sunkEnemies: getSunkShips(this.players[otherPlayerId].ships).map(s => s.definitionId),
             gameWon,
@@ -95,14 +104,38 @@ export default class GameManager {
         return newShips;
     }
 
-    public setShips(playerId: number, ships: ShipPlacement[]) {
+    private validateMinePlacement(mines: Point[], ships: Ship[]) {
+        if(mines.length !== this.gameSettings.mines) {
+            return false;
+        }
+
+        const shipPoints = ships.map(s => shipFuncs.getPoints(s)).flat();
+        for(const mine of mines) {
+            if(shipPoints.some(p => pointUtils.equal(p, mine))) {
+                return false;
+            }
+
+            if(mines.some(m => m !== mine && pointUtils.equal(mine, m))) {
+                return false;
+            }
+
+            if(!hexUtils.isInGrid(mine, this.gameSettings.gridSize)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public setFleet(playerId: number, fleet: FleetPlacement) {
         if(!this.players[playerId]) {
             return;
         }
 
-        const newShips = this.validateShipPlacement(ships);
-        if(newShips.length) {
+        const newShips = this.validateShipPlacement(fleet.ships);
+        if(newShips.length && this.validateMinePlacement(fleet.mines, newShips)) {
             this.players[playerId].ships = newShips;
+            this.players[playerId].mines = fleet.mines.slice();
             if(this.allShipsPlaced()) {
                 this.broadcastState();
             }
@@ -113,6 +146,18 @@ export default class GameManager {
         else {
             this.sendState(playerId);
         }
+    }
+
+    private tryHit(ships: Ship[], target: Point) {
+        for(const ship of ships) {
+            for(const point of shipFuncs.getPoints(ship)) {
+                if(pointUtils.equal(point, target)) {
+                    ship.hits++;
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public fireShots(playerId: number, targets: Point[]) {
@@ -133,21 +178,25 @@ export default class GameManager {
         if(valid) {
             let anyHit = false;
             for(const target of targets) {
-                let isHit = false;
-                for(const ship of this.players[otherPlayerId].ships) {
-                    for(const point of shipFuncs.getPoints(ship)) {
-                        if(pointUtils.equal(point, target)) {
-                            isHit = true;
-                            ship.hits++;
-                        }
-                    }
-                }
+                const isHit = this.tryHit(this.players[otherPlayerId].ships, target);
                 player.markers.push({
                     x: target.x,
                     y: target.y,
                     type: isHit ? MarkerType.Hit : MarkerType.Miss,
                 });
                 anyHit = anyHit || isHit;
+
+                if(this.players[otherPlayerId].mines.some(m => pointUtils.equal(m, target))) {
+                    for(const point of [...hexUtils.getNeighbours(target, this.gameSettings.gridSize), target]) {
+                        if(!this.players[otherPlayerId].markers.some(p => pointUtils.equal(p, point))) {
+                            this.players[otherPlayerId].markers.push({
+                                x: point.x,
+                                y: point.y,
+                                type: this.tryHit(this.players[playerId].ships, point) ? MarkerType.Hit : MarkerType.Miss,
+                            })
+                        }
+                    }
+                }
             }
             if(!this.gameSettings.streak || !anyHit) {
                 this.activePlayerId = otherPlayerId;

@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import GameSettings from '../../../config/GameSettings';
 import Direction from '../../../game-state/Direction';
-import { ShipPlacement } from '../../../game-state/GameManager';
+import { FleetPlacement } from '../../../game-state/GameManager';
 import Ship, * as shipFuncs from '../../../game-state/Ship';
 import { Point } from '../../../utils/point-utils';
+import * as pointUtils from '../../../utils/point-utils';
 import Board from '../../board/Board';
 import SelectorPanel from './SelectorPanel';
 
 export interface ShipSelectionProps {
     gameSettings: GameSettings
-    onShipsPlaced: (ships: ShipPlacement[]) => void
+    onFleetPlaced: (fleet: FleetPlacement) => void
 }
 
 const useStyles = createUseStyles({
@@ -29,10 +30,17 @@ const useStyles = createUseStyles({
     },
 })
 
+enum PlacingMode {
+    Ships,
+    Mines,
+}
+
 export default function ShipSelection(props: ShipSelectionProps) {
     const [placedShips, setPlacedShips] = useState<{ [key: number]: Ship }>([]);
+    const [placedMines, setPlacedMines] = useState<Point[]>([]);
     const [placingShip, setPlacingShip] = useState<{ id: number, ship: Ship | undefined } | undefined>(undefined);
     const [highlightTile, setHighlightTile] = useState<Point | undefined>(undefined);
+    const [currentMode, setCurrentMode] = useState(PlacingMode.Ships);
     const classes = useStyles();
 
     const displayedShips = Object.values(placedShips);
@@ -40,10 +48,12 @@ export default function ShipSelection(props: ShipSelectionProps) {
         displayedShips.push(placingShip.ship);
     }
     const isShipValid = !!placingShip?.ship && shipFuncs.isShipValid(placingShip.ship, Object.values(placedShips), props.gameSettings.gridSize);
-    const isPlacementValid = displayedShips.length === props.gameSettings.ships.length &&
-        shipFuncs.isPlacementValid(displayedShips, props.gameSettings.gridSize);
+    const isPlacementValid = currentMode === PlacingMode.Ships
+        ? displayedShips.length === props.gameSettings.ships.length && shipFuncs.isPlacementValid(displayedShips, props.gameSettings.gridSize)
+        : placedMines.length === props.gameSettings.mines;
     const highlightTileStyle = isShipValid ? 'green' : 'red';
     const displayedTargets = highlightTile ? [{ x: highlightTile.x, y: highlightTile.y, style: highlightTileStyle }] : [];
+    const minesRemaining = currentMode === PlacingMode.Mines ? props.gameSettings.mines - placedMines.length : undefined;
 
     const onSelectShip = (id: number) => {
         if(id !== placingShip?.id) {
@@ -76,13 +86,22 @@ export default function ShipSelection(props: ShipSelectionProps) {
         }
     }
 
-    const onPlaceShip = () => {
+    const onConfirm = () => {
         if(isPlacementValid) {
-            props.onShipsPlaced(displayedShips);
+            if(currentMode === PlacingMode.Mines || props.gameSettings.mines === 0) {
+                props.onFleetPlaced({
+                    ships: displayedShips,
+                    mines: placedMines,
+                });
+            }
+            else {
+                setCurrentMode(PlacingMode.Mines);
+                setHighlightTile(undefined);
+            }
         }
     }
 
-    const onSelectTile = (tile: Point) => {
+    const selectTileShip = (tile: Point) => {
         if(placingShip) {
             if(placingShip.ship) {
                 setPlacingShip({
@@ -115,25 +134,53 @@ export default function ShipSelection(props: ShipSelectionProps) {
         }
     }
 
+    const selectTileMine = (tile: Point) => {
+        const shipPoints = displayedShips.map(shipFuncs.getPoints).flat();
+        if(!shipPoints.some(p => pointUtils.equal(p, tile))) {
+            const index = placedMines.findIndex(m => pointUtils.equal(m, tile));
+            if(index === -1) {
+                if(placedMines.length < props.gameSettings.mines) {
+                    setPlacedMines([...placedMines, tile]);
+                }
+            }
+            else {
+                const mines = [...placedMines];
+                mines.splice(index, 1);
+                setPlacedMines(mines);
+            }
+        }
+    }
+
+    const onSelectTile = (tile: Point) => {
+        if(currentMode === PlacingMode.Ships) {
+            selectTileShip(tile);
+        }
+        else if(currentMode === PlacingMode.Mines) {
+            selectTileMine(tile);
+        }
+    }
+
     const checkMouseHighlight = () => {
-        return placingShip?.id ? 'orange' : undefined;
+        return placingShip?.id || currentMode === PlacingMode.Mines ? 'orange' : undefined;
     }
 
     return <div className={classes.wrapper}>
         <Board
             gridSize={props.gameSettings.gridSize}
             ships={displayedShips}
+            mines={placedMines}
             onSelectTile={onSelectTile}
             highlightTiles={displayedTargets}
             mouseHighlightStyle={checkMouseHighlight} />
         <SelectorPanel
             ships={props.gameSettings.ships}
+            mines={minesRemaining}
             placedIds={Object.keys(placedShips).map(Number)}
             selectedId={placingShip?.id}
             placementValid={isPlacementValid}
             canRotate={!!placingShip}
             onSelected={onSelectShip}
             onRotated={onRotateShip}
-            onPlace={onPlaceShip} />
+            onConfirm={onConfirm} />
     </div>
 }

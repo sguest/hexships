@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io-client';
 import GameSettings from '../config/GameSettings';
-import { ShipPlacement } from '../game-state/GameManager';
+import { FleetPlacement } from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
 import { ClientToServerEvents, ServerToClientEvents } from '../MessageTypes';
 import { Point } from '../utils/point-utils';
@@ -29,8 +29,8 @@ export default class RemoteGameInterface implements GameInterface {
         }
     }
 
-    public setShips(ships: ShipPlacement[]) {
-        this.socket.emit('set-ships', ships);
+    public setFleet(fleet: FleetPlacement) {
+        this.socket.emit('set-fleet', fleet);
     }
 
     public fireShots(targets: Point[]) {

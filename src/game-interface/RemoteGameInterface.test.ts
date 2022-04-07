@@ -16,6 +16,8 @@ const testLocalState: LocalState = {
     gameLost: false,
     opponentShipsPlaced: false,
     opponentLeft: false,
+    ownMines: [],
+    opponentMines: [],
 }
 
 test('onStateChange adds subscriber', () => {
@@ -43,10 +45,11 @@ test('setShips sends message', () => {
     const socket = new EventEmitter();
     const subject = new RemoteGameInterface(socket as unknown as ClientSocket, GameMode.Basic.settings);
     const ships: Ship[] = [{ x: 1, y: 1, facing: Direction.positiveY, size: 1, hits: 0, name: 'Test', definitionId: 1 }];
+    const fleet = { ships, mines: [] }
     const subscriber = jest.fn();
-    socket.on('set-ships', subscriber);
-    subject.setShips(ships);
-    expect(subscriber).toBeCalledWith(ships);
+    socket.on('set-fleet', subscriber);
+    subject.setFleet(fleet);
+    expect(subscriber).toBeCalledWith(fleet);
 });
 
 test('fireShots sends message', () => {

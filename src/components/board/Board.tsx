@@ -12,6 +12,7 @@ import { createUseStyles } from 'react-jss';
 export type BoardProps = {
     gridSize: number,
     ships?: Ship[],
+    mines?: Point[],
     markers?: Marker[],
     onSelectTile?: (tile: Point) => void
     highlightTiles?: Array<{x: number, y: number, style: string | CanvasGradient | CanvasPattern}>
@@ -67,7 +68,7 @@ export default function Board(props: BoardProps) {
                 uiScale={uiScale}
                 gridDimensions={gridDimensions}
                 overlayStyle={props.overlayStyle} /> }
-        { props.ships && <Ships ships={props.ships} uiScale={uiScale} gridDimensions={gridDimensions} /> }
+        { !!(props.ships || props.mines) && <Ships ships={props.ships || []} mines={props.mines || []} uiScale={uiScale} gridDimensions={gridDimensions} /> }
         { !!props.markers?.length && <Markers markers={props.markers} uiScale={uiScale} gridDimensions={gridDimensions}/> }
     </div>
 }

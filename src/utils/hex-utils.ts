@@ -1,4 +1,6 @@
+import { allDirections, getDelta } from '../game-state/Direction';
 import { Point } from './point-utils';
+import * as pointUtils from './point-utils';
 
 // https://www.redblobgames.com/grids/hexagons/
 const sqrt3 = Math.sqrt(3);
@@ -78,4 +80,11 @@ export function getGridCells(gridSize: number) {
     }
 
     return cells;
+}
+
+export function getNeighbours(cell: Point, gridSize: number) {
+    return allDirections().map(d => {
+        const delta = getDelta(d);
+        return pointUtils.add(cell, delta);
+    }).filter(c => isInGrid(c, gridSize));
 }

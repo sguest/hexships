@@ -29,6 +29,8 @@ const defaultState: LocalState = {
     gameLost: false,
     opponentShipsPlaced: true,
     opponentLeft: false,
+    ownMines: [],
+    opponentMines: [],
 }
 
 describe('status messages', () => {

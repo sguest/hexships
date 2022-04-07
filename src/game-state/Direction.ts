@@ -21,3 +21,7 @@ const deltas = {
 export function getDelta(direction: Direction): { x: number, y: number } {
     return deltas[direction];
 }
+
+export function allDirections() {
+    return [Direction.positiveX, Direction.positiveY, Direction.positiveZ, Direction.negativeX, Direction.negativeY, Direction.negativeZ];
+}

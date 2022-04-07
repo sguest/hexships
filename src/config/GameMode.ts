@@ -12,6 +12,7 @@ const defaultSettings: GameSettings = {
     streak: false,
     shots: 1,
     shotPerShip: false,
+    mines: 0,
 }
 
 export enum GameModeId {
@@ -19,6 +20,7 @@ export enum GameModeId {
     Streak,
     Barrage,
     Salvo,
+    Minefield,
 }
 
 export const Basic: ModeSettings = {
@@ -58,11 +60,22 @@ export const Salvo: ModeSettings = {
     },
 }
 
+export const Minefield: ModeSettings = {
+    title: 'Minefield',
+    id: GameModeId.Minefield,
+    description: 'Place 5 mines that explode when hit by the enemy, damaging enemy ships',
+    settings: {
+        ...defaultSettings,
+        mines: 5,
+    },
+}
+
 const gameModes: {[key in GameModeId]: ModeSettings } = {
     [GameModeId.Basic]: Basic,
     [GameModeId.Streak]: Streak,
     [GameModeId.Barrage]: Barrage,
     [GameModeId.Salvo]: Salvo,
+    [GameModeId.Minefield]: Minefield,
 }
 
 export function getGameMode(id: GameModeId) {

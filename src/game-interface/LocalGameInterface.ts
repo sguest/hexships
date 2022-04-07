@@ -1,5 +1,5 @@
 import GameSettings from '../config/GameSettings';
-import GameManager, { ShipPlacement } from '../game-state/GameManager';
+import GameManager, { FleetPlacement } from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
 import GameInterface, { StateSubscription } from './GameInterface';
 import { Point } from '../utils/point-utils';
@@ -31,9 +31,9 @@ export default class LocalGameInterface implements GameInterface {
         }
     }
 
-    public setShips(ships: ShipPlacement[]) {
-        this.gameManager.setShips(localPlayerId, ships);
-        this.gameManager.setShips(aiPlayerId, this.aiPlayer.generateShips());
+    public setFleet(fleet: FleetPlacement) {
+        this.gameManager.setFleet(localPlayerId, fleet);
+        this.gameManager.setFleet(aiPlayerId, this.aiPlayer.generateFleet());
     }
 
     public fireShots(targets: Point[]) {

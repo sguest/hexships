@@ -8,7 +8,7 @@ import * as pointUtils from '../../utils/point-utils';
 import { createUseStyles } from 'react-jss';
 import Dialog from '../Dialog';
 import { MarkerType } from '../../game-state/Marker';
-import { ShipPlacement } from '../../game-state/GameManager';
+import { FleetPlacement } from '../../game-state/GameManager';
 import StatusPanel from './StatusPanel';
 import { getNumShots } from '../../game-state/state-util';
 
@@ -98,8 +98,8 @@ export default function Game(props: GameProps) {
         }
     }, [props.gameInterface, localState, trackedOpponentMarkers.length]);
 
-    const onShipsPlaced = (ships: ShipPlacement[]) => {
-        props.gameInterface.setShips(ships);
+    const onFleetPlaced = (fleet: FleetPlacement) => {
+        props.gameInterface.setFleet(fleet);
     }
 
     const isValidTarget = (target: Point) => {
@@ -204,11 +204,12 @@ export default function Game(props: GameProps) {
         { currentAction === CurrentAction.PlacingShips
             ? <ShipSelection
                 gameSettings={gameSettings}
-                onShipsPlaced={onShipsPlaced} />
+                onFleetPlaced={onFleetPlaced} />
             : <div className={classes.wrapper}>
                 <Board
                     gridSize={gameSettings.gridSize}
                     ships={localState?.ownShips}
+                    mines={localState?.ownMines}
                     markers={localState?.opponentMarkers}
                     highlightTiles={opponentShotHighlights}
                     gridArea="friend"
@@ -216,6 +217,7 @@ export default function Game(props: GameProps) {
                 <Board
                     gridSize={gameSettings.gridSize}
                     ships={localState?.opponentShips}
+                    mines={localState?.opponentMines}
                     markers={localState?.ownMarkers}
                     onSelectTile={onSelectTile}
                     highlightTiles={displayedTargets}
