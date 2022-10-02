@@ -1,5 +1,6 @@
 import { createUseStyles } from 'react-jss';
 import { ShipDefinition } from '../../config/GameSettings';
+import { stencilFont, textColour } from '../CommonStyles';
 
 export interface StatusPanelProps {
     statusMessage?: string
@@ -33,8 +34,8 @@ const useStyles = createUseStyles({
         gridTemplateRows: 'repeat(7, 1fr)',
     },
     info: {
-        fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
-        color: '#ccc',
+        fontFamily: stencilFont,
+        color: textColour,
         fontSize: '2rem',
         margin: 0,
         '@media (max-width: 640px)': {
@@ -42,8 +43,8 @@ const useStyles = createUseStyles({
         },
     },
     enemyShipHeader: {
-        fontFamily: ['Big Shoulders Stencil Text', 'sans-serif'],
-        color: '#ccc',
+        fontFamily: stencilFont,
+        color: textColour,
         fontSize: '1.6rem',
         margin: {
             top: 10,
@@ -64,7 +65,7 @@ const useStyles = createUseStyles({
     },
     enemyShip: {
         border: '2px solid black',
-        color: '#ccc',
+        color: textColour,
         fontFamily: 'sans-serif',
         fontSize: '1.2rem',
         position: 'relative',
@@ -106,7 +107,7 @@ const useStyles = createUseStyles({
         },
     },
     shotsRemaining: {
-        color: '#ccc',
+        color: textColour,
         fontFamily: 'sans-serif',
         fontSize: '1.2rem',
         '@media (max-width: 640px)': {

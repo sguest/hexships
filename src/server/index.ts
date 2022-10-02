@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', socket => {
-    new ConnectedPlayer(socket).registerQuickConnect();
+    new ConnectedPlayer(socket).registerLobbyListeners();
 })
 
 server.listen(3000, () => {

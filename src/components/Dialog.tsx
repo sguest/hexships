@@ -1,5 +1,6 @@
 import ReactModal from 'react-modal';
 import { createUseStyles } from 'react-jss';
+import { textColour } from './CommonStyles';
 
 export interface DialogProps {
     text: string,
@@ -34,7 +35,7 @@ const useStyles = createUseStyles({
     },
     cancelButton: {
         ...buttonStyle,
-        color: '#ccc',
+        color: textColour,
         backgroundColor: '#333',
         '&:hover': {
             backgroundColor: '#555',

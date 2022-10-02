@@ -1,6 +1,7 @@
 import GameManager from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
-import { cancelQuickConnect, requestQuickConnect } from './lobby';
+import * as lobby from './lobby';
+import LobbyGame from './LobbyGame';
 import { ServerSocket } from './ServerSocket';
 
 export default class ConnectedPlayer {
@@ -12,6 +13,8 @@ export default class ConnectedPlayer {
     }
 
     public joinGame(gameManager: GameManager, playerId: number) {
+        this.removeLobbyListeners();
+
         this.socket.on('set-fleet', fleet => gameManager.setFleet(playerId, fleet));
         this.socket.on('fire-shots', targets => gameManager.fireShots(playerId, targets));
         this.socket.on('disconnect', () => gameManager.leaveGame(playerId));
@@ -27,9 +30,55 @@ export default class ConnectedPlayer {
         this.socket.removeAllListeners('leave-game');
     }
 
-    public registerQuickConnect() {
-        this.socket.on('quick-connect', mode => requestQuickConnect(this, mode));
-        this.socket.on('cancel-quick-connect', () => cancelQuickConnect(this))
-        this.socket.on('disconnect', () => cancelQuickConnect(this));
+    private removeLobbyListeners() {
+        this.socket.removeAllListeners('cancel-quick-connect');
+        this.socket.removeAllListeners('disconnect');
+        this.socket.removeAllListeners('remove-lobby-game');
+        this.socket.removeAllListeners('leave-lobby');
+        this.socket.removeAllListeners('join-lobby-game');
+    }
+
+    private unregisterQuickConnect() {
+        this.removeLobbyListeners();
+        lobby.cancelQuickConnect(this);
+    }
+
+    private unregisterLobbyGame() {
+        this.removeLobbyListeners();
+        lobby.removePlayerLobbyGames(this);
+    }
+
+    private exitLobby() {
+        this.removeLobbyListeners();
+        lobby.leaveLobby(this);
+    }
+
+    public registerLobbyListeners() {
+        this.socket.on('quick-connect', mode => {
+            this.socket.on('cancel-quick-connect', () => this.unregisterQuickConnect());
+            this.socket.on('disconnect', () => this.unregisterQuickConnect());
+            lobby.requestQuickConnect(this, mode);
+        });
+        this.socket.on('add-lobby-game', game => {
+            if(game.name) {
+                this.socket.on('remove-lobby-game', () => this.unregisterLobbyGame());
+                this.socket.on('disconnect', () => this.unregisterLobbyGame());
+                return lobby.createLobbyGame(this, game);
+            }
+        });
+        this.socket.on('enter-lobby', callback => {
+            this.socket.on('leave-lobby', () => this.exitLobby());
+            this.socket.on('disconnect', () => this.exitLobby());
+            this.socket.on('join-lobby-game', id => lobby.joinLobbyGame(this, id));
+            callback(lobby.joinLobby(this));
+        });
+    }
+
+    public sendLobbyGame(game: LobbyGame) {
+        this.socket.emit('add-lobby-game', game);
+    }
+
+    public removeLobbyGame(id: string) {
+        this.socket.emit('remove-lobby-game', id);
     }
 }

@@ -1,5 +1,6 @@
 import { createUseStyles } from 'react-jss'
 import { ShipDefinition } from '../../../config/GameSettings';
+import { standardButton, textColour } from '../../CommonStyles';
 
 export interface SelectorPanelProps {
     ships: ShipDefinition[]
@@ -39,7 +40,7 @@ const useStyles = createUseStyles({
     ship: {
         border: '2px solid black',
         background: 'transparent',
-        color: '#ccc',
+        color: textColour,
         cursor: 'pointer',
         textAlign: 'left',
         boxSizing: 'border-box',
@@ -78,30 +79,19 @@ const useStyles = createUseStyles({
         backgroundColor: '#0050d4',
     },
     mines: {
-        color: '#ccc',
+        color: textColour,
         fontSize: '1.5rem',
         fontFamily: 'sans-serif',
     },
     placedShip: {
-        borderColor: '#ccc',
+        borderColor: textColour,
     },
     actionContainer: {
         display: 'flex',
         justifyContent: 'space-between',
     },
     actionButton: {
-        border: '1px solid black',
-        color: '#ccc',
-        background: '#0050d4',
-        fontSize: '1.5rem',
-        cursor: 'pointer',
-        '&:first-of-type': {
-            marginRight: 20,
-        },
-        '&:disabled': {
-            cursor: 'default',
-            background: '#999',
-        },
+        ...standardButton,
         [`@media (max-width: ${wrapBreakpoint}px)`]: {
             alignSelf: 'stretch',
             fontSize: '1rem',

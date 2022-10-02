@@ -28,7 +28,7 @@ Also, mapping a coordinate system to a hexagonal grid is not entirely intuitive 
 
 `yarn run build` will build static files to the `dist` directory
 
-`yarn start` will run a node server that serves up the static assets and proves a websocket endpoint for multiplayer. Note static assets must be build via `yarn run build` in order to be served up
+`yarn start` will run a node server that serves up the static assets and proves a websocket endpoint for multiplayer. Note static assets must be build via `yarn run build` in order to be served up (`yarn run watch` recommended for developing static files while testing in server mode)
 
 ### Github Pages - static files
 

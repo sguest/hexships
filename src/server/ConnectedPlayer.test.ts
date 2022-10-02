@@ -95,30 +95,42 @@ describe('leaveGame', () => {
     });
 });
 
-describe('registerQuickConnect', () => {
+describe('registerLobbyListeners', () => {
     test('should register quick-connect listener', () => {
         const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
         const spy = jest.spyOn(lobby, 'requestQuickConnect');
-        subject.registerQuickConnect();
+        subject.registerLobbyListeners();
         socket.emit('quick-connect', GameMode.GameModeId.Basic);
         expect(spy).toBeCalledWith(subject, GameMode.GameModeId.Basic);
     });
+});
+
+describe('joining quick connect', () => {
+    let socket: EventEmitter;
+    let subject: ConnectedPlayer;
+    let spy: jest.SpyInstance;
+
+    beforeEach(() => {
+        socket = new EventEmitter();
+        subject = new ConnectedPlayer(socket as ServerSocket);
+        spy = jest.spyOn(lobby, 'requestQuickConnect').mockImplementation(() => {});
+        subject.registerLobbyListeners();
+        socket.emit('quick-connect', GameMode.GameModeId.Basic);
+    });
+
+    test('should request quick connect', () => {
+        expect(spy).toBeCalledWith(subject, GameMode.GameModeId.Basic);
+    })
 
     test('should register cancel-quick-connect listener', () => {
-        const socket = new EventEmitter();
-        const subject = new ConnectedPlayer(socket as ServerSocket);
         const spy = jest.spyOn(lobby, 'cancelQuickConnect');
-        subject.registerQuickConnect();
         socket.emit('cancel-quick-connect');
         expect(spy).toBeCalledWith(subject);
     });
 
     test('should register disconnect listener', () => {
-        const socket = new EventEmitter();
-        const subject = new ConnectedPlayer(socket as ServerSocket);
         const spy = jest.spyOn(lobby, 'cancelQuickConnect');
-        subject.registerQuickConnect();
         socket.emit('disconnect');
         expect(spy).toBeCalledWith(subject);
     });

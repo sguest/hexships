@@ -11,6 +11,7 @@ import { MarkerType } from '../../game-state/Marker';
 import { FleetPlacement } from '../../game-state/GameManager';
 import StatusPanel from './StatusPanel';
 import { getNumShots } from '../../game-state/state-util';
+import { textColour } from '../CommonStyles';
 
 enum CurrentAction {
     PlacingShips,
@@ -45,7 +46,7 @@ const useStyles = createUseStyles({
         zIndex: 10,
         border: '2px solid white',
         background: '#333',
-        color: '#ccc',
+        color: textColour,
         fontSize: '1rem',
     },
 });
