@@ -6,7 +6,7 @@ A variant of Battleship played on a hex grid
 Try it out
 
 - [Static, single player version](https://sguest.github.io/hexships)
-- [Hosted, multiplayer version](https://cactus-tin-beat.glitch.me/hexships/) Note this is on free hosting so there may be a "wake up" delay
+- [Hosted, multiplayer version](https://quaint-honored-rotate.glitch.me/hexships/) Note this is on free hosting so there may be a "wake up" delay
 
 ## FAQ
 
