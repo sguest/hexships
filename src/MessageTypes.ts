@@ -1,6 +1,5 @@
 import { GameModeId } from './config/GameMode';
 import GameSettings from './config/GameSettings';
-import GameDefinition from './config/GameDefinition';
 import { FleetPlacement } from './game-state/GameManager';
 import LocalState from './game-state/LocalState';
 import { Point } from './utils/point-utils';
@@ -12,7 +11,8 @@ export interface ClientToServerEvents {
     'set-fleet': (fleet: FleetPlacement) => void;
     'fire-shots': (targets: Point[]) => void;
     'leave-game': () => void;
-    'add-lobby-game': (game: GameDefinition) => void;
+    'add-standard-lobby-game': (name: string, mode: GameModeId) => void;
+    'add-custom-lobby-game': (name: string, settings: GameSettings) => void;
     'remove-lobby-game': () => void;
     'enter-lobby': (callback: (games: LobbyGame[]) => void) => void;
     'leave-lobby': () => void;

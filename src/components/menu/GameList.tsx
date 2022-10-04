@@ -1,7 +1,9 @@
 import { createUseStyles } from 'react-jss';
-import { getGameMode } from '../../config/GameMode';
+import { GameModeId, getGameMode } from '../../config/GameMode';
 import LobbyGame from '../../server/LobbyGame';
 import { standardButton, textColour } from '../CommonStyles';
+import CustomGameSummary from './CustomGameSummary';
+import Tooltip from './Tooltip';
 
 export interface GameListProps {
     games: LobbyGame[] | undefined;
@@ -47,7 +49,13 @@ export default function GameList(props: GameListProps) {
         {!!props.games?.length && <ul className={classes.list}>
             {!!props.games && props.games.map(g => <li className={classes.game} key={g.id}>
                 <p className={classes.info}>Name: {g.definition.name}</p>
-                <p className={classes.info}>Mode: {getGameMode(g.definition.mode).title}</p>
+                <p className={classes.info}>Mode: {getGameMode(g.definition.mode).title}
+                    <Tooltip>{
+                        g.definition.mode === GameModeId.Custom
+                            ? <CustomGameSummary settings={g.definition.settings} />
+                            : getGameMode(g.definition.mode).description
+                    }</Tooltip>
+                </p>
                 <button className={classes.button} onClick={() => props.onSelected(g)}>Join</button>
             </li>)}
         </ul>}

@@ -195,12 +195,12 @@ export default function Game(props: GameProps) {
 
     return <>
         {showDialog && <Dialog
-            text="Are you sure you want to end the game?"
             onOk={onDialogOk}
             onClose={onDialogCancel}
             okButton={true}
-            cancelButton={true}
-        />}
+            cancelButton={true}>
+            Are you sure you want to end the game?
+        </Dialog>}
         <button className={classes.menuButton} onClick={onMenuClick}>Menu</button>
         { currentAction === CurrentAction.PlacingShips
             ? <ShipSelection

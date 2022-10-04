@@ -29,4 +29,8 @@ export const textInput = {
     '& option': {
         backgroundColor: '#022866',
     },
+    '&:disabled': {
+        backgroundColor: '#ccc',
+        color: '#666',
+    },
 };

@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { GameModeId } from '../config/GameMode';
 import * as GameMode from '../config/GameMode';
 import ConnectedPlayer from './ConnectedPlayer';
-import { cancelQuickConnect, createLobbyGame, joinLobby, joinLobbyGame, leaveLobby, removePlayerLobbyGames, requestQuickConnect } from './lobby';
+import { cancelQuickConnect, createCustomLobbyGame, createStandardLobbyGame, joinLobby, joinLobbyGame, leaveLobby, removePlayerLobbyGames, requestQuickConnect } from './lobby';
 import { ServerSocket } from './ServerSocket';
 import * as ServerGame from './ServerGame';
 import LobbyGame from './LobbyGame';
@@ -54,6 +54,14 @@ describe('requestQuickConnect', () => {
         cancelQuickConnect(player1);
         cancelQuickConnect(player2);
     });
+
+    test('should fail when requesting custom game', () => {
+        const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        requestQuickConnect(player1, GameModeId.Custom);
+        requestQuickConnect(player2, GameModeId.Custom);
+        expect(startGameSpy).not.toHaveBeenCalled();
+    });
 });
 
 describe('cancelQuickConnect', () => {
@@ -73,13 +81,13 @@ describe('joinLobby', () => {
         const player = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        createLobbyGame(player, { name, mode });
+        createStandardLobbyGame(player, name, mode);
         const games = joinLobby(player);
-        expect(games).toContainEqual({ definition: { name, mode }, id: expect.any(String) });
+        expect(games).toContainEqual({ definition: { name, mode, settings: GameMode.getGameMode(mode).settings }, id: expect.any(String) });
     });
 });
 
-describe('createLobbyGame', () => {
+describe('createStandardLobbyGame', () => {
     test('should notify other players in lobby', () => {
         const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const player2Socket = new EventEmitter();
@@ -89,8 +97,8 @@ describe('createLobbyGame', () => {
         joinLobby(player2);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        createLobbyGame(player1, { name, mode });
-        expect(listener).toBeCalledWith({ definition: { name, mode }, id: expect.any(String) })
+        createStandardLobbyGame(player1, name, mode);
+        expect(listener).toBeCalledWith({ definition: { name, mode, settings: GameMode.getGameMode(mode).settings }, id: expect.any(String) })
     });
 
     test('should remove other games hosted by the same player', () => {
@@ -99,10 +107,75 @@ describe('createLobbyGame', () => {
         joinLobby(player2);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        const gameId = createLobbyGame(player1, { name, mode });
-        createLobbyGame(player1, { name, mode });
+        const gameId = createStandardLobbyGame(player1, name, mode);
+        createStandardLobbyGame(player1, name, mode);
         const games = joinLobby(player2);
         expect(games).not.toContainEqual((g: LobbyGame) => g.id === gameId);
+    });
+
+    test('should fail when no name is provided', () => {
+        const player = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const gameId = createStandardLobbyGame(player, ' ', GameModeId.Basic);
+        expect(gameId).not.toBeDefined();
+    });
+
+    test('should fail when type is custom', () => {
+        const player = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const gameId = createStandardLobbyGame(player, 'Gamename', GameModeId.Custom);
+        expect(gameId).not.toBeDefined();
+    });
+});
+
+describe('createCustomLobbyGame', () => {
+    test('should notify other players in lobby', () => {
+        const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const player2Socket = new EventEmitter();
+        const listener = jest.fn();
+        player2Socket.on('add-lobby-game', listener);
+        const player2 = new ConnectedPlayer(player2Socket as ServerSocket);
+        joinLobby(player2);
+        const name = 'Name';
+        const mode = GameModeId.Custom;
+        createCustomLobbyGame(player1, name, GameMode.Basic.settings);
+        expect(listener).toBeCalledWith({ definition: { name, mode, settings: GameMode.Basic.settings }, id: expect.any(String) })
+    });
+
+    test('should remove other games hosted by the same player', () => {
+        const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        joinLobby(player2);
+        const name = 'Name';
+        const mode = GameModeId.Basic;
+        const gameId = createStandardLobbyGame(player1, name, mode);
+        createCustomLobbyGame(player1, name, GameMode.Basic.settings);
+        const games = joinLobby(player2);
+        expect(games).not.toContainEqual((g: LobbyGame) => g.id === gameId);
+    });
+
+    test('should fail when no name is provided', () => {
+        const player = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const gameId = createCustomLobbyGame(player, ' ', GameMode.Basic.settings);
+        expect(gameId).not.toBeDefined();
+    });
+
+    test('should fail with invalid settings', () => {
+        const player = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const gameId = createCustomLobbyGame(player, ' ', { ...GameMode.Basic.settings, ships: [] });
+        expect(gameId).not.toBeDefined();
+    });
+
+    test('should override ship definition IDs', () => {
+        const player1 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
+        const ships = GameMode.Basic.settings.ships.slice();
+        for(let i = 0; i < ships.length; i++) {
+            ships[i] = { ...ships[i], id: i * 2 };
+        }
+        const gameId = createCustomLobbyGame(player1, 'Name', { ...GameMode.Basic.settings, ships });
+        const game = joinLobby(player2).find(g => g.id === gameId);
+        for(let i = 0; i < game!.definition.settings.ships.length; i++) {
+            expect(game?.definition.settings.ships[i].id).toEqual(i + 1);
+        }
     });
 });
 
@@ -116,7 +189,7 @@ describe('removePlayerLobbyGames', () => {
         joinLobby(player2);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        const gameId = createLobbyGame(player1, { name, mode });
+        const gameId = createStandardLobbyGame(player1, name, mode);
         removePlayerLobbyGames(player1);
         expect(listener).toBeCalledWith(gameId);
     });
@@ -126,7 +199,7 @@ describe('removePlayerLobbyGames', () => {
         const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        const gameId = createLobbyGame(player1, { name, mode });
+        const gameId = createStandardLobbyGame(player1, name, mode);
         removePlayerLobbyGames(player1);
         const games = joinLobby(player2);
         expect(games).not.toContainEqual((g: LobbyGame) => g.id === gameId);
@@ -144,7 +217,7 @@ describe('leaveLobby', () => {
         leaveLobby(player2);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        createLobbyGame(player1, { name, mode });
+        createStandardLobbyGame(player1, name, mode);
         expect(listener).not.toBeCalled();
     });
 });
@@ -155,8 +228,8 @@ describe('joinLobbyGame', () => {
         const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        const gameId = createLobbyGame(player1, { name, mode });
-        joinLobbyGame(player2, gameId);
+        const gameId = createStandardLobbyGame(player1, name, mode);
+        joinLobbyGame(player2, gameId!);
         const gameSettings = GameMode.getGameMode(mode);
         expect(startGameSpy).toBeCalledWith(gameSettings.settings, player2, player1);
     });
@@ -167,8 +240,8 @@ describe('joinLobbyGame', () => {
         const player3 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         const name = 'Name';
         const mode = GameModeId.Basic;
-        const gameId = createLobbyGame(player1, { name, mode });
-        joinLobbyGame(player2, gameId);
+        const gameId = createStandardLobbyGame(player1, name, mode);
+        joinLobbyGame(player2, gameId!);
         const games = joinLobby(player3);
         expect(games).not.toContainEqual((g: LobbyGame) => g.id === gameId);
     });

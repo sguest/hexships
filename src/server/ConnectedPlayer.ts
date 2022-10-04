@@ -53,19 +53,29 @@ export default class ConnectedPlayer {
         lobby.leaveLobby(this);
     }
 
+    private addLobbyGameCommon() {
+        this.socket.on('remove-lobby-game', () => this.unregisterLobbyGame());
+        this.socket.on('disconnect', () => this.unregisterLobbyGame());
+    }
+
     public registerLobbyListeners() {
         this.socket.on('quick-connect', mode => {
             this.socket.on('cancel-quick-connect', () => this.unregisterQuickConnect());
             this.socket.on('disconnect', () => this.unregisterQuickConnect());
             lobby.requestQuickConnect(this, mode);
         });
-        this.socket.on('add-lobby-game', game => {
-            if(game.name) {
-                this.socket.on('remove-lobby-game', () => this.unregisterLobbyGame());
-                this.socket.on('disconnect', () => this.unregisterLobbyGame());
-                return lobby.createLobbyGame(this, game);
+        this.socket.on('add-standard-lobby-game', (name, mode) => {
+            if(name) {
+                this.addLobbyGameCommon();
+                return lobby.createStandardLobbyGame(this, name, mode);
             }
         });
+        this.socket.on('add-custom-lobby-game', (name, settings) => {
+            if(name) {
+                this.addLobbyGameCommon();
+                return lobby.createCustomLobbyGame(this, name, settings);
+            }
+        })
         this.socket.on('enter-lobby', callback => {
             this.socket.on('leave-lobby', () => this.exitLobby());
             this.socket.on('disconnect', () => this.exitLobby());

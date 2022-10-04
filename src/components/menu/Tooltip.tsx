@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { createUseStyles } from 'react-jss'
 import Dialog from '../Dialog';
 
 export interface TooltipProps {
-    text: string
+    children: ReactNode
 }
 
 const useStyles = createUseStyles({
@@ -24,9 +24,10 @@ export default function Tooltip(props: TooltipProps) {
     return <>
         {dialogActive &&
             <Dialog
-                text={props.text}
                 okButton={true}
-                onClose={() => setDialogActive(false)} />
+                onClose={() => setDialogActive(false)}>
+                {props.children}
+            </Dialog>
         }
         <button className={classes.tooltip} onClick={() => setDialogActive(true)} type="button">(?)</button>
     </>

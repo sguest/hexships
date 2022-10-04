@@ -40,7 +40,7 @@ export default function Menu(props: MenuProps) {
     return <ul className={classes.menu}>
         {props.items.filter(i => i.condition === undefined || i.condition).map(i => <li key={i.text}>
             <button className={classes.menuButton} onClick={i.onClick}>{i.text}</button>
-            {i.tooltip && <Tooltip text={i.tooltip} />}
+            {i.tooltip && <Tooltip>{i.tooltip}</Tooltip>}
         </li>)}
     </ul>
 }

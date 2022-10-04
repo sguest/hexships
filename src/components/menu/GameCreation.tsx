@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { GameModeId, getGameMode, listGameModes } from '../../config/GameMode';
-import GameDefinition from '../../config/GameDefinition';
+import * as GameMode from '../../config/GameMode';
+import { GameModeId, getGameMode, listGameModes, Custom } from '../../config/GameMode';
 import { createUseStyles } from 'react-jss';
 import { standardButton, textColour, textInput } from '../CommonStyles';
 import Tooltip from './Tooltip';
+import GameSettings, { validateSettings } from '../../config/GameSettings';
+import CustomGameSettings from './CustomGameSettings';
 
 export interface GameCreationProps {
-    onCreated: (game: GameDefinition) => void
+    onCreated: (name: string, mode: GameModeId, settings?: GameSettings) => void
     onCancel: () => void
 }
 
@@ -16,23 +18,23 @@ const useStyles = createUseStyles({
             left: 20,
             right: 20,
         },
-        maxWidth: 400,
-        '& label': {
-            color: textColour,
-            fontSize: '1.5rem',
-            fontFamily: 'sans-serif',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            margin: { bottom: 15 },
-        },
-        '& input, & select': {
-            ...textInput,
-            width: 200,
-            boxSizing: 'border-box',
-            maxWidth: '100%',
-            flexShrink: 0,
-        },
+        maxWidth: 500,
+    },
+    label: {
+        color: textColour,
+        fontSize: '1.1rem',
+        fontFamily: 'sans-serif',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        margin: { bottom: 15 },
+    },
+    input: {
+        ...textInput,
+        width: 200,
+        boxSizing: 'border-box',
+        maxWidth: '100%',
+        flexShrink: 0,
     },
     button: {
         ...standardButton,
@@ -40,33 +42,42 @@ const useStyles = createUseStyles({
             marginRight: 20,
         },
     },
-})
+});
 
 export default function GameCreation(props: GameCreationProps) {
     const classes = useStyles();
-    const [selectedMode, setSelectedMode] = useState(GameModeId.Basic)
+    const [selectedMode, setSelectedMode] = useState(GameModeId.Basic);
+    const [customSettings, setCustomSettings] = useState(GameMode.Basic.settings);
     const [name, setName] = useState('');
 
     const createGame = () => {
-        props.onCreated({
-            name,
-            mode: selectedMode,
-        })
+        props.onCreated(name, selectedMode, customSettings);
+    }
+
+    let isValid = true;
+    if(!name.trim()) {
+        isValid = false;
+    }
+    if(selectedMode === GameModeId.Custom && !validateSettings(customSettings)) {
+        isValid = false;
     }
 
     return <form className={classes.form}>
-        <label>
+        <label className={classes.label}>
             Game Name
-            <input type="text" value={name} onChange={e => setName(e.target.value)} />
+            <input className={classes.input} type="text" value={name} onChange={e => setName(e.target.value)} />
         </label>
-        <label>
+        <label className={classes.label}>
             Game Mode
-            <Tooltip text={getGameMode(selectedMode).description} />
-            <select value={selectedMode} onChange={e => setSelectedMode(e.target.value as unknown as GameModeId)} data-testid="gamemode">
-                {listGameModes().map(m => <option value={m.id} key={m.id}>{m.title}</option>)}
+            <Tooltip>{getGameMode(selectedMode).description}</Tooltip>
+            <select className={classes.input} value={selectedMode} onChange={e => setSelectedMode(parseInt(e.target.value) as GameModeId)} data-testid="gamemode">
+                {[...listGameModes(), Custom].map(m => <option value={m.id} key={m.id}>{m.title}</option>)}
             </select>
         </label>
-        <button className={classes.button} onClick={createGame} disabled={!name} type="button">Create</button>
+        {selectedMode === GameModeId.Custom && <>
+            <CustomGameSettings onSettingsChanged={setCustomSettings} settings={customSettings} />
+        </>}
+        <button className={classes.button} onClick={createGame} disabled={!isValid} type="button">Create</button>
         <button className={classes.button} onClick={() => props.onCancel()} type="button">Cancel</button>
     </form>
 }

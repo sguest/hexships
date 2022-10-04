@@ -21,16 +21,17 @@ export enum GameModeId {
     Barrage,
     Salvo,
     Minefield,
+    Custom,
 }
 
-export const Basic: ModeSettings = {
+export const Basic: NonCustomModeSettings = {
     title: 'Basic',
     id: GameModeId.Basic,
     description: 'Basic rules with no modifications',
     settings: defaultSettings,
 }
 
-export const Streak: ModeSettings = {
+export const Streak: NonCustomModeSettings = {
     title: 'Streak',
     id: GameModeId.Streak,
     description: 'Fire again after landing a hit',
@@ -40,7 +41,7 @@ export const Streak: ModeSettings = {
     },
 }
 
-export const Barrage: ModeSettings = {
+export const Barrage: NonCustomModeSettings = {
     title: 'Barrage',
     id: GameModeId.Barrage,
     description: 'Fire 4 shots each turn',
@@ -50,7 +51,7 @@ export const Barrage: ModeSettings = {
     },
 }
 
-export const Salvo: ModeSettings = {
+export const Salvo: NonCustomModeSettings = {
     title: 'Salvo',
     id: GameModeId.Salvo,
     description: 'Fire 1 shot for each surviving ship',
@@ -60,7 +61,7 @@ export const Salvo: ModeSettings = {
     },
 }
 
-export const Minefield: ModeSettings = {
+export const Minefield: NonCustomModeSettings = {
     title: 'Minefield',
     id: GameModeId.Minefield,
     description: 'Place 5 mines that explode when hit by the enemy, damaging enemy ships',
@@ -70,12 +71,19 @@ export const Minefield: ModeSettings = {
     },
 }
 
+export const Custom: ModeSettings = {
+    title: 'Custom',
+    id: GameModeId.Custom,
+    description: 'Custom settings',
+}
+
 const gameModes: {[key in GameModeId]: ModeSettings } = {
     [GameModeId.Basic]: Basic,
     [GameModeId.Streak]: Streak,
     [GameModeId.Barrage]: Barrage,
     [GameModeId.Salvo]: Salvo,
     [GameModeId.Minefield]: Minefield,
+    [GameModeId.Custom]: Custom,
 }
 
 export function getGameMode(id: GameModeId) {
@@ -83,12 +91,16 @@ export function getGameMode(id: GameModeId) {
 }
 
 export function listGameModes() {
-    return Object.values(gameModes);
+    return Object.values(gameModes).filter(m => !!m.settings);
 }
 
 export interface ModeSettings {
     title: string
     id: GameModeId
     description: string
+    settings?: GameSettings
+}
+
+interface NonCustomModeSettings extends ModeSettings {
     settings: GameSettings
 }

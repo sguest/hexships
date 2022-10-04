@@ -1,9 +1,10 @@
 import ReactModal from 'react-modal';
 import { createUseStyles } from 'react-jss';
 import { textColour } from './CommonStyles';
+import { ReactNode } from 'react';
 
 export interface DialogProps {
-    text: string,
+    children: ReactNode
     onOk?: () => void,
     onClose: () => void,
     okButton?: boolean,
@@ -73,7 +74,7 @@ export default function Dialog(props: DialogProps) {
     }
 
     return <ReactModal isOpen={true} onRequestClose={props.onClose} style={dialogStyles}>
-        <p>{props.text}</p>
+        <p>{props.children}</p>
         <div className={classes.buttonContainer}>
             { props.okButton && <button className={classes.okButton} onClick={onOk}>OK</button> }
             { props.cancelButton && <button className={classes.cancelButton} onClick={props.onClose}>Cancel</button> }

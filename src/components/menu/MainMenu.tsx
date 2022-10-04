@@ -3,14 +3,15 @@ import { createUseStyles } from 'react-jss'
 import GameInterface from '../../game-interface/GameInterface';
 import LocalGameInterface from '../../game-interface/LocalGameInterface';
 import RemoteGameInterface, { ClientSocket } from '../../game-interface/RemoteGameInterface';
-import GameSettings from '../../config/GameSettings';
+import GameSettings, { validateSettings } from '../../config/GameSettings';
+import * as GameMode from '../../config/GameMode';
 import { GameModeId, listGameModes, ModeSettings } from '../../config/GameMode';
 import Menu, { MenuItem } from './Menu';
 import GameCreation from './GameCreation';
-import GameDefinition from '../../config/GameDefinition';
 import LobbyGame from '../../server/LobbyGame';
 import GameList from './GameList';
 import { standardButton, stencilFont, textColour } from '../CommonStyles';
+import CustomGameSettings from './CustomGameSettings';
 export interface MainMenuProps {
     onNewGame: (gameInterface: GameInterface) => void
     socket: ClientSocket | undefined
@@ -43,11 +44,20 @@ const useStyles = createUseStyles({
             left: 20,
         },
     },
+    singlePlayerCustom: {
+        padding: {
+            left: 20,
+            right: 20,
+        },
+        maxWidth: 500,
+    },
+    playButton: standardButton,
 })
 
 enum CurrentMenu {
     MainMenu,
     SinglePlayerMode,
+    SinglePlayerCustom,
     MultiplayerMode,
     MultiplayerQuickMatchMode,
     QuickMatchSearch,
@@ -60,6 +70,7 @@ export default function MainMenu(props: MainMenuProps) {
     const classes = useStyles();
     const [currentMenu, setCurrentMenu] = useState(CurrentMenu.MainMenu);
     const [lobbyGames, setLobbyGames] = useState<LobbyGame[] | undefined>(undefined);
+    const [customGameSettings, setCustomGameSettings] = useState(GameMode.Basic.settings);
     const { socket, onNewGame } = props;
 
     useEffect(() => {
@@ -111,9 +122,17 @@ export default function MainMenu(props: MainMenuProps) {
         setCurrentMenu(CurrentMenu.MultiplayerQuickMatchMode);
     }
 
-    const createLobbyGame = (game: GameDefinition) => {
-        setCurrentMenu(CurrentMenu.LobbyWaiting);
-        socket?.emit('add-lobby-game', game);
+    const createLobbyGame = (name: string, mode: GameModeId, settings?: GameSettings) => {
+        if(mode === GameModeId.Custom) {
+            if(settings) {
+                setCurrentMenu(CurrentMenu.LobbyWaiting);
+                socket?.emit('add-custom-lobby-game', name, settings);
+            }
+        }
+        else {
+            setCurrentMenu(CurrentMenu.LobbyWaiting);
+            socket?.emit('add-standard-lobby-game', name, mode);
+        }
     }
 
     const cancelLobbyGame = () => {
@@ -150,7 +169,8 @@ export default function MainMenu(props: MainMenuProps) {
     }
     else if(currentMenu === CurrentMenu.SinglePlayerMode) {
         items = [
-            ...getModeSelectionItems(m => startAiGame(m.settings)),
+            ...getModeSelectionItems(m => startAiGame(m.settings!)),
+            { text: 'Custom', onClick: () => setCurrentMenu(CurrentMenu.SinglePlayerCustom) },
             { text: 'Back', onClick: () => setCurrentMenu(CurrentMenu.MainMenu) },
         ];
     }
@@ -172,6 +192,11 @@ export default function MainMenu(props: MainMenuProps) {
     return <>
         <h1 className={classes.heading}>Hexships</h1>
         {!!items.length && <Menu items={items} />}
+        {currentMenu === CurrentMenu.SinglePlayerCustom && <form className={classes.singlePlayerCustom}>
+            <CustomGameSettings onSettingsChanged={setCustomGameSettings} settings={customGameSettings} />
+            <button className={classes.playButton} onClick={() => customGameSettings && startAiGame(customGameSettings)} disabled={!validateSettings(customGameSettings)} type="button">Play</button>
+            <button className={classes.buttonStyle} onClick={() => setCurrentMenu(CurrentMenu.SinglePlayerMode)} type="button">Cancel</button>
+        </form>}
         {currentMenu === CurrentMenu.QuickMatchSearch && <>
             <p className={classes.statusText}>Searching for opponent...</p>
             <button className={classes.buttonStyle} onClick={cancelQuickConnect}>Cancel</button>
