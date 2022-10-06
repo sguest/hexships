@@ -30,12 +30,13 @@ export default function CustomGameSummary(props: CustomGameSummaryProps) {
         {props.settings.shotPerShip && <p className={classes.item}>1 shot per surviving ship</p>}
         {!props.settings.shotPerShip && props.settings.shots > 1 && <p className={classes.item}>{props.settings.shots} shots per turn</p>}
         {props.settings.streak && <p className={classes.item}>Fire again after a hit</p>}
-        {props.settings.mines > 0 && <p className={classes.item}>{props.settings.mines} mines</p>}
-        {!standardShips && <p className={classes.item}>
+        {props.settings.mines > 0 && <p className={classes.item}>{props.settings.mines} mine{props.settings.mines > 1 && 's'}</p>}
+        {props.settings.gridSize !== GameMode.Basic.settings.gridSize && <p className={classes.item}>Field size {props.settings.gridSize} from center to corner</p>}
+        {!standardShips && <div className={classes.item}>
             Ships
             <ul>
                 {props.settings.ships.map(s => <li key={s.id}>{s.name} (size {s.size})</li>)}
             </ul>
-        </p>}
+        </div>}
     </>
 }

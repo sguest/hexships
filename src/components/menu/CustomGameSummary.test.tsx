@@ -23,7 +23,7 @@ test('Should not show number of shots when 1', () => {
 });
 
 test('Should not show number of shots when per ship is enabled', () => {
-    render(<CustomGameSummary settings={{...GameMode.Basic.settings, shots: 2, shotPerShip: true}} />);
+    render(<CustomGameSummary settings={{ ...GameMode.Basic.settings, shots: 2, shotPerShip: true }} />);
     expect(screen.queryByText(/shots per turn/)).toBeNull();
 });
 
@@ -42,10 +42,26 @@ test('Should show number of mines when greater than 0', () => {
     expect(screen.getByText(`${GameMode.Minefield.settings.mines} mines`)).not.toBeNull();
 });
 
+test('Should not pluralize mines when only 1', () => {
+    render(<CustomGameSummary settings={{ ...GameMode.Basic.settings, mines: 1 }} />);
+    expect(screen.getByText('1 mine')).not.toBeNull();
+});
+
 test('Should not number of mines when 0', () => {
     render(<CustomGameSummary settings={GameMode.Basic.settings} />);
     expect(screen.queryByText(/mines/)).toBeNull();
 });
+
+test('Should show field size when non-standard', () => {
+    const gridSize = 4;
+    render(<CustomGameSummary settings={{ ...GameMode.Basic.settings, gridSize }} />);
+    expect(screen.getByText(`Field size ${gridSize} from center to corner`)).not.toBeNull();
+});
+
+test('Should not show field size when standard', () => {
+    render(<CustomGameSummary settings={GameMode.Basic.settings} />);
+    expect(screen.queryByText(/Field size/)).toBeNull();
+})
 
 test('Should show ships when non-standard', () => {
     render(<CustomGameSummary settings={{ ...GameMode.Basic.settings, ships: [] }} />);

@@ -74,7 +74,7 @@ export default function Dialog(props: DialogProps) {
     }
 
     return <ReactModal isOpen={true} onRequestClose={props.onClose} style={dialogStyles}>
-        <p>{props.children}</p>
+        {typeof props.children === 'string' ? <p>{props.children}</p> : props.children}
         <div className={classes.buttonContainer}>
             { props.okButton && <button className={classes.okButton} onClick={onOk}>OK</button> }
             { props.cancelButton && <button className={classes.cancelButton} onClick={props.onClose}>Cancel</button> }
