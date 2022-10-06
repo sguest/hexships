@@ -38,6 +38,14 @@ test('Chaging number of mines should update game settings', () => {
     expect(callback).toBeCalledWith({ ...GameMode.Basic.settings, mines: numMines })
 });
 
+test('Chaging grid size should update game settings', () => {
+    const callback = jest.fn();
+    render(<CustomGameSettings settings={GameMode.Basic.settings} onSettingsChanged={callback} />);
+    const gridSize = 4;
+    fireEvent.change(screen.getByLabelText('Field size - tiles from center to corner'), { target: { value: gridSize } });
+    expect(callback).toBeCalledWith({ ...GameMode.Basic.settings, gridSize })
+});
+
 test('Changing ship name should update settings', () => {
     const callback = jest.fn();
     render(<CustomGameSettings settings={GameMode.Basic.settings} onSettingsChanged={callback} />);

@@ -12,6 +12,7 @@ export interface ShipsProps {
     mines: Point[]
     uiScale: number
     gridDimensions: Point
+    gridSize: number
 }
 
 const useStyles = createUseStyles({
@@ -31,14 +32,14 @@ export default function Ships(props: ShipsProps) {
     useEffect(() => {
         useScaledCanvas(canvasRef, props.uiScale, context => {
             context.strokeStyle = 'grey';
-            context.lineWidth = hexUtils.cellSize;
+            context.lineWidth = hexUtils.getCellSize(props.gridSize);
             context.lineCap = 'round';
             context.beginPath();
             for(const ship of props.ships) {
-                const start = hexUtils.getCenter(ship);
+                const start = hexUtils.getCenter(ship, props.gridSize);
                 const delta = getDelta(ship.facing);
                 const endCoords = pointUtils.add(ship, pointUtils.multiplyScalar(delta, ship.size - 1));
-                const end = hexUtils.getCenter(endCoords);
+                const end = hexUtils.getCenter(endCoords, props.gridSize);
                 pointUtils.moveTo(context, pointUtils.add(start, pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
                 pointUtils.lineTo(context, pointUtils.add(end, pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
             }
@@ -52,11 +53,11 @@ export default function Ships(props: ShipsProps) {
                 const numPoints = 16;
                 const interval = Math.PI * 2 / numPoints;
                 for(const mine of props.mines) {
-                    const center = hexUtils.getCenter(mine);
+                    const center = hexUtils.getCenter(mine, props.gridSize);
                     const points = [];
                     for(let point = 0; point < numPoints; point++) {
                         const angle = point * interval;
-                        const size = hexUtils.cellSize * ((point % 2) ? 0.3 : 0.8);
+                        const size = hexUtils.getCellSize(props.gridSize) * ((point % 2) ? 0.3 : 0.8);
                         points.push(pointUtils.add(center, { x: Math.cos(angle) * size, y: Math.sin(angle) * size }, pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
                     }
 
@@ -68,7 +69,7 @@ export default function Ships(props: ShipsProps) {
                 context.fill();
             }
         });
-    }, [props.ships, props.mines, canvasRef, props.uiScale, props.gridDimensions])
+    }, [props.ships, props.mines, canvasRef, props.uiScale, props.gridDimensions, props.gridSize])
 
     return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas} data-testid="ships-canvas" />
 }

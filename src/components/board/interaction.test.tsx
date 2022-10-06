@@ -31,9 +31,10 @@ test('should highlight mouseover tile', () => {
 
 test('should execute callback on tile click', () => {
     const callback = jest.fn();
-    render(<Interaction onSelectTile={callback} gridSize={7} uiScale={1} gridDimensions={{ x: 1, y: 1 }} />)
+    const gridSize = 7;
+    render(<Interaction onSelectTile={callback} gridSize={gridSize} uiScale={1} gridDimensions={{ x: 1, y: 1 }} />)
     const canvas = screen.getByTestId('interaction-canvas') as HTMLCanvasElement;
     const mousePos = { x: 50, y: 20 };
     fireEvent.click(canvas, { clientX: mousePos.x, clientY: mousePos.y });
-    expect(callback).toHaveBeenCalledWith(hexUtils.getCellFromCoords(mousePos));
+    expect(callback).toHaveBeenCalledWith(hexUtils.getCellFromCoords(mousePos, gridSize));
 });

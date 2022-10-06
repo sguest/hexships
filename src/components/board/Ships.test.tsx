@@ -11,7 +11,7 @@ test('Should render ships', () => {
         { definitionId: 2, x: -1, y: 3, facing: Direction.negativeZ, size: 2, name: 'Ship2', hits: 0 },
         { definitionId: 3, x: 0, y: -4, facing: Direction.negativeY, size: 4, name: 'Ship3', hits: 0 },
     ];
-    render(<Ships ships={ships} uiScale={1} gridDimensions={{ x: 1, y: 1 }} mines={[]} />)
+    render(<Ships ships={ships} uiScale={1} gridDimensions={{ x: 1, y: 1 }} mines={[]} gridSize={7} />)
     const canvas = screen.getByTestId('ships-canvas') as HTMLCanvasElement;
     const context = canvas.getContext('2d');
     const events = context!.__getEvents();
@@ -24,7 +24,7 @@ test('Should render mines', () => {
         { x: -1, y: 3 },
         { x: 0, y: -4 },
     ];
-    render(<Ships ships={[]} uiScale={1} gridDimensions={{ x: 1, y: 1 }} mines={mines} />)
+    render(<Ships ships={[]} uiScale={1} gridDimensions={{ x: 1, y: 1 }} mines={mines} gridSize={7} />)
     const canvas = screen.getByTestId('ships-canvas') as HTMLCanvasElement;
     const context = canvas.getContext('2d');
     const events = context!.__getEvents();

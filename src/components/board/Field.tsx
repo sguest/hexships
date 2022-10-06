@@ -42,7 +42,7 @@ export default function Field(props: FieldProps) {
             context.beginPath();
             const cells = hexUtils.getGridCells(props.gridSize);
             for(const cell of cells) {
-                const corners = hexUtils.getCorners(cell);
+                const corners = hexUtils.getCorners(cell, props.gridSize);
                 pointUtils.moveTo(context, pointUtils.add(corners[5], pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
                 for(const corner of corners) {
                     pointUtils.lineTo(context, pointUtils.add(corner, pointUtils.multiplyScalar(props.gridDimensions, 0.5)));

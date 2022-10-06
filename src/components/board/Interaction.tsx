@@ -33,7 +33,7 @@ export default function Interaction(props: InteractionProps) {
     useEffect(() => {
         useScaledCanvas(canvasRef, props.uiScale, context => {
             const fillTile = (tile: Point, style: string | CanvasGradient | CanvasPattern) => {
-                const corners = hexUtils.getCorners(tile);
+                const corners = hexUtils.getCorners(tile, props.gridSize);
                 context.fillStyle = style;
                 context.beginPath();
                 pointUtils.moveTo(context, pointUtils.add(corners[5], pointUtils.multiplyScalar(props.gridDimensions, 0.5)));
@@ -58,7 +58,7 @@ export default function Interaction(props: InteractionProps) {
                 }
             }
         });
-    }, [canvasRef, props.highlightTiles, hoverTile, hoverStyle, props.uiScale, props.gridDimensions, props.overlayStyle])
+    }, [canvasRef, props.highlightTiles, hoverTile, hoverStyle, props.uiScale, props.gridDimensions, props.overlayStyle, props.gridSize])
 
     const getMouseTile = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
@@ -67,7 +67,7 @@ export default function Interaction(props: InteractionProps) {
             pointUtils.multiplyScalar(props.gridDimensions, -0.5),
             pointUtils.multiplyScalar(rect, -1 / props.uiScale),
         );
-        return hexUtils.getCellFromCoords(relativeClick);
+        return hexUtils.getCellFromCoords(relativeClick, props.gridSize);
     }
 
     const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {

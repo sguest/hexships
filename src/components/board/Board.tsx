@@ -68,7 +68,7 @@ export default function Board(props: BoardProps) {
                 uiScale={uiScale}
                 gridDimensions={gridDimensions}
                 overlayStyle={props.overlayStyle} /> }
-        { !!(props.ships || props.mines) && <Ships ships={props.ships || []} mines={props.mines || []} uiScale={uiScale} gridDimensions={gridDimensions} /> }
-        { !!props.markers?.length && <Markers markers={props.markers} uiScale={uiScale} gridDimensions={gridDimensions}/> }
+        { !!(props.ships || props.mines) && <Ships ships={props.ships || []} mines={props.mines || []} uiScale={uiScale} gridDimensions={gridDimensions} gridSize={props.gridSize} /> }
+        { !!props.markers?.length && <Markers markers={props.markers} uiScale={uiScale} gridDimensions={gridDimensions} gridSize={props.gridSize} /> }
     </div>
 }

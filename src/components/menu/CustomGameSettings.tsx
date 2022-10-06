@@ -133,6 +133,14 @@ export default function CustomGameSettings(props: CustomGameSettingsProps) {
                 value={props.settings.mines}
                 onChange={e => props.onSettingsChanged({ ...props.settings, mines: parseInt(e.target.value) }) } />
         </label>
+        <label className={classes.label}>
+            Field size - tiles from center to corner
+            <input className={classes.input}
+                type="number"
+                min="1"
+                value={props.settings.gridSize}
+                onChange={e => props.onSettingsChanged({ ...props.settings, gridSize: parseInt(e.target.value) })} />
+        </label>
         <p className={classes.shipsHeader}>Ships</p>
         <ul className={classes.shipList}>
             {props.settings.ships.map(s => <li key={s.id}>

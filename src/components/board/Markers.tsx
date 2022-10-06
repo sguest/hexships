@@ -10,6 +10,7 @@ export interface MarkersProps {
     markers: Marker[]
     uiScale: number
     gridDimensions: Point
+    gridSize: number
 }
 
 const useStyles = createUseStyles({
@@ -32,13 +33,13 @@ export default function Markers(props: MarkersProps) {
             for(const marker of props.markers) {
                 context.fillStyle = marker.type === MarkerType.Hit ? 'red' : 'white';
                 context.beginPath();
-                const coords = pointUtils.add(hexUtils.getCenter(marker), pointUtils.multiplyScalar(props.gridDimensions, 0.5));
-                context.arc(coords.x, coords.y, hexUtils.cellSize * 0.4, 0, Math.PI * 2);
+                const coords = pointUtils.add(hexUtils.getCenter(marker, props.gridSize), pointUtils.multiplyScalar(props.gridDimensions, 0.5));
+                context.arc(coords.x, coords.y, hexUtils.getCellSize(props.gridSize) * 0.4, 0, Math.PI * 2);
                 context.stroke();
                 context.fill();
             }
         });
-    }, [props.markers, canvasRef, props.uiScale, props.gridDimensions])
+    }, [props.markers, canvasRef, props.uiScale, props.gridDimensions, props.gridSize])
 
     return <canvas ref={canvasRef} width={props.gridDimensions.x * props.uiScale} height={props.gridDimensions.y * props.uiScale} className={classes.canvas} data-testid="marker-canvas" />
 }
