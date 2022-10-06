@@ -53,6 +53,8 @@ module.exports = {
         'brace-style': ['error', 'stroustrup'],
         'react/react-in-jsx-scope': 'off',
         'react-hooks/exhaustive-deps': 'error',
+        // this is throwing false positives with EventEmitters used as sockets in tests
+        'no-callback-literal': 'off',
     },
     settings: {
         react: {

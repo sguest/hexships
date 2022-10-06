@@ -1,13 +1,14 @@
+import { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import { GameModeId, getGameMode } from '../../config/GameMode';
+import { ClientSocket } from '../../game-interface/RemoteGameInterface';
 import LobbyGame from '../../server/LobbyGame';
 import { standardButton, textColour } from '../CommonStyles';
 import CustomGameSummary from './CustomGameSummary';
 import Tooltip from './Tooltip';
 
 export interface GameListProps {
-    games: LobbyGame[] | undefined;
-    onSelected: (game: LobbyGame) => void;
+    socket: ClientSocket | undefined;
 }
 
 const useStyles = createUseStyles({
@@ -43,11 +44,54 @@ const useStyles = createUseStyles({
 
 export default function GameList(props: GameListProps) {
     const classes = useStyles();
+    const [lobbyGames, setLobbyGames] = useState<LobbyGame[] | undefined>(undefined);
+
+    useEffect(() => {
+        if(lobbyGames === undefined) {
+            props.socket?.emit('enter-lobby', games => {
+                setLobbyGames(games);
+            });
+        }
+    });
+
+    useEffect(() => {
+        props.socket?.on('add-lobby-game', game => {
+            if(lobbyGames) {
+                if(lobbyGames.findIndex(g => g.id === game.id) === -1) {
+                    setLobbyGames([...lobbyGames, game]);
+                }
+            }
+            else {
+                setLobbyGames([game]);
+            }
+        });
+
+        props.socket?.on('remove-lobby-game', id => {
+            if(lobbyGames) {
+                const gameIndex = lobbyGames.findIndex(g => g.id === id);
+                if(gameIndex >= 0) {
+                    const games = lobbyGames.slice();
+                    games.splice(gameIndex);
+                    setLobbyGames(games);
+                }
+            }
+        });
+
+        return () => {
+            props.socket?.removeAllListeners('add-lobby-game');
+            props.socket?.removeAllListeners('remove-lobby-game');
+        }
+    }, [props.socket, lobbyGames]);
+
+    const onSelected = (gameId: string) => {
+        props.socket?.emit('join-lobby-game', gameId);
+    }
+
     return <>
-        {!props.games && <p className={classes.noGamesMessage}>Loading game list...</p>}
-        {!!props.games && !props.games.length && <p className={classes.noGamesMessage}>No games found</p>}
-        {!!props.games?.length && <ul className={classes.list}>
-            {!!props.games && props.games.map(g => <li className={classes.game} key={g.id}>
+        {!lobbyGames && <p className={classes.noGamesMessage}>Loading game list...</p>}
+        {!!lobbyGames && !lobbyGames.length && <p className={classes.noGamesMessage}>No games found</p>}
+        {!!lobbyGames?.length && <ul className={classes.list}>
+            {!!lobbyGames && lobbyGames.map(g => <li className={classes.game} key={g.id}>
                 <p className={classes.info}>Name: {g.definition.name}</p>
                 <p className={classes.info}>Mode: {getGameMode(g.definition.mode).title}
                     <Tooltip>{
@@ -56,7 +100,7 @@ export default function GameList(props: GameListProps) {
                             : getGameMode(g.definition.mode).description
                     }</Tooltip>
                 </p>
-                <button className={classes.button} onClick={() => props.onSelected(g)}>Join</button>
+                <button className={classes.button} onClick={() => onSelected(g.id)}>Join</button>
             </li>)}
         </ul>}
     </>;

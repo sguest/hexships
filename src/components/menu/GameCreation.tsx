@@ -4,12 +4,14 @@ import { GameModeId, getGameMode, listGameModes, Custom } from '../../config/Gam
 import { createUseStyles } from 'react-jss';
 import { standardButton, textColour, textInput } from '../CommonStyles';
 import Tooltip from './Tooltip';
-import GameSettings, { validateSettings } from '../../config/GameSettings';
+import { validateSettings } from '../../config/GameSettings';
 import CustomGameSettings from './CustomGameSettings';
+import { ClientSocket } from '../../game-interface/RemoteGameInterface';
 
 export interface GameCreationProps {
-    onCreated: (name: string, mode: GameModeId, settings?: GameSettings) => void
+    onCreated: () => void
     onCancel: () => void
+    socket: ClientSocket | undefined;
 }
 
 const useStyles = createUseStyles({
@@ -51,7 +53,16 @@ export default function GameCreation(props: GameCreationProps) {
     const [name, setName] = useState('');
 
     const createGame = () => {
-        props.onCreated(name, selectedMode, customSettings);
+        if(selectedMode === GameModeId.Custom) {
+            if(customSettings) {
+                props.socket?.emit('add-custom-lobby-game', name, customSettings);
+                props.onCreated();
+            }
+        }
+        else {
+            props.socket?.emit('add-standard-lobby-game', name, selectedMode);
+            props.onCreated();
+        }
     }
 
     let isValid = true;

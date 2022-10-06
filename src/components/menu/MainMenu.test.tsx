@@ -2,10 +2,10 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import MainMenu from './MainMenu';
 import { EventEmitter } from 'events';
-import RemoteGameInterface, { ClientSocket } from '../../game-interface/RemoteGameInterface';
 import * as GameMode from '../../config/GameMode';
 import { listGameModes, GameModeId } from '../../config/GameMode';
 import LocalGameInterface from '../../game-interface/LocalGameInterface';
+import { ClientSocket } from '../../game-interface/RemoteGameInterface';
 
 test('should render menu', () => {
     render(<MainMenu onNewGame={() => {}} isConnected={true} socket={new EventEmitter() as unknown as ClientSocket} />);
@@ -121,13 +121,6 @@ describe('after selecting Multiplayer', () => {
                 expect(screen.getByText('Searching for opponent...')).not.toBeNull();
             });
 
-            test('should listen for game join', () => {
-                socket.emit('join-game', GameMode.Basic.settings);
-                const gameInterface = newGameListener.mock.calls[0][0] as RemoteGameInterface;
-                expect(gameInterface).toBeInstanceOf(RemoteGameInterface);
-                expect(gameInterface.getSettings()).toEqual(GameMode.Basic.settings);
-            });
-
             describe('then clicking cancel', () => {
                 test('should go back to mode selection', () => {
                     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -158,27 +151,11 @@ describe('after selecting Multiplayer', () => {
             expect(screen.getByText('Quick Match')).not.toBeNull();
         });
 
-        test('should create a custom game on the server', () => {
-            const customLobbyListener = jest.fn();
-            socket.on('add-custom-lobby-game', customLobbyListener);
-            fireEvent.change(screen.getByLabelText('Game Name'), { target: { value: 'Name' } });
-            fireEvent.change(screen.getByTestId('gamemode'), { target: { value: GameModeId.Custom } });
-            fireEvent.click(screen.getByRole('button', { name: 'Create' }));
-            expect(customLobbyListener).toBeCalledWith('Name', GameMode.Basic.settings);
-        });
-
         describe('creating a game', () => {
-            let addLobbyListener: jest.Mock;
             beforeEach(() => {
-                addLobbyListener = jest.fn();
-                socket.on('add-standard-lobby-game', addLobbyListener);
                 // Enter a name so that the game creation is valid
                 fireEvent.change(screen.getByLabelText('Game Name'), { target: { value: 'Name' } });
                 fireEvent.click(screen.getByRole('button', { name: 'Create' }));
-            });
-
-            test('should create a game on the server', () => {
-                expect(addLobbyListener).toBeCalledWith('Name', GameModeId.Basic);
             });
 
             test('should go to the lobby waiting screen', () => {

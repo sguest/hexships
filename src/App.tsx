@@ -4,7 +4,7 @@ import Game from './components/game/Game';
 import GameInterface from './game-interface/GameInterface';
 import { createUseStyles } from 'react-jss';
 import { io } from 'socket.io-client';
-import { ClientSocket } from './game-interface/RemoteGameInterface';
+import RemoteGameInterface, { ClientSocket } from './game-interface/RemoteGameInterface';
 
 const useStyles = createUseStyles({
     container: {
@@ -32,6 +32,16 @@ function App() {
     const onNewGame = (gameInterface: GameInterface) => {
         setGameInterface(gameInterface);
     }
+
+    useEffect(() => {
+        socket?.on('join-game', settings => {
+            onNewGame(new RemoteGameInterface(socket!, settings));
+        });
+
+        return () => {
+            socket?.removeAllListeners('join-game');
+        }
+    }, [socket]);
 
     const onExitGame = () => {
         setGameInterface(null);

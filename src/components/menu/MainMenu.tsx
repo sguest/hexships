@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createUseStyles } from 'react-jss'
 import GameInterface from '../../game-interface/GameInterface';
 import LocalGameInterface from '../../game-interface/LocalGameInterface';
-import RemoteGameInterface, { ClientSocket } from '../../game-interface/RemoteGameInterface';
+import { ClientSocket } from '../../game-interface/RemoteGameInterface';
 import GameSettings, { validateSettings } from '../../config/GameSettings';
 import * as GameMode from '../../config/GameMode';
 import { GameModeId, listGameModes, ModeSettings } from '../../config/GameMode';
 import Menu, { MenuItem } from './Menu';
 import GameCreation from './GameCreation';
-import LobbyGame from '../../server/LobbyGame';
 import GameList from './GameList';
 import { standardButton, stencilFont, textColour } from '../CommonStyles';
 import CustomGameSettings from './CustomGameSettings';
@@ -69,48 +68,8 @@ enum CurrentMenu {
 export default function MainMenu(props: MainMenuProps) {
     const classes = useStyles();
     const [currentMenu, setCurrentMenu] = useState(CurrentMenu.MainMenu);
-    const [lobbyGames, setLobbyGames] = useState<LobbyGame[] | undefined>(undefined);
     const [customGameSettings, setCustomGameSettings] = useState(GameMode.Basic.settings);
-    const { socket, onNewGame } = props;
-
-    useEffect(() => {
-        socket?.on('join-game', settings => {
-            onNewGame(new RemoteGameInterface(socket!, settings));
-        });
-
-        return () => {
-            socket?.removeAllListeners('join-game');
-        }
-    }, [onNewGame, socket]);
-
-    useEffect(() => {
-        socket?.on('add-lobby-game', game => {
-            if(lobbyGames) {
-                if(lobbyGames.findIndex(g => g.id === game.id) === -1) {
-                    setLobbyGames([...lobbyGames, game]);
-                }
-            }
-            else {
-                setLobbyGames([game]);
-            }
-        });
-
-        socket?.on('remove-lobby-game', id => {
-            if(lobbyGames) {
-                const gameIndex = lobbyGames.findIndex(g => g.id === id);
-                if(gameIndex >= 0) {
-                    const games = lobbyGames.slice();
-                    games.splice(gameIndex);
-                    setLobbyGames(games);
-                }
-            }
-        });
-
-        return () => {
-            socket?.removeAllListeners('add-lobby-game');
-            socket?.removeAllListeners('remove-lobby-game');
-        }
-    }, [socket, lobbyGames]);
+    const { socket } = props;
 
     const enterQuickMatch = (mode: GameModeId) => {
         setCurrentMenu(CurrentMenu.QuickMatchSearch);
@@ -122,33 +81,9 @@ export default function MainMenu(props: MainMenuProps) {
         setCurrentMenu(CurrentMenu.MultiplayerQuickMatchMode);
     }
 
-    const createLobbyGame = (name: string, mode: GameModeId, settings?: GameSettings) => {
-        if(mode === GameModeId.Custom) {
-            if(settings) {
-                setCurrentMenu(CurrentMenu.LobbyWaiting);
-                socket?.emit('add-custom-lobby-game', name, settings);
-            }
-        }
-        else {
-            setCurrentMenu(CurrentMenu.LobbyWaiting);
-            socket?.emit('add-standard-lobby-game', name, mode);
-        }
-    }
-
     const cancelLobbyGame = () => {
         socket?.emit('remove-lobby-game');
         setCurrentMenu(CurrentMenu.MultiplayerMode);
-    }
-
-    const loadGameList = () => {
-        socket?.emit('enter-lobby', games => {
-            setLobbyGames(games);
-        });
-        setCurrentMenu(CurrentMenu.GameList)
-    }
-
-    const joinLobbyGame = (game: LobbyGame) => {
-        socket?.emit('join-lobby-game', game.id);
     }
 
     const startAiGame = (settings: GameSettings) => {
@@ -178,7 +113,7 @@ export default function MainMenu(props: MainMenuProps) {
         items = [
             { text: 'Quick Match', onClick: () => setCurrentMenu(CurrentMenu.MultiplayerQuickMatchMode) },
             { text: 'Create Game', onClick: () => setCurrentMenu(CurrentMenu.GameCreation) },
-            { text: 'Find Game', onClick: loadGameList },
+            { text: 'Find Game', onClick: () => setCurrentMenu(CurrentMenu.GameList) },
             { text: 'Back', onClick: () => setCurrentMenu(CurrentMenu.MainMenu) },
         ];
     }
@@ -201,14 +136,14 @@ export default function MainMenu(props: MainMenuProps) {
             <p className={classes.statusText}>Searching for opponent...</p>
             <button className={classes.buttonStyle} onClick={cancelQuickConnect}>Cancel</button>
         </>}
-        {currentMenu === CurrentMenu.GameCreation && <GameCreation onCreated={createLobbyGame} onCancel={() => setCurrentMenu(CurrentMenu.MultiplayerMode)} />}
+        {currentMenu === CurrentMenu.GameCreation && <GameCreation onCreated={() => setCurrentMenu(CurrentMenu.LobbyWaiting)} onCancel={() => setCurrentMenu(CurrentMenu.MultiplayerMode)} socket={socket} />}
         {currentMenu === CurrentMenu.LobbyWaiting && <>
             <p className={classes.statusText}>Waiting for opponent...</p>
             <button className={classes.buttonStyle} onClick={cancelLobbyGame}>Cancel</button>
         </>}
         {currentMenu === CurrentMenu.GameList && <>
             <button className={classes.buttonStyle} onClick={() => setCurrentMenu(CurrentMenu.MultiplayerMode)}>Back</button>
-            <GameList games={lobbyGames} onSelected={game => joinLobbyGame(game)} />
+            <GameList socket={props.socket} />
         </>}
     </>
 }
