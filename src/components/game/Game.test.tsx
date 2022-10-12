@@ -13,7 +13,7 @@ function mockUpdater(gameInterface: LocalGameInterface) {
     jest.spyOn(gameInterface, 'offStateChange').mockImplementation(() => (subscriber = undefined));
     return (state: LocalState) => {
         act(() => {
-            subscriber && subscriber(state);
+            subscriber && subscriber(state, false);
         });
     }
 }

@@ -5,6 +5,7 @@ import GameInterface from './game-interface/GameInterface';
 import { createUseStyles } from 'react-jss';
 import { io } from 'socket.io-client';
 import RemoteGameInterface, { ClientSocket } from './game-interface/RemoteGameInterface';
+import { loadFromStorage } from './game-interface/LocalGameInterface';
 
 const useStyles = createUseStyles({
     container: {
@@ -28,6 +29,13 @@ function App() {
             setIsConnected(true);
         })
     }, [])
+
+    useEffect(() => {
+        const ongoingGame = loadFromStorage();
+        if(ongoingGame) {
+            setGameInterface(ongoingGame);
+        }
+    }, []);
 
     const onNewGame = (gameInterface: GameInterface) => {
         setGameInterface(gameInterface);

@@ -21,6 +21,11 @@ export interface FleetPlacement {
     mines: Point[],
 }
 
+export interface GameState {
+    players: Player[]
+    activePlayerId: number
+}
+
 export default class GameManager {
     private players: Player[];
     private activePlayerId: number;
@@ -61,6 +66,18 @@ export default class GameManager {
             gameLost,
             opponentShipsPlaced: !!this.players[otherPlayerId].ships.length,
             opponentLeft: !this.players[otherPlayerId].active,
+        }
+    }
+
+    public loadFromState(state: GameState) {
+        this.players = state.players;
+        this.activePlayerId = state.activePlayerId;
+    }
+
+    public getState(): GameState {
+        return {
+            players: this.players,
+            activePlayerId: this.activePlayerId,
         }
     }
 

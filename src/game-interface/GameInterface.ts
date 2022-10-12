@@ -3,7 +3,7 @@ import { FleetPlacement } from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
 import { Point } from '../utils/point-utils';
 
-export type StateSubscription = (state: LocalState) => void;
+export type StateSubscription = (state: LocalState, initialLoad: boolean) => void;
 
 export default interface GameInterface {
     onStateChange: (subscriber: StateSubscription) => void

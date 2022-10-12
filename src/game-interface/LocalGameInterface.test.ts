@@ -1,7 +1,14 @@
 import Direction from '../game-state/Direction';
 import LocalState from '../game-state/LocalState';
-import LocalGameInterface from './LocalGameInterface';
+import LocalGameInterface, { loadFromStorage } from './LocalGameInterface';
 import * as GameMode from '../config/GameMode';
+import { encodeLocalStorage } from '../utils/storage-utils';
+import { AiState } from './AiPlayer';
+import { GameState } from '../game-state/GameManager';
+
+const storageKeyLocalState = 'localgamestate';
+const storageKeyLocalSettings = 'localgamesettings';
+const storageKeyLocalAi = 'localaisettings';
 
 function getValidFleet() {
     return {
@@ -48,3 +55,89 @@ test('offStateChange removes subscribers', () => {
     subject.fireShots([{ x: 1, y: 1 }]);
     expect(states.length).toBe(0);
 });
+
+test('leaveGame clears storage', () => {
+    const subject = new LocalGameInterface(GameMode.Basic.settings);
+    localStorage.setItem(storageKeyLocalAi, 'test');
+    localStorage.setItem(storageKeyLocalSettings, 'test');
+    localStorage.setItem(storageKeyLocalState, 'test');
+    subject.leaveGame();
+    expect(localStorage.getItem(storageKeyLocalAi)).toBeNull();
+    expect(localStorage.getItem(storageKeyLocalSettings)).toBeNull();
+    expect(localStorage.getItem(storageKeyLocalState)).toBeNull();
+});
+
+test('after state loaded, send on first subscription', () => {
+    const subject = new LocalGameInterface(GameMode.Basic.settings);
+    const aiState: AiState = {
+        ownShots: {},
+        ownShotCount: 0,
+        priorityHits: [],
+        trackedHits: [],
+        sunkShips: [],
+    };
+    const state: GameState = {
+        players: [{
+            ships: [],
+            mines: [],
+            markers: [],
+            active: true,
+        },
+        {
+            ships: [],
+            mines: [],
+            markers: [],
+            active: true,
+        }],
+        activePlayerId: 0,
+    };
+    subject.loadState(state, aiState);
+    const subscriber = jest.fn();
+    subject.onStateChange(subscriber);
+    expect(subscriber).toBeCalled();
+});
+
+describe('loadFromStorage', () => {
+    test('with empty storage, returns undefined', () => {
+        localStorage.removeItem(storageKeyLocalAi);
+        localStorage.removeItem(storageKeyLocalSettings);
+        localStorage.removeItem(storageKeyLocalState);
+        expect(loadFromStorage()).not.toBeDefined();
+    });
+
+    test('with invalid storage, returns undefined', () => {
+        localStorage.setItem(storageKeyLocalAi, 'test');
+        localStorage.setItem(storageKeyLocalSettings, 'test');
+        localStorage.setItem(storageKeyLocalState, 'test');
+        expect(loadFromStorage()).not.toBeDefined();
+    });
+
+    test('with object in storage, returns interface', () => {
+        const aiState: AiState = {
+            ownShots: {},
+            ownShotCount: 0,
+            priorityHits: [],
+            trackedHits: [],
+            sunkShips: [],
+        };
+        const state: GameState = {
+            players: [{
+                ships: [],
+                mines: [],
+                markers: [],
+                active: true,
+            },
+            {
+                ships: [],
+                mines: [],
+                markers: [],
+                active: true,
+            }],
+            activePlayerId: 0,
+        };
+        encodeLocalStorage(storageKeyLocalAi, aiState);
+        encodeLocalStorage(storageKeyLocalSettings, GameMode.Basic.settings);
+        encodeLocalStorage(storageKeyLocalState, state);
+        expect(loadFromStorage()).toBeDefined();
+    })
+})

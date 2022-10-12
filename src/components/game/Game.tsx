@@ -63,7 +63,7 @@ export default function Game(props: GameProps) {
     const gameSettings = props.gameInterface.getSettings();
 
     useEffect(() => {
-        const subscriber = (state: LocalState) => {
+        const subscriber = (state: LocalState, initialLoad: boolean) => {
             setLocalState({
                 ...state,
                 ownMarkers: state.ownMarkers.slice(0),
@@ -72,10 +72,15 @@ export default function Game(props: GameProps) {
                 isOwnTurn: state.isOwnTurn,
                 sunkEnemies: state.sunkEnemies.slice(0),
             });
-            const newShotCount = state.opponentMarkers.length - trackedOpponentMarkers.length
-            if(newShotCount > 0) {
-                setDisplayedOpponentMarkers(state.opponentMarkers.slice(-newShotCount));
+            if(initialLoad) {
                 setTrackedOpponentMarkers([...state.opponentMarkers]);
+            }
+            else {
+                const newShotCount = state.opponentMarkers.length - trackedOpponentMarkers.length
+                if(newShotCount > 0) {
+                    setDisplayedOpponentMarkers(state.opponentMarkers.slice(-newShotCount));
+                    setTrackedOpponentMarkers([...state.opponentMarkers]);
+                }
             }
             let currentAction = CurrentAction.PlacingShips;
             if(state.gameWon || state.gameLost) {
@@ -162,6 +167,7 @@ export default function Game(props: GameProps) {
         statusMessage = localState?.isOwnTurn ? 'Take your shot' : 'Enemy\'s turn';
     }
     else if(currentAction === CurrentAction.GameOver) {
+        props.gameInterface.leaveGame();
         if(localState?.opponentLeft) {
             statusMessage = 'Your opponent left';
         }

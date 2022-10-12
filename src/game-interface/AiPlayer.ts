@@ -11,14 +11,24 @@ import { Point } from '../utils/point-utils';
 import { MarkerType } from '../game-state/Marker';
 import { FleetPlacement } from '../game-state/GameManager';
 
+export interface AiState {
+    ownShots: {[key: number]: {[key: number]: MarkerType}}
+    ownShotCount: number
+    priorityHits: Point[]
+    trackedHits: Point[]
+    sunkShips: number[]
+}
 export default class AiPlayer {
-    private ownShots: MarkerType[][] = [];
-    private ownShotCount = 0;
-    private priorityHits: Point[] = [];
-    private trackedHits: Point[] = [];
-    private sunkShips: number[] = [];
+    private state: AiState;
 
     constructor(private gameSettings: GameSettings) {
+        this.state = {
+            ownShots: {},
+            ownShotCount: 0,
+            priorityHits: [],
+            trackedHits: [],
+            sunkShips: [],
+        }
     }
 
     public generateFleet(): FleetPlacement {
@@ -61,25 +71,25 @@ export default class AiPlayer {
         return { ships, mines };
     }
 
-    public updateState(state: LocalState) {
-        if(!state.ownMarkers?.length) {
+    public updateGameState(gameState: LocalState) {
+        if(!gameState.ownMarkers?.length) {
             return;
         }
-        while(state.ownMarkers.length > this.ownShotCount) {
-            const newShot = state.ownMarkers[this.ownShotCount];
-            this.ownShots[newShot.x] = this.ownShots[newShot.x] || [];
-            if(this.ownShots[newShot.x][newShot.y] === undefined) {
-                this.ownShots[newShot.x][newShot.y] = newShot.type;
+        while(gameState.ownMarkers.length > this.state.ownShotCount) {
+            const newShot = gameState.ownMarkers[this.state.ownShotCount];
+            if(this.getOwnShot(newShot) === undefined) {
+                this.state.ownShots[newShot.x] = this.state.ownShots[newShot.x] || {};
+                this.state.ownShots[newShot.x][newShot.y] = newShot.type;
 
                 if(newShot.type === MarkerType.Hit) {
-                    if(state.sunkEnemies.length === this.sunkShips.length) {
-                        this.priorityHits.push(newShot);
-                        this.trackedHits.push(newShot);
+                    if(gameState.sunkEnemies.length === this.state.sunkShips.length) {
+                        this.state.priorityHits.push(newShot);
+                        this.state.trackedHits.push(newShot);
                     }
                     else {
-                        for(const sunk of state.sunkEnemies) {
-                            if(this.sunkShips.indexOf(sunk) === -1) {
-                                this.sunkShips.push(sunk);
+                        for(const sunk of gameState.sunkEnemies) {
+                            if(this.state.sunkShips.indexOf(sunk) === -1) {
+                                this.state.sunkShips.push(sunk);
                                 const size = this.gameSettings.ships.find(s => s.id === sunk)?.size;
                                 if(size) {
                                     let found = false;
@@ -90,7 +100,7 @@ export default class AiPlayer {
                                             const matchedShots = [current];
                                             for(let i = 0; i < size; i++) {
                                                 current = pointUtils.add(current, delta);
-                                                const match = this.trackedHits.find(h => pointUtils.equal(h, current));
+                                                const match = this.state.trackedHits.find(h => pointUtils.equal(h, current));
                                                 if(match) {
                                                     matchedShots.push(current);
                                                 }
@@ -98,13 +108,13 @@ export default class AiPlayer {
                                             if(matchedShots.length === size) {
                                                 found = true;
                                                 for(const match of matchedShots) {
-                                                    let index = this.trackedHits.findIndex(h => pointUtils.equal(h, match));
+                                                    let index = this.state.trackedHits.findIndex(h => pointUtils.equal(h, match));
                                                     if(index !== -1) {
-                                                        this.trackedHits.splice(index, 1);
+                                                        this.state.trackedHits.splice(index, 1);
                                                     }
-                                                    index = this.priorityHits.findIndex(h => pointUtils.equal(h, match));
+                                                    index = this.state.priorityHits.findIndex(h => pointUtils.equal(h, match));
                                                     if(index !== -1) {
-                                                        this.priorityHits.splice(index, 1);
+                                                        this.state.priorityHits.splice(index, 1);
                                                     }
                                                 }
                                             }
@@ -116,21 +126,21 @@ export default class AiPlayer {
                     }
                 }
             }
-            this.ownShotCount++;
+            this.state.ownShotCount++;
         }
     }
 
     public getShots(numShots: number): Point[] {
         const shots: Point[] = [];
-        while(this.priorityHits.length) {
-            const current = this.priorityHits[0];
+        while(this.state.priorityHits.length) {
+            const current = this.state.priorityHits[0];
             const directions = direction.allDirections();
             while(directions.length) {
                 const dir = directions.splice(mathUtils.randomInt(0, directions.length - 1), 1)[0];
                 let delta = direction.getDelta(dir);
                 const moved = pointUtils.add(current, delta);
                 let target = current;
-                if(this.trackedHits.find(h => pointUtils.equal(h, moved))) {
+                if(this.state.trackedHits.find(h => pointUtils.equal(h, moved))) {
                     while(this.getOwnShot(target) === MarkerType.Hit && hexUtils.isInGrid(target, this.gameSettings.gridSize)) {
                         target = pointUtils.add(target, delta);
                     }
@@ -170,10 +180,10 @@ export default class AiPlayer {
                 return shots.slice(0, numShots);
             }
 
-            this.priorityHits.splice(0, 1);
+            this.state.priorityHits.splice(0, 1);
         }
 
-        const remainingShips = this.gameSettings.ships.filter(s => !this.sunkShips.some(ss => s.id === ss));
+        const remainingShips = this.gameSettings.ships.filter(s => !this.state.sunkShips.some(ss => s.id === ss));
         const minSize = Math.min(...remainingShips.map(s => s.size));
 
         const targets: Point[] = [];
@@ -212,7 +222,15 @@ export default class AiPlayer {
         return shots;
     }
 
+    public getState() {
+        return this.state;
+    }
+
+    public loadFromState(state: AiState) {
+        this.state = state;
+    }
+
     private getOwnShot(point: Point) {
-        return this.ownShots[point.x] && this.ownShots[point.x][point.y];
+        return this.state.ownShots[point.x] && this.state.ownShots[point.x][point.y];
     }
 }

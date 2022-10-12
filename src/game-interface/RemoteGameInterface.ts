@@ -14,7 +14,7 @@ export default class RemoteGameInterface implements GameInterface {
         this.stateSubscriptions = [];
 
         this.socket.on('update-state', (state: LocalState) => {
-            this.stateSubscriptions.forEach(s => s(state));
+            this.stateSubscriptions.forEach(s => s(state, false));
         })
     }
 
