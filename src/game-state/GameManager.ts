@@ -53,19 +53,21 @@ export default class GameManager {
         const gameWon = this.playerLost(otherPlayerId);
         const gameLost = this.playerLost(playerId);
         const gameOver = gameLost || gameWon;
+        const self = this.players[playerId];
+        const opponent = this.players[otherPlayerId];
         return {
-            ownShips: this.players[playerId].ships,
-            ownMarkers: this.players[playerId].markers,
-            ownMines: this.players[playerId].mines,
-            opponentShips: gameOver ? this.players[otherPlayerId].ships : undefined,
-            opponentMarkers: this.players[otherPlayerId].markers,
-            opponentMines: this.players[otherPlayerId].mines.filter(mine => gameOver || this.players[playerId].markers.some(marker => pointUtils.equal(mine, marker))),
-            isOwnTurn: playerId === this.activePlayerId && !!this.players[playerId].ships.length,
-            sunkEnemies: getSunkShips(this.players[otherPlayerId].ships).map(s => s.definitionId),
+            ownShips: self.ships,
+            ownMarkers: self.markers,
+            ownMines: self.mines,
+            opponentShips: gameOver ? opponent.ships : undefined,
+            opponentMarkers: opponent.markers,
+            opponentMines: opponent.mines.filter(mine => gameOver || self.markers.some(marker => pointUtils.equal(mine, marker))),
+            isOwnTurn: playerId === this.activePlayerId && !!self.ships.length,
+            sunkEnemies: getSunkShips(opponent.ships).map(s => s.definitionId),
             gameWon,
             gameLost,
-            opponentShipsPlaced: !!this.players[otherPlayerId].ships.length,
-            opponentLeft: !this.players[otherPlayerId].active,
+            opponentShipsPlaced: !!opponent.ships.length,
+            opponentLeft: !opponent.active,
         }
     }
 
@@ -233,7 +235,7 @@ export default class GameManager {
         }
     }
 
-    private sendState(playerId: number) {
+    public sendState(playerId: number) {
         this.subscriber(playerId, this.getLocalState(playerId));
     }
 

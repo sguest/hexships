@@ -1,9 +1,9 @@
 import ConnectedPlayer from './ConnectedPlayer';
 import { GameModeId, getGameMode } from '../config/GameMode';
-import { startGame } from './ServerGame';
 import GameDefinition from '../config/GameDefinition';
 import LobbyGame from './LobbyGame';
 import GameSettings, { validateSettings } from '../config/GameSettings';
+import ServerGame from './ServerGame';
 
 let quickConnectWaiting: Array<{ player: ConnectedPlayer, mode: GameModeId }> = [];
 const lobbyGames: {[key: string]: { game: LobbyGame, host: ConnectedPlayer } } = {};
@@ -22,7 +22,8 @@ export function requestQuickConnect(player: ConnectedPlayer, mode: GameModeId) {
     }
     else {
         const otherPlayer = quickConnectWaiting.splice(index, 1)[0];
-        startGame(gameMode.settings, player, otherPlayer.player);
+        // eslint-disable-next-line no-new
+        new ServerGame(gameMode.settings, player, otherPlayer.player);
     }
 }
 
@@ -99,7 +100,8 @@ export function leaveLobby(player: ConnectedPlayer) {
 export function joinLobbyGame(player: ConnectedPlayer, id: string) {
     if(lobbyGames[id]) {
         const otherPlayer = lobbyGames[id].host;
-        startGame(lobbyGames[id].game.definition.settings, player, otherPlayer);
+        // eslint-disable-next-line no-new
+        new ServerGame(lobbyGames[id].game.definition.settings, player, otherPlayer);
         delete lobbyGames[id];
     }
 }

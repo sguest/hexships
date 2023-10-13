@@ -5,6 +5,7 @@ import ConnectedPlayer from './ConnectedPlayer';
 import { ServerSocket } from './ServerSocket';
 import * as GameMode from '../config/GameMode';
 import * as lobby from './lobby';
+import ServerGame from './ServerGame';
 
 describe('updateState', () => {
     test('should emit state update', () => {
@@ -38,16 +39,31 @@ describe('joinGame', () => {
         const subscriber = jest.fn();
         socket.on('join-game', subscriber);
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
-        subject.joinGame(gameManager, 0);
-        expect(subscriber).toBeCalledWith(GameMode.Basic.settings);
+        const serverGame = new ServerGame(GameMode.Basic.settings, subject, new ConnectedPlayer(new EventEmitter() as ServerSocket));
+        const connectionId = Math.random().toString();
+        subject.joinGame(gameManager, 0, connectionId, serverGame);
+        expect(subscriber).toBeCalledWith(GameMode.Basic.settings, connectionId);
+    });
+});
+
+describe('registerListeners', () => {
+    test('should register quick-connect listener', () => {
+        const socket = new EventEmitter();
+        const subject = new ConnectedPlayer(socket as ServerSocket);
+        const spy = jest.spyOn(lobby, 'requestQuickConnect');
+        subject.registerListeners();
+        socket.emit('quick-connect', GameMode.GameModeId.Basic);
+        expect(spy).toBeCalledWith(subject, GameMode.GameModeId.Basic);
     });
 
     test('should register ship listener', () => {
         const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
+        subject.registerListeners();
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         const spy = jest.spyOn(gameManager, 'setFleet');
-        subject.joinGame(gameManager, 0);
+        const serverGame = new ServerGame(GameMode.Basic.settings, subject, new ConnectedPlayer(new EventEmitter() as ServerSocket));
+        subject.joinGame(gameManager, 0, '', serverGame);
         socket.emit('set-fleet', { ships: [], fleet: [] });
         expect(spy).toBeCalledWith(0, { ships: [], fleet: [] });
     })
@@ -55,83 +71,40 @@ describe('joinGame', () => {
     test('should register shot listener', () => {
         const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
+        subject.registerListeners();
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         const spy = jest.spyOn(gameManager, 'fireShots')
-        subject.joinGame(gameManager, 0);
+        const serverGame = new ServerGame(GameMode.Basic.settings, subject, new ConnectedPlayer(new EventEmitter() as ServerSocket));
+        subject.joinGame(gameManager, 0, '', serverGame);
         const target = { x: 0, y: 0 };
         socket.emit('fire-shots', [target]);
         expect(spy).toBeCalledWith(0, [target]);
     });
 
-    test('should register disconnect listener', () => {
-        const socket = new EventEmitter();
-        const subject = new ConnectedPlayer(socket as ServerSocket);
-        const gameManager = new GameManager(GameMode.Basic.settings, () => {});
-        const spy = jest.spyOn(gameManager, 'leaveGame');
-        subject.joinGame(gameManager, 0);
-        socket.emit('disconnect');
-        expect(spy).toBeCalled();
-    });
-
     test('should register leave game listener', () => {
         const socket = new EventEmitter();
         const subject = new ConnectedPlayer(socket as ServerSocket);
+        subject.registerListeners();
         const gameManager = new GameManager(GameMode.Basic.settings, () => {});
         const spy = jest.spyOn(gameManager, 'leaveGame');
-        subject.joinGame(gameManager, 0);
+        const serverGame = new ServerGame(GameMode.Basic.settings, subject, new ConnectedPlayer(new EventEmitter() as ServerSocket));
+        subject.joinGame(gameManager, 0, '', serverGame);
         socket.emit('leave-game');
         expect(spy).toBeCalled();
     });
-});
 
-describe('leaveGame', () => {
-    test('should remove all game-related handlers', () => {
-        const socket = new EventEmitter();
-        const subject = new ConnectedPlayer(socket as ServerSocket);
-        const gameManager = new GameManager(GameMode.Basic.settings, () => {});
-        subject.joinGame(gameManager, 0);
-        subject.leaveGame();
-        expect(socket.eventNames().length).toEqual(0);
-    });
-});
-
-describe('registerLobbyListeners', () => {
-    test('should register quick-connect listener', () => {
-        const socket = new EventEmitter();
-        const subject = new ConnectedPlayer(socket as ServerSocket);
-        const spy = jest.spyOn(lobby, 'requestQuickConnect');
-        subject.registerLobbyListeners();
-        socket.emit('quick-connect', GameMode.GameModeId.Basic);
-        expect(spy).toBeCalledWith(subject, GameMode.GameModeId.Basic);
-    });
-});
-
-describe('joining quick connect', () => {
-    let socket: EventEmitter;
-    let subject: ConnectedPlayer;
-    let spy: jest.SpyInstance;
-
-    beforeEach(() => {
-        socket = new EventEmitter();
-        subject = new ConnectedPlayer(socket as ServerSocket);
-        spy = jest.spyOn(lobby, 'requestQuickConnect').mockImplementation(() => {});
-        subject.registerLobbyListeners();
-        socket.emit('quick-connect', GameMode.GameModeId.Basic);
-    });
-
-    test('should request quick connect', () => {
-        expect(spy).toBeCalledWith(subject, GameMode.GameModeId.Basic);
-    })
-
-    test('should register cancel-quick-connect listener', () => {
-        const spy = jest.spyOn(lobby, 'cancelQuickConnect');
-        socket.emit('cancel-quick-connect');
-        expect(spy).toBeCalledWith(subject);
-    });
-
-    test('should register disconnect listener', () => {
-        const spy = jest.spyOn(lobby, 'cancelQuickConnect');
-        socket.emit('disconnect');
-        expect(spy).toBeCalledWith(subject);
+    describe('disconnect handler', () => {
+        test('should clean up lobby and quick connect', () => {
+            const socket = new EventEmitter();
+            const subject = new ConnectedPlayer(socket as ServerSocket);
+            subject.registerListeners();
+            const leaveLobbySpy = jest.spyOn(lobby, 'leaveLobby');
+            const cancelQuickConnectSpy = jest.spyOn(lobby, 'cancelQuickConnect');
+            const removePlayerLobbyGamesSpy = jest.spyOn(lobby, 'removePlayerLobbyGames');
+            socket.emit('disconnect');
+            expect(leaveLobbySpy).toBeCalled();
+            expect(cancelQuickConnectSpy).toBeCalled();
+            expect(removePlayerLobbyGamesSpy).toBeCalled();
+        });
     });
 });

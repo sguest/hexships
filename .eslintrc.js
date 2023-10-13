@@ -55,6 +55,7 @@ module.exports = {
         'react-hooks/exhaustive-deps': 'error',
         // this is throwing false positives with EventEmitters used as sockets in tests
         'no-callback-literal': 'off',
+        'node/no-callback-literal': 'off',
     },
     settings: {
         react: {

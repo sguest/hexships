@@ -7,21 +7,21 @@ import { ServerSocket } from './ServerSocket';
 import * as ServerGame from './ServerGame';
 import LobbyGame from './LobbyGame';
 
-let startGameSpy: jest.SpyInstance;
+let serverGameConstructorSpy: jest.SpyInstance;
 
 beforeEach(() => {
-    startGameSpy = jest.spyOn(ServerGame, 'startGame').mockImplementation();
+    serverGameConstructorSpy = jest.spyOn(ServerGame, 'default').mockImplementation();
 });
 
 afterEach(() => {
-    startGameSpy.mockRestore();
+    serverGameConstructorSpy.mockRestore();
 })
 
 describe('requestQuickConnect', () => {
     test('should not start when no other player waiting', () => {
         const player = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         requestQuickConnect(player, GameModeId.Basic);
-        expect(startGameSpy).not.toHaveBeenCalled();
+        expect(serverGameConstructorSpy).not.toHaveBeenCalled();
         cancelQuickConnect(player);
     });
 
@@ -30,7 +30,7 @@ describe('requestQuickConnect', () => {
         const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         requestQuickConnect(player1, GameModeId.Basic);
         requestQuickConnect(player2, GameModeId.Basic);
-        expect(startGameSpy).toHaveBeenCalledWith(GameMode.Basic.settings, player2, player1);
+        expect(serverGameConstructorSpy).toHaveBeenCalledWith(GameMode.Basic.settings, player2, player1);
     });
 
     test('should remove waiting player from queue', () => {
@@ -39,9 +39,9 @@ describe('requestQuickConnect', () => {
         const player3 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         requestQuickConnect(player1, GameModeId.Basic);
         requestQuickConnect(player2, GameModeId.Basic);
-        startGameSpy.mockReset();
+        serverGameConstructorSpy.mockReset();
         requestQuickConnect(player3, GameModeId.Basic);
-        expect(startGameSpy).not.toHaveBeenCalled();
+        expect(serverGameConstructorSpy).not.toHaveBeenCalled();
         cancelQuickConnect(player3);
     });
 
@@ -50,7 +50,7 @@ describe('requestQuickConnect', () => {
         const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         requestQuickConnect(player1, GameModeId.Basic);
         requestQuickConnect(player2, GameModeId.Streak);
-        expect(startGameSpy).not.toHaveBeenCalled();
+        expect(serverGameConstructorSpy).not.toHaveBeenCalled();
         cancelQuickConnect(player1);
         cancelQuickConnect(player2);
     });
@@ -60,7 +60,7 @@ describe('requestQuickConnect', () => {
         const player2 = new ConnectedPlayer(new EventEmitter() as ServerSocket);
         requestQuickConnect(player1, GameModeId.Custom);
         requestQuickConnect(player2, GameModeId.Custom);
-        expect(startGameSpy).not.toHaveBeenCalled();
+        expect(serverGameConstructorSpy).not.toHaveBeenCalled();
     });
 });
 
@@ -71,7 +71,7 @@ describe('cancelQuickConnect', () => {
         requestQuickConnect(player1, GameModeId.Basic);
         cancelQuickConnect(player1);
         requestQuickConnect(player2, GameModeId.Basic);
-        expect(startGameSpy).not.toHaveBeenCalled();
+        expect(serverGameConstructorSpy).not.toHaveBeenCalled();
         cancelQuickConnect(player2);
     })
 });
@@ -231,7 +231,7 @@ describe('joinLobbyGame', () => {
         const gameId = createStandardLobbyGame(player1, name, mode);
         joinLobbyGame(player2, gameId!);
         const gameSettings = GameMode.getGameMode(mode);
-        expect(startGameSpy).toBeCalledWith(gameSettings.settings, player2, player1);
+        expect(serverGameConstructorSpy).toBeCalledWith(gameSettings.settings, player2, player1);
     });
 
     test('should remove the game from the lobby', () => {
