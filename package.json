@@ -8,7 +8,6 @@
     "watch": "vite build --watch",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
-    "publish": "ts-node build/publish.ts",
     "start": "ts-node src/server/index.ts",
     "test": "jest"
   },
