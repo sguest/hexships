@@ -32,8 +32,8 @@ Also, mapping a coordinate system to a hexagonal grid is not entirely intuitive 
 
 ### Github Pages - static files
 
-`yarn run publish` - Will run [publish.ts](/build/publish.ts) to build static files then push the `dist` directory to the `gh-pages` branch via git subtree
+Automatically built via action on push to master branch
 
 ### Glitch.com - hosted version
 
-Pull the repo on [https://glitch.com](Glitch) (only default branch is supported by the tooling) and then use the terminal to `npm run build`
+Pull the repo on [Glitch](https://glitch.com) (only default branch is supported by the tooling) and then use the terminal to `npm run build`
