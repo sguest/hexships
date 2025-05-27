@@ -11,6 +11,7 @@ export default interface Ship {
     hits: number
     name: string
     definitionId: number
+    weapons: number
 }
 
 export function getPoints(ship: Ship) {

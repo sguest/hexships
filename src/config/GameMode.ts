@@ -1,4 +1,5 @@
-import GameSettings from './GameSettings';
+import GameSettings, { WeaponDefinition } from './GameSettings';
+import Direction, { allDirections } from '../game-state/Direction';
 
 const defaultSettings: GameSettings = {
     ships: [
@@ -13,6 +14,7 @@ const defaultSettings: GameSettings = {
     shots: 1,
     shotPerShip: false,
     mines: 0,
+    arsenal: false,
 }
 
 export enum GameModeId {
@@ -21,6 +23,7 @@ export enum GameModeId {
     Barrage,
     Salvo,
     Minefield,
+    Arsenal,
     Custom,
 }
 
@@ -71,6 +74,44 @@ export const Minefield: NonCustomModeSettings = {
     },
 }
 
+const weaponLookup: {[key: number]: WeaponDefinition} = {
+    2: {
+        type: 'scatter',
+        count: 2,
+        name: 'Apache Missile',
+        center: true,
+        directions: [Direction.positiveY, Direction.negativeY],
+    },
+    4: {
+        type: 'scatter',
+        count: 1,
+        name: 'Tomahawk Missile',
+        center: true,
+        directions: allDirections(),
+    },
+    5: {
+        type: 'scatter',
+        count: 2,
+        name: 'Exocet Missile',
+        center: true,
+        directions: [Direction.positiveX, Direction.positiveZ, Direction.negativeY],
+    },
+}
+
+export const Arsenal: NonCustomModeSettings = {
+    title: 'Arsenal',
+    id: GameModeId.Arsenal,
+    description: 'Ships gain specialized limited-use missiles',
+    settings: {
+        ...defaultSettings,
+        arsenal: true,
+        ships: [...defaultSettings.ships.map(s => ({
+            ...s,
+            weapon: weaponLookup[s.id],
+        }))],
+    },
+}
+
 export const Custom: ModeSettings = {
     title: 'Custom',
     id: GameModeId.Custom,
@@ -83,6 +124,7 @@ const gameModes: {[key in GameModeId]: ModeSettings } = {
     [GameModeId.Barrage]: Barrage,
     [GameModeId.Salvo]: Salvo,
     [GameModeId.Minefield]: Minefield,
+    [GameModeId.Arsenal]: Arsenal,
     [GameModeId.Custom]: Custom,
 }
 

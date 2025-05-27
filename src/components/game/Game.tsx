@@ -9,9 +9,11 @@ import { createUseStyles } from 'react-jss';
 import Dialog from '../Dialog';
 import { MarkerType } from '../../game-state/Marker';
 import { FleetPlacement } from '../../game-state/GameManager';
-import StatusPanel from './StatusPanel';
+import StatusPanel from './side-panel/StatusPanel';
 import { getNumShots } from '../../game-state/state-util';
 import { textColour } from '../CommonStyles';
+import Arsenal from './side-panel/Arsenal';
+import EnemyShips from './side-panel/EnemyShips';
 
 enum CurrentAction {
     PlacingShips,
@@ -58,6 +60,7 @@ export default function Game(props: GameProps) {
     const [showDialog, setShowDialog] = useState(false);
     const [trackedOpponentMarkers, setTrackedOpponentMarkers] = useState<Point[]>([]);
     const [displayedOpponentMarkers, setDisplayedOpponentMarkers] = useState<Point[]>([]);
+    const [showArsenal, setShowArsenal] = useState(false);
     const classes = useStyles();
 
     const gameSettings = props.gameInterface.getSettings();
@@ -233,12 +236,19 @@ export default function Game(props: GameProps) {
                     overlayStyle={overlayStyle} />
                 <StatusPanel
                     statusMessage={statusMessage}
-                    ships={currentAction === CurrentAction.EnemyPlacingShips ? undefined : gameSettings.ships}
-                    sunkShipIds={localState?.sunkEnemies}
                     fireButtonVisible={currentAction === CurrentAction.SelectingShot}
                     fireButtonEnabled={!!(targetTiles.length === numShots && localState?.isOwnTurn)}
                     shotsRemaining={shotsRemainingDisplay}
-                    onFireClick={onFireClick} />
+                    onFireClick={onFireClick}>
+                    { showArsenal
+                        ? <Arsenal
+                            onCloseClick={() => setShowArsenal(false)}/>
+                        : <EnemyShips
+                            ships={currentAction === CurrentAction.EnemyPlacingShips ? undefined : gameSettings.ships}
+                            sunkShipIds={localState?.sunkEnemies}
+                            arsenalButtonVisible={gameSettings.arsenal}
+                            onArsenalClick={() => setShowArsenal(true)} />}
+                </StatusPanel>
             </div>
         }
     </>

@@ -8,6 +8,7 @@ import * as hexUtils from '../utils/hex-utils';
 import { MarkerType } from './Marker';
 import Direction from './Direction';
 import { getNumShots, getSunkShips } from './state-util';
+import { TurnAction } from '../game-interface/GameInterface';
 
 export interface ShipPlacement {
     x: number,
@@ -107,6 +108,7 @@ export default class GameManager {
                 hits: 0,
                 name: shipDefinition.name,
                 definitionId: ship.definitionId,
+                weapons: shipDefinition.weapon?.count ?? 0,
             });
 
             neededShips.splice(index, 1);
@@ -179,12 +181,16 @@ export default class GameManager {
         return false;
     }
 
-    public fireShots(playerId: number, targets: Point[]) {
+    public takeTurn(playerId: number, turnAction: TurnAction) {
         const player = this.players[playerId];
         const localState = this.getLocalState(playerId);
 
         const otherPlayerId = +!playerId;
-        const valid = this.activePlayerId === playerId &&
+
+        switch (turnAction.type) {
+        case 'standard': {
+            const targets = turnAction.targets;
+            const valid = this.activePlayerId === playerId &&
             !this.playerLost(playerId) &&
             !this.playerLost(otherPlayerId) &&
             this.allShipsPlaced() &&
@@ -194,36 +200,43 @@ export default class GameManager {
                 !player.markers.some(marker => pointUtils.equal(marker, target)) &&
                 !targets.some(target2 => target2 !== target && pointUtils.equal(target, target2)));
 
-        if(valid) {
-            let anyHit = false;
-            for(const target of targets) {
-                const isHit = this.tryHit(this.players[otherPlayerId].ships, target);
-                player.markers.push({
-                    x: target.x,
-                    y: target.y,
-                    type: isHit ? MarkerType.Hit : MarkerType.Miss,
-                });
-                anyHit = anyHit || isHit;
+            if(valid) {
+                let anyHit = false;
+                for(const target of targets) {
+                    const isHit = this.tryHit(this.players[otherPlayerId].ships, target);
+                    player.markers.push({
+                        x: target.x,
+                        y: target.y,
+                        type: isHit ? MarkerType.Hit : MarkerType.Miss,
+                    });
+                    anyHit = anyHit || isHit;
 
-                if(this.players[otherPlayerId].mines.some(m => pointUtils.equal(m, target))) {
-                    for(const point of [...hexUtils.getNeighbours(target, this.gameSettings.gridSize), target]) {
-                        if(!this.players[otherPlayerId].markers.some(p => pointUtils.equal(p, point))) {
-                            this.players[otherPlayerId].markers.push({
-                                x: point.x,
-                                y: point.y,
-                                type: this.tryHit(this.players[playerId].ships, point) ? MarkerType.Hit : MarkerType.Miss,
-                            })
+                    if(this.players[otherPlayerId].mines.some(m => pointUtils.equal(m, target))) {
+                        for(const point of [...hexUtils.getNeighbours(target, this.gameSettings.gridSize), target]) {
+                            if(!this.players[otherPlayerId].markers.some(p => pointUtils.equal(p, point))) {
+                                this.players[otherPlayerId].markers.push({
+                                    x: point.x,
+                                    y: point.y,
+                                    type: this.tryHit(this.players[playerId].ships, point) ? MarkerType.Hit : MarkerType.Miss,
+                                })
+                            }
                         }
                     }
                 }
+                if(!this.gameSettings.streak || !anyHit) {
+                    this.activePlayerId = otherPlayerId;
+                }
+                this.broadcastState();
             }
-            if(!this.gameSettings.streak || !anyHit) {
-                this.activePlayerId = otherPlayerId;
+            else {
+                this.sendState(playerId);
             }
-            this.broadcastState();
+            break;
         }
-        else {
-            this.sendState(playerId);
+        default: {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const exhaustive: never = turnAction;
+        }
         }
     }
 

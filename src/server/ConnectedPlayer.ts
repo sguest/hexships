@@ -63,7 +63,7 @@ export default class ConnectedPlayer {
         })
 
         this.socket.on('set-fleet', fleet => this.currentGame?.gameManager.setFleet(this.currentGame.playerId, fleet));
-        this.socket.on('fire-shots', targets => this.currentGame?.gameManager.fireShots(this.currentGame.playerId, targets));
+        this.socket.on('take-turn', turnAction => this.currentGame?.gameManager.takeTurn(this.currentGame.playerId, turnAction));
         this.socket.on('leave-game', () => this.currentGame?.gameManager.leaveGame(this.currentGame.playerId));
         this.socket.on('request-state', () => this.currentGame?.gameManager.sendState(this.currentGame.playerId));
 

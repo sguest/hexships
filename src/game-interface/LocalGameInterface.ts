@@ -1,7 +1,7 @@
 import GameSettings from '../config/GameSettings';
 import GameManager, { FleetPlacement, GameState } from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
-import GameInterface, { StateSubscription } from './GameInterface';
+import GameInterface, { StateSubscription, TurnAction } from './GameInterface';
 import { Point } from '../utils/point-utils';
 import AiPlayer, { AiState } from './AiPlayer';
 import { getNumShots } from '../game-state/state-util';
@@ -48,8 +48,8 @@ export default class LocalGameInterface implements GameInterface {
         this.gameManager.setFleet(aiPlayerId, this.aiPlayer.generateFleet());
     }
 
-    public fireShots(targets: Point[]) {
-        this.gameManager.fireShots(localPlayerId, targets);
+    public takeTurn(turnAction: TurnAction) {
+        this.gameManager.takeTurn(localPlayerId, turnAction);
     }
 
     public leaveGame() {

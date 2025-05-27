@@ -3,8 +3,7 @@ import GameSettings from '../config/GameSettings';
 import { FleetPlacement } from '../game-state/GameManager';
 import LocalState from '../game-state/LocalState';
 import { ClientToServerEvents, ServerToClientEvents } from '../MessageTypes';
-import { Point } from '../utils/point-utils';
-import GameInterface, { StateSubscription } from './GameInterface';
+import GameInterface, { StateSubscription, TurnAction } from './GameInterface';
 
 export type ClientSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
@@ -43,8 +42,8 @@ export default class RemoteGameInterface implements GameInterface {
         this.socket.emit('set-fleet', fleet);
     }
 
-    public fireShots(targets: Point[]) {
-        this.socket.emit('fire-shots', targets);
+    public takeTurn(turnAction: TurnAction) {
+        this.socket.emit('take-turn', turnAction);
     }
 
     public leaveGame() {

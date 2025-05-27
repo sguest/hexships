@@ -2,14 +2,14 @@ import { GameModeId } from './config/GameMode';
 import GameSettings from './config/GameSettings';
 import { FleetPlacement } from './game-state/GameManager';
 import LocalState from './game-state/LocalState';
-import { Point } from './utils/point-utils';
 import LobbyGame from './server/LobbyGame';
+import { TurnAction } from './game-interface/GameInterface';
 
 export interface ClientToServerEvents {
     'quick-connect': (mode: GameModeId) => void;
     'cancel-quick-connect': () => void;
     'set-fleet': (fleet: FleetPlacement) => void;
-    'fire-shots': (targets: Point[]) => void;
+    'take-turk': (turnAction: TurnAction) => void;
     'request-state': () => void;
     'leave-game': () => void;
     'add-standard-lobby-game': (name: string, mode: GameModeId) => void;

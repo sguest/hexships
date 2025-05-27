@@ -1,7 +1,27 @@
+import Direction from '../game-state/Direction';
+
+interface BaseWeaponDefinition {
+    count: number;
+    name: string;
+}
+
+export interface ScatterWeaponDefinition extends BaseWeaponDefinition {
+    type: 'scatter';
+    center: boolean;
+    directions: Direction[];
+}
+
+export interface TorpedoWeaponDefinition extends BaseWeaponDefinition {
+    type: 'torpedo';
+}
+
+export type WeaponDefinition = ScatterWeaponDefinition | TorpedoWeaponDefinition;
+
 export interface ShipDefinition {
     id: number
     size: number
     name: string
+    weapon?: WeaponDefinition;
 }
 
 export default interface GameSettings {
@@ -11,6 +31,7 @@ export default interface GameSettings {
     shots: number
     shotPerShip: boolean
     mines: number
+    arsenal: boolean
 }
 
 export function validateSettings(settings: GameSettings) {
@@ -31,6 +52,9 @@ export function validateSettings(settings: GameSettings) {
             return false;
         }
         if(ship.size < 1) {
+            return false;
+        }
+        if(ship.weapon && !settings.arsenal) {
             return false;
         }
     }
